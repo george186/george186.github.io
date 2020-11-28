@@ -5,11 +5,17 @@
     
     <entry>
       <title>web第一周练习</title>
-      <link href="%E6%8A%80%E6%9C%AF/undefined-undefined.html"/>
-      <url>%E6%8A%80%E6%9C%AF/undefined-undefined.html</url>
+      <link href="test/undefined-undefined.html"/>
+      <url>test/undefined-undefined.html</url>
       
         <content type="html"><![CDATA[<p>  第一周的web一共做了四道题，现在写下做题思路，以便日后回顾。<br>#一，basic rec<br>打开题目地址，得到如下代码。<br><img src="http://m.qpic.cn/psc?/V51UJukK1KMuFE1iaUuY1qC0Qo1HbDy2/ruAMsa53pVQWN7FLK88i5ur.NSJxlb7d9VwVrQZxxvKHhcvKXrFapxIl4OUdf*Mkc1wrc2.mJRSRJcOg35aZSNcm8bnaijypxCHQ1rTswtI!/mnull&bo=dwcAAgAAAAADB1A!&rf=photolist&t=5"><br>代码十分简洁，真正有用的函数只有一个</p><blockquote><p>eval($_GET[‘a’]);</p></blockquote><p>于是立刻学习关于eval函数的相关用法和知识<br>这是从菜鸟教程上得知的eval()函数的用法  </p><blockquote><p>eval() 函数把字符串按照 PHP 代码来计算。<br>该字符串必须是合法的 PHP 代码，且必须以分号结尾。</p></blockquote><p>所以可以看成这个网页已经被上传了一个木马，只要我们以get请求方式上传以下形式的字符到变量a，就能将被上传的字符串按照PHP代码来执行  </p><blockquote><p>/?a=”一串PHP代码”；（结尾要有分号才能执行该代码）</p></blockquote><p>但是该上传什么样的PHP代码呢，因为我要找到flag，所以要查看该网页服务器下有flag的文件，所以选用执行系统命令函数，该函数有以下几种system()passthru()exec()shell_exec()popen()proc_open()<br>pcntl_exec()，我选用的是system()函数<br>system()函数执行有回显，会将结果输出到页面上  </p><blockquote><p>string system ( string $command [, int &amp;$return_var ])</p></blockquote><p>$command是执行的命令，[]里的可选可不选，可以执行的命令与Linux中相似，有ls，cat，tac，more，less，等其中ls是显示文件目录，cat，tac等都是查看文件内容的命令，首先我查看文件目录，于是输入以下命令  </p><blockquote><p>/?a=system(‘ls’);</p></blockquote><p>得到文件目录<br><img src="http://m.qpic.cn/psc?/V51UJukK1KMuFE1iaUuY1qC0Qo1HbDy2/ruAMsa53pVQWN7FLK88i5lXMCWx7mILsEc6*6FU7*iRhTIEzSuqqGZMfbqdXc4YMV5JbQxWfDexis*Iaae7xClzEdpogeESEJKuIu98XK*c!/mnull&bo=5gVQAQAAAAADB5A!&rf=photolist&t=5"><br>知道flag在f111a9.php中，接着便读取出该文件内容  </p><blockquote><p>/?a=system(‘tac f111a9.php’);</p></blockquote><p>得到flag。<br><img src="http://m.qpic.cn/psc?/V51UJukK1KMuFE1iaUuY1qC0Qo1HbDy2/ruAMsa53pVQWN7FLK88i5sF07YX7MtXVG7sNNz.91bCgeTPVaqmJUXK0W9dw6Qik1DkFX018Ks6d46IEoF.Qml9Nld4HUbYo3mu1J*OzFtI!/mnull&bo=EgRHAQAAAAADB3I!&rf=photolist&t=5"><br>#二，PHP变量覆盖<br>打开题目地址得到如下代码<br><img src="http://m.qpic.cn/psc?/V51UJukK1KMuFE1iaUuY1qC0Qo1HbDy2/ruAMsa53pVQWN7FLK88i5mQ6HikiNxkzCw7cO6Y7fCSrJucnoJS175Y2UOf3g1WR8O7miEa78jKn9I2iSy0zMGwrDaAsTBBMYDmt.2m25.0!/mnull&bo=ewQ7AgAAAAADB2Q!&rf=photolist&t=5">  </p><p>这道题目的重点是extrace()函数<br>extrace()将从数组中将变量导入到当前符号表，默认的是如果变量冲突，则覆盖已有的变量<br>知道这个函数后再对代码进行审计  </p><blockquote><p>$flag=’xxxxxxxx’;<br>extract($_GET); //以get传参的值会进过extract()函数<br>if(isset($liwu)) { //判断是否设立了$liwu该变量<br>    $content=trim(file_get_contents($flag)); //读取$flag的变量并将它赋给$content变量<br>    if($liwu==$content) {<br>        echo’flag{xxxxxxxxxxx}’; //如果$liwu和$content这两个变量相等就输出flag<br>    }<br>    else {<br>        echo ‘please try other operation.’;<br>    }<br>}  </p></blockquote><p>因为我不知道flag是什么，所以正常情况下不可能使$content这个变量等于$flag来得到真正的flag，所以我使用extrace()函数当传参时将$flag原来的值覆盖，这样就可以让这两个变量相等，从而得到flag。于是构造以下形式  </p><blockquote><p>/?$liwu=&amp;$flag=</p></blockquote><p>这样我们将$flag=空的值覆盖了原来的flag的值，从而使$liwu=$flag得到真正的flag。<br><img src="http://m.qpic.cn/psc?/V51UJukK1KMuFE1iaUuY1qC0Qo1HbDy2/ruAMsa53pVQWN7FLK88i5gho5jEruvK*5qi72pUecOmRGgXsLJCAsvsLWsJB0IfTRJiShx0L2PYyKJrM04cZAdVATb6j9cQsUTOQNyVWcik!/mnull&bo=bAQoAwAAAAADB2E!&rf=photolist&t=5"><br>但是不知道为什么构造/?$liwu=123&amp;$flag=123这样的不行。<br>#三，basic rce2<br>代码如下<br><img src="http://m.qpic.cn/psc?/V51UJukK1KMuFE1iaUuY1qC0Qo1HbDy2/ruAMsa53pVQWN7FLK88i5l7B8*QonCmoF0JUJkJV6GOyUEOaexQW2lur.vnZD4VRK34htkmqqWAnLlQgcPXS6GKHEGjxwcRO8VrCe0mY4Mc!/mnull&bo=bwS1AQAAAAADB*0!&rf=photolist&t=5"><br>这道题目和第一题本质差别不大，都是要用到执行系统命令函数，但是可以看出多了一个preg_match()函数。这是一个正则表达式函数，这个函数可以匹配查字符串中的所要搜索的字符，从题目函数可以看出，他规定了以下字符串<br>more，less，flag，head，nl，tail，tac，cat，rm，cp，mv，*，{<br>也就是说，如果我get传参的字符串中有这些字符串就会被返回，也就是不能执行所传代码，所以说不能像第一题那样直接输入/?Rem=system(‘cat xxxx’);来查看文件，但是还是可以来查看文件目录的，（没规定ls这个字符）<br><img src="http://m.qpic.cn/psc?/V51UJukK1KMuFE1iaUuY1qC0Qo1HbDy2/ruAMsa53pVQWN7FLK88i5uugDuJeyHe8qBLotmQ4CbtgE5wsqfeFeCMsW3xB93zJ2fjsHg.Q2JZXhCagL2sUKB0hVH8u9T11Lqe1MemEutk!/mnull&bo=9wU3AgAAAAADB.U!&rf=photolist&t=5"><br>得到有flag的文件。<br>下一步便是如何绕过这个匹配，这里我选择了取反绕过（换行绕过没成功，应该是掌握的有点问题）也就是将命令 ‘cat flag index.php’取反后再进行url编码再构造/?Rem=system(~xxxxxxxxx);即可绕过关于cat flag的匹配。<br>‘cat flag index.php’取反编码如下  </p><blockquote><p>%27%9C%9E%8B%DF%99%93%9E%98%DF%96%91%9B%9A%87%D1%8F%97%8F%27</p></blockquote><p>构造payload后传参便得到flag<br><img src="http://m.qpic.cn/psc?/V51UJukK1KMuFE1iaUuY1qC0Qo1HbDy2/ruAMsa53pVQWN7FLK88i5iZ6E..ubWG7DPFi8tTtM8DL.3aSV9EmDrs5SUlv3rGl61uIQsgIlBEtqSZAUtQSSq.Yk*02IFz6jbC9xSPKCPc!/mnull&bo=gAdHAgAAAAADB.A!&rf=photolist&t=5"><br>#四，PHP变量覆盖2<br>代码如下<br><img src="http://m.qpic.cn/psc?/V51UJukK1KMuFE1iaUuY1qC0Qo1HbDy2/ruAMsa53pVQWN7FLK88i5lXMCWx7mILsEc6*6FU7*iR82LFgeplQta7EKQzsFu4wV5vnrqFjoFa3*Tb941ExgG6lY42eZTARQTIS1bLEoy0!/mnull&bo=jwTGAgAAAAADB20!&rf=photolist&t=5"><br>这次函数变成了foreach()同时多了一个$$这样的字符，而$$是这道题目的关键。<br>$$abc表示对$abc这个变量进行赋值，<br>而使用foreach来遍历数组中的值，然后再将获取到的数组键名作为变量，数组中的键值作为变量的值。<br>所以这道题要利用这两个foreach函数来使上传的参数flag等于$flag，进而得到flag。<br>通过代码最后一行可以知道我们要将$flag里的值赋予$_200最后才能输出flag。于是利用第一个foreach函数来构造paylod  </p><blockquote><p>/?_200=flag</p></blockquote><p>这样的结果是$$_200=$$flag,也就是将原来$_200的值覆盖成$flag里的值，也就是真正的flag。<br>接着使用第二个foreach函数来构造payload使我post传过去的flag=$flag,进而打印出$_200,于是构造以下payload  </p><blockquote><p>flag=aaaaaaaaa</p></blockquote><p>这样的结果是$$flag=aaaaaaaaa，也就是将原来$flag里的值覆盖成aaaaaaaaa，这样我们上传的参数flag一定等于$flag，而真正的flag已经被赋予$_200,最后打印出真正的flag。<br><img src="http://m.qpic.cn/psc?/V51UJukK1KMuFE1iaUuY1qC0Qo1HbDy2/ruAMsa53pVQWN7FLK88i5kT9EhA.6Rd*Ye8AVao*3vaM4CmPMtFcWByMKutiRhgLU*mEPbX3yDP90U0owPkN1vPO4Gbne5FjOge.VCsu9hk!/mnull&bo=WATqAgAAAAADB5Y!&rf=photolist&t=5"></p>]]></content>
       
+      
+      <categories>
+          
+          <category> test </category>
+          
+      </categories>
       
       
         <tags>
@@ -24,8 +30,8 @@
     
     <entry>
       <title>web习题练习1</title>
-      <link href="%E6%8A%80%E6%9C%AF/undefined-undefined.html"/>
-      <url>%E6%8A%80%E6%9C%AF/undefined-undefined.html</url>
+      <link href="%E7%BB%83%E4%B9%A0/undefined-undefined.html"/>
+      <url>%E7%BB%83%E4%B9%A0/undefined-undefined.html</url>
       
         <content type="html"><![CDATA[<p>我的第一篇博客</p>]]></content>
       
