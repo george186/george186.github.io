@@ -155,7 +155,7 @@
             </div>
             <h2 class="post-title">第一周学习报告</h2>
             <div class="post-meta">
-                emm... 2739 words in the article |
+                emm... 2883 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
@@ -198,32 +198,26 @@
 <p>%93%8C</p>
 </blockquote>
 <p>构建payload/?(<del>%8C%86%8C%8B%9A%92)(</del>%93%8C)；就可以绕过正则函数<br>其他的异或绕过和取反绕过以及利用回溯次数绕过需要用到脚本，等我变强了再来讨论吧hhhhh  </p>
-<h3 id="变量覆盖"><a href="#变量覆盖" class="headerlink" title="变量覆盖"></a>变量覆盖</h3><p>附上学习的链接<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41381461/article/details/90047616">php变量覆盖</a><br>先总结我目前遇到的两种<br><strong>extract()函数变量覆盖</strong><br><a target="_blank" rel="noopener" href="https://www.runoob.com/php/func-array-extract.html">菜鸟教程关于extract的讲解</a><br>总的来说extract()函数在默认情况下，会将传入的变量的值覆盖原有的变量的值，如以下代码<br><?php  
-$id=1;    
-extract($_GET);  
-echo $id;  
-?><br>//提交：?id=123<br>//结果： 123</p>
+<h3 id="变量覆盖"><a href="#变量覆盖" class="headerlink" title="变量覆盖"></a>变量覆盖</h3><p>附上学习的链接<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41381461/article/details/90047616">php变量覆盖</a><br>先总结我目前遇到的两种<br><strong>extract()函数变量覆盖</strong><br><a target="_blank" rel="noopener" href="https://www.runoob.com/php/func-array-extract.html">菜鸟教程关于extract的讲解</a><br>总的来说extract()函数在默认情况下，会将传入的变量的值覆盖原有的变量的值，如以下代码<br>&lt;?php  </p>
+<blockquote>
+<p>$id=1;<br>extract($_GET);<br>echo $id;<br>?&gt;<br>//提交：?id=123<br>//结果： 123</p>
+</blockquote>
 <p>所以可以将原本不知道的变量的值进行覆盖，使其成为我们传入的值，对于  </p>
 <blockquote>
 <p>if($liwu==$flag) {<br>        echo’flag{xxxxxxxxxxx}’;</p>
 </blockquote>
-<p>这类代码漏洞十分有用。<br>**$$导致的变量覆盖问题**<br>在PHP中$$表示的是一个可变变量获取了一个普通变量的值作为这个可变变量的变量名。如以下代码<br><?php  
-$c='hello';  
-$$c='world';  
-echo $c;  
-echo $$c;  
-?></p>
+<p>这类代码漏洞十分有用。<br>**$$导致的变量覆盖问题**<br>在PHP中$$表示的是一个可变变量获取了一个普通变量的值作为这个可变变量的变量名。如以下代码<br>&lt;?php  </p>
+<blockquote>
+<p>$c=’hello’;<br>$$c=’world’;<br>echo $c;<br>echo $$c;<br>?&gt;</p>
+</blockquote>
 <p>得到的结果是helloworld，也就是说将$c作为一个变量名进行赋值，从而覆盖了原来的$c=hello。<br>而使用foreach来遍历数组中的值，然后再将获取到的数组键名作为变量，数组中的键值作为变量的值。因此就产生了变量覆盖漏洞。<br>&lt;?php  </p>
 <blockquote>
 <p>$id=5;<br>foreach ($_GET as $key =&gt; $value) {<br>$$key = $value;<br>}<br>echo $a;<br>?&gt;</p>
 </blockquote>
-<p>如果如果get传的是?id=1，那么，经过$$key=$value之后，就会变成$id=1，覆盖掉原来的$id=5。<br>如果代码如下<br><?php  
-$id=5;  
-foreach ($_GET as $key => $value) {  
-$$key = $$value;  
-}  
-echo $a;  
-?>  </p>
+<p>如果如果get传的是?id=1，那么，经过$$key=$value之后，就会变成$id=1，覆盖掉原来的$id=5。<br>如果代码如下<br>&lt;?php  </p>
+<blockquote>
+<p>$id=5;<br>foreach ($_GET as $key =&gt; $value) {<br>$$key = $$value;<br>}<br>echo $a;<br>?&gt;  </p>
+</blockquote>
 <p>那么如果get传入的是?id=flag,经过$$key = $$value之后就会变成$id=$flag，此时$flag里面的值，也就是flag已经被写入$id当中了。以上两组代码结合起来便可以实现  </p>
 <blockquote>
 <p>$_POST[“flag”] == $flag</p>
