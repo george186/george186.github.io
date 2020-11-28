@@ -155,12 +155,13 @@
             </div>
             <h2 class="post-title">web第一周练习</h2>
             <div class="post-meta">
-                emm... 2468 words in the article |
+                emm... 2472 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
         <div class="post-content markdown-body">
-            <p>  第一周的web一共做了四道题，现在写下做题思路，以便日后回顾。<br>#一，basic rec<br>打开题目地址，得到如下代码。<br><img src="https://s3.ax1x.com/2020/11/28/D6NtTf.md.png" alt="D6NtTf.md.png"><br>真正有用的函数只有一个</p>
+            <p>  第一周的web一共做了四道题，现在写下做题思路，以便日后回顾。</p>
+<h1 id="一，basic-rec"><a href="#一，basic-rec" class="headerlink" title="一，basic rec"></a>一，basic rec</h1><p>打开题目地址，得到如下代码。<br><img src="https://s3.ax1x.com/2020/11/28/D6NtTf.md.png" alt="D6NtTf.md.png"><br>真正有用的函数只有一个</p>
 <blockquote>
 <p>eval($_GET[‘a’]);</p>
 </blockquote>
@@ -184,7 +185,8 @@
 <blockquote>
 <p>/?a=system(‘tac f111a9.php’);</p>
 </blockquote>
-<p>得到flag。<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6NRtU"><img src="https://s3.ax1x.com/2020/11/28/D6NRtU.md.png" alt="D6NRtU.md.png"></a><br>#二，PHP变量覆盖<br>打开题目地址得到如下代码<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6Nhp4"><img src="https://s3.ax1x.com/2020/11/28/D6Nhp4.md.png" alt="D6Nhp4.md.png"></a>  </p>
+<p>得到flag。<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6NRtU"><img src="https://s3.ax1x.com/2020/11/28/D6NRtU.md.png" alt="D6NRtU.md.png"></a></p>
+<h1 id="二，PHP变量覆盖"><a href="#二，PHP变量覆盖" class="headerlink" title="二，PHP变量覆盖"></a>二，PHP变量覆盖</h1><p>打开题目地址得到如下代码<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6Nhp4"><img src="https://s3.ax1x.com/2020/11/28/D6Nhp4.md.png" alt="D6Nhp4.md.png"></a>  </p>
 <p>这道题目的重点是extrace()函数<br>extrace()将从数组中将变量导入到当前符号表，默认的是如果变量冲突，则覆盖已有的变量<br>知道这个函数后再对代码进行审计  </p>
 <blockquote>
 <p>$flag=’xxxxxxxx’;<br>extract($_GET); //以get传参的值会进过extract()函数<br>if(isset($liwu)) { //判断是否设立了$liwu该变量<br>    $content=trim(file_get_contents($flag)); //读取$flag的变量并将它赋给$content变量<br>    if($liwu==$content) {<br>        echo’flag{xxxxxxxxxxx}’; //如果$liwu和$content这两个变量相等就输出flag<br>    }<br>    else {<br>        echo ‘please try other operation.’;<br>    }<br>}  </p>
@@ -193,11 +195,13 @@
 <blockquote>
 <p>/?$liwu=&amp;$flag=</p>
 </blockquote>
-<p>这样我们将$flag=空的值覆盖了原来的flag的值，从而使$liwu=$flag得到真正的flag。<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6NIXR"><img src="https://s3.ax1x.com/2020/11/28/D6NIXR.md.png" alt="D6NIXR.md.png"></a><br>但是不知道为什么构造/?$liwu=123&amp;$flag=123这样的不行。<br>#三，basic rce2<br>代码如下<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6Uk4S"><img src="https://s3.ax1x.com/2020/11/28/D6Uk4S.md.png" alt="D6Uk4S.md.png"></a><br>这道题目和第一题本质差别不大，都是要用到执行系统命令函数，但是可以看出多了一个preg_match()函数。这是一个正则表达式函数，这个函数可以匹配查字符串中的所要搜索的字符，从题目函数可以看出，他规定了以下字符串<br>more，less，flag，head，nl，tail，tac，cat，rm，cp，mv，*，{<br>也就是说，如果我get传参的字符串中有这些字符串就会被返回，也就是不能执行所传代码，所以说不能像第一题那样直接输入/?Rem=system(‘cat xxxx’);来查看文件，但是还是可以来查看文件目录的，（没规定ls这个字符）<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6Unun"><img src="https://s3.ax1x.com/2020/11/28/D6Unun.md.png" alt="D6Unun.md.png"></a><br>得到有flag的文件。<br>下一步便是如何绕过这个匹配，这里我选择了取反绕过（换行绕过没成功，应该是掌握的有点问题）也就是将命令 ‘cat flag index.php’取反后再进行url编码再构造/?Rem=system(~xxxxxxxxx);即可绕过关于cat flag的匹配。<br>‘cat flag index.php’取反编码如下  </p>
+<p>这样我们将$flag=空的值覆盖了原来的flag的值，从而使$liwu=$flag得到真正的flag。<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6NIXR"><img src="https://s3.ax1x.com/2020/11/28/D6NIXR.md.png" alt="D6NIXR.md.png"></a><br>但是不知道为什么构造/?$liwu=123&amp;$flag=123这样的不行。  </p>
+<h1 id="三，basic-rce2"><a href="#三，basic-rce2" class="headerlink" title="三，basic rce2"></a>三，basic rce2</h1><p>代码如下<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6Uk4S"><img src="https://s3.ax1x.com/2020/11/28/D6Uk4S.md.png" alt="D6Uk4S.md.png"></a><br>这道题目和第一题本质差别不大，都是要用到执行系统命令函数，但是可以看出多了一个preg_match()函数。这是一个正则表达式函数，这个函数可以匹配查字符串中的所要搜索的字符，从题目函数可以看出，他规定了以下字符串<br>more，less，flag，head，nl，tail，tac，cat，rm，cp，mv，*，{<br>也就是说，如果我get传参的字符串中有这些字符串就会被返回，也就是不能执行所传代码，所以说不能像第一题那样直接输入/?Rem=system(‘cat xxxx’);来查看文件，但是还是可以来查看文件目录的，（没规定ls这个字符）<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6Unun"><img src="https://s3.ax1x.com/2020/11/28/D6Unun.md.png" alt="D6Unun.md.png"></a><br>得到有flag的文件。<br>下一步便是如何绕过这个匹配，这里我选择了取反绕过（换行绕过没成功，应该是掌握的有点问题）也就是将命令 ‘cat flag index.php’取反后再进行url编码再构造/?Rem=system(~xxxxxxxxx);即可绕过关于cat flag的匹配。<br>‘cat flag index.php’取反编码如下  </p>
 <blockquote>
 <p>%27%9C%9E%8B%DF%99%93%9E%98%DF%96%91%9B%9A%87%D1%8F%97%8F%27</p>
 </blockquote>
-<p>构造payload后传参便得到flag<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6UuBq"><img src="https://s3.ax1x.com/2020/11/28/D6UuBq.md.png" alt="D6UuBq.md.png"></a><br>#四，PHP变量覆盖2<br>代码如下<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6UG34"><img src="https://s3.ax1x.com/2020/11/28/D6UG34.md.png" alt="D6UG34.md.png"></a><br>这次函数变成了foreach()同时多了一个$$这样的字符，而$$是这道题目的关键。<br>$$abc表示对$abc这个变量进行赋值，<br>而使用foreach来遍历数组中的值，然后再将获取到的数组键名作为变量，数组中的键值作为变量的值。<br>所以这道题要利用这两个foreach函数来使上传的参数flag等于$flag，进而得到flag。<br>通过代码最后一行可以知道我们要将$flag里的值赋予$_200最后才能输出flag。于是利用第一个foreach函数来构造paylod  </p>
+<p>构造payload后传参便得到flag<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6UuBq"><img src="https://s3.ax1x.com/2020/11/28/D6UuBq.md.png" alt="D6UuBq.md.png"></a>  </p>
+<h1 id="四，PHP变量覆盖2"><a href="#四，PHP变量覆盖2" class="headerlink" title="四，PHP变量覆盖2"></a>四，PHP变量覆盖2</h1><p>代码如下<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/D6UG34"><img src="https://s3.ax1x.com/2020/11/28/D6UG34.md.png" alt="D6UG34.md.png"></a><br>这次函数变成了foreach()同时多了一个$$这样的字符，而$$是这道题目的关键。<br>$$abc表示对$abc这个变量进行赋值，<br>而使用foreach来遍历数组中的值，然后再将获取到的数组键名作为变量，数组中的键值作为变量的值。<br>所以这道题要利用这两个foreach函数来使上传的参数flag等于$flag，进而得到flag。<br>通过代码最后一行可以知道我们要将$flag里的值赋予$_200最后才能输出flag。于是利用第一个foreach函数来构造paylod  </p>
 <blockquote>
 <p>/?_200=flag</p>
 </blockquote>
