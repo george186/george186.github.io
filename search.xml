@@ -5,15 +5,15 @@
     
     <entry>
       <title>PHP中foreach函数笔记</title>
-      <link href="note/undefined-undefined.html"/>
-      <url>note/undefined-undefined.html</url>
+      <link href="note1/undefined-undefined.html"/>
+      <url>note1/undefined-undefined.html</url>
       
         <content type="html"><![CDATA[<p>本周做的题目中有一道变量覆盖问题，其中用到了foreach()函数，当时看到别人对这个函数的解释并没有很懂，于是自己又通过查找又了解一下这个函数用法，现在把自己的理解写出来。  </p><h1 id="foreach-函数—-关于-key的值"><a href="#foreach-函数—-关于-key的值" class="headerlink" title="foreach()函数—-关于$key的值"></a>foreach()函数—-关于$key的值</h1><p>先附上我学习这个函数的链接<br><a href="https://blog.csdn.net/qq_39388484/article/details/82839903">详解PHP中foreach的用法和实例</a><br><strong>foreach</strong>有两种语法<br>第一种：遍历给定的 数组语句 array_expression 数组。每次循环中，当前单元的值被赋给 $value 并且数组内部的指针向前移一步（因此下一次循环中将会得到下一个单元）。</p><blockquote><p>foreach (array_expression as $value)</p></blockquote><p>第二种：同上，同时当前单元的键名也会在每次循环中被赋给变量 $key。  </p><blockquote><p>foreach (array_expression as $key =&gt; $value)</p></blockquote><p>这个函数是要和数组搭配起来使用的，下面讲解一下基本的用法  </p><h2 id="一维数组与foreach"><a href="#一维数组与foreach" class="headerlink" title="一维数组与foreach"></a>一维数组与foreach</h2><p>列出一个一维数组<br>    $a = array(‘Tom’,’Mary’,’Peter’,’Jack’);<br>用第一种方法来输出<br>    foreach ($a as $value) {<br>    echo $value.”<br/>“;<br>    }<br>最后得到的结果是Tom，Mary，Peter，Jack<br>用第二种方法来输出  </p><pre><code>foreach ($a as $key =&gt; $value) &#123;  echo $key.&#39;,&#39;.$value.&quot;&lt;br/&gt;&quot;;&#125;  </code></pre><p>得到的结果是<br>0,Tom<br>1,Mary<br>2,Peter<br>3,Jack<br>很明显看到多了$key这个$key的值就是序号0，1，2，3等等<br>但是在题目中有这样一串代码<br>    $$key=$$value<br>当我传入?_200=flag后，结果变成了$ _200=$flag,这时的$key值不再是序号0，1，2，3······而是变成了 _200,这是为什么呢，我在一维关联数组中找到了类似变化  </p><h2 id="一维关联数组与foreach"><a href="#一维关联数组与foreach" class="headerlink" title="一维关联数组与foreach"></a>一维关联数组与foreach</h2><p>如下<br>    $b = array(‘a’=&gt;’Tom’,’b’=&gt;’Mary’,’c’=&gt;’Peter’,’d’=&gt;’Jack’);<br>这时我们再用第一种方法输出结果和上面的相同<br>但是用第二种方式输出则发生变化  </p><pre><code>foreach ($b as $key =&gt; $value) &#123;  echo $key.&#39;,&#39;.$value;&#125;  </code></pre><p>最后得到的结果是：<br>a,Tom<br>b,Mary<br>c,Peter<br>d,Jack<br>很明显，这时候的key值已经变成了关联的序号，也就是a,b,c,····<br>于是我推测，当我们使用post，get方式进行传参的时候，传入的就是一维关联数组，例如上面所讲到的?_ 200=flag就相当于’_ 200’=&gt;’flag’，这样一来，得到的最后结果就变成了$ _200=$flag，$key的值也就发生了变化，最终将flag传入到了变量$ _200中。  </p><hr><p>关于foreach还能和二维数组练习，但是key的值一般不会变化，依旧是序号0，1，2·····更多相关知识还是在分享的链接里查找吧。</p>]]></content>
       
       
       <categories>
           
-          <category> note </category>
+          <category> note1 </category>
           
       </categories>
       
