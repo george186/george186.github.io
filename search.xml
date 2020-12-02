@@ -4,6 +4,56 @@
   
     
     <entry>
+      <title>攻防世界练习---伪协议</title>
+      <link href="test1/undefined-undefined.html"/>
+      <url>test1/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>做了一道关于伪协议的题，较本周的另两道简单，算是巩固一下关于伪协议的知识<br>打开地址得到以下源代码<br><img src="https://s3.ax1x.com/2020/12/02/DoJ5WR.md.png" alt="DoJ5WR.md.png"><br>有include()函数，可以知道是一道文件包含漏洞题，可以使用php伪协议来解决。（关于文件包含漏洞问题之后再进行总结）<br>再看到有这样一个函数  </p><blockquote><p>str_replace(“php://“, “”, $page);</p></blockquote><p>于是了解一下这个函数<br><img src="https://s3.ax1x.com/2020/12/02/DotOGd.md.png" alt="DotOGd.md.png"><br>可以知道，该函数会匹配get传参的字符串中的php://这个字符串，并将其替换成空格，等于过滤了这个字符串。所以我们不能直接使用php://协议。但是可以使用其他协议，我使用了data://协议。<br>该协议可以用该协议传递相应格式的数据。通常可以用来执行php代码<br>因此我们可以先构造payload来读取文件目录  </p><blockquote><p>?page=data://text/plain,<?php system('ls');?></p></blockquote><p>得到文件目录<br><img src="https://s3.ax1x.com/2020/12/02/DoNtL6.md.png" alt="DoNtL6.md.png"><br>可以知道包含flag的文件，接着使用命令执行函数读出该文件内容就可以得到flag<br><img src="https://s3.ax1x.com/2020/12/02/DoNDWd.md.png" alt="DoNDWd.md.png">  </p><hr><p>当然这道题还有别的解法,str_replace()函数默认情况下识别是分大小写的，所以我们可以通过大小写绕过这个函数，当我们知道包含flag的文件名后，利用大小写可以构造以下payload来绕过  </p><blockquote><p>?page=Php://filter/read=convert.base64-encode/resource=fl4gisisish3r3.php</p></blockquote><p>得到base64编码过的php文件，再解码就可以得到flag</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test1 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>PHP伪协议笔记</title>
+      <link href="note2/undefined-undefined.html"/>
+      <url>note2/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>本周学习了关于PHP的伪协议相关知识，现在做一下总结<br>先给出我学习的网址<br><a href="https://segmentfault.com/a/1190000018991087">PHP伪协议总结</a><br><a href="https://www.freebuf.com/column/148886.html">php伪协议实现命令执行的七种姿势</a><br>PHP伪协议包括file://、php://filter、php://input、zip://、compress.bzip2://、compress.zlib://、data://。下面介绍常用的几个  </p><h1 id="file-协议"><a href="#file-协议" class="headerlink" title="file://协议"></a>file://协议</h1><p>file://协议在双off的情况下也可以正常使用<br>allow_url_fopen ：off/on<br>allow_url_include：off/on<br>file://协议用于访问本地文件系统，在CTF中通常用来读取本地文件的且不受allow _url _fopen与allow _url _include的影响。<br>使用方法<br>file:// [文件的绝对路径和文件名]  </p><blockquote><p><a href="http://127.0.0.1/cmd.php?file=file://D:/soft/phpStudy/WWW/phpcode.txt">http://127.0.0.1/cmd.php?file=file://D:/soft/phpStudy/WWW/phpcode.txt</a>  </p></blockquote><p>file:// [文件的相对路径和文件名]  </p><blockquote><p><a href="http://127.0.0.1/include.php?file=./phpinfo.txt">http://127.0.0.1/include.php?file=./phpinfo.txt</a>  </p></blockquote><p>http://网络路径和文件名  </p><blockquote><p><a href="http://127.0.0.1/include.php?file=http://127.0.0.1/phpinfo.txt">http://127.0.0.1/include.php?file=http://127.0.0.1/phpinfo.txt</a>  </p></blockquote><h1 id="php-协议"><a href="#php-协议" class="headerlink" title="php://协议"></a>php://协议</h1><p>这个是我目前用到最多的，它包括php://filter、php://input、 php://stdin、 php://memory 和 php://temp,不需要开启allow _url _fopen，仅php://input、 php://stdin、 php://memory 和 php://temp 需要开启allow _url _include。<br>其中php://filter和php://input使用较多<br><img src="https://s3.ax1x.com/2020/12/02/Do1AuF.md.png" alt="Do1AuF.md.png">  </p><h2 id="php-filter"><a href="#php-filter" class="headerlink" title="php://filter"></a>php://filter</h2><p>该协议用于读取源码<br><img src="https://s3.ax1x.com/2020/12/02/Do1GHH.md.png" alt="Do1GHH.md.png"><br><a href="http://127.0.0.1/cmd.php?file=php://filter/read=convert.base64-encode/resource=%5B%E6%96%87%E4%BB%B6%E5%90%8D%5D%E8%AF%BB%E5%8F%96%E6%96%87%E4%BB%B6%E6%BA%90%E7%A0%81%EF%BC%88%E9%92%88%E5%AF%B9php%E6%96%87%E4%BB%B6%E9%9C%80%E8%A6%81base64%E7%BC%96%E7%A0%81%EF%BC%89">http://127.0.0.1/cmd.php?file=php://filter/read=convert.base64-encode/resource=[文件名]读取文件源码（针对php文件需要base64编码）</a>  </p><blockquote><p><a href="http://127.0.0.1/cmd.php?file=php://filter/read=convert.base64-encode/resource=flag.php">http://127.0.0.1/cmd.php?file=php://filter/read=convert.base64-encode/resource=flag.php</a></p></blockquote><h2 id="php-input-POST-DATA-执行php代码"><a href="#php-input-POST-DATA-执行php代码" class="headerlink" title="php://input+[POST DATA]执行php代码"></a>php://input+[POST DATA]执行php代码</h2><p>php://input 可以访问请求的原始数据的只读流, 将post请求中的数据作为PHP代码执行。  </p><blockquote><p><a href="http://127.0.0.1/cmd.php?file=php://input">http://127.0.0.1/cmd.php?file=php://input</a><br>[POST DATA] <?php phpinfo()?></p></blockquote><h1 id="data-协议"><a href="#data-协议" class="headerlink" title="data://协议"></a>data://协议</h1><p>使用条件allow _url _fopen ：on<br>allow _url _include：on<br>可以用该协议传递相应格式的数据。通常可以用来执行php代码<br>data://text/plain，<br>data://text/plain；base64，  </p><blockquote><p><a href="http://127.0.0.1/cmd.php?file=data://text/plain">http://127.0.0.1/cmd.php?file=data://text/plain</a>,<?php phpinfo()?></p><p><a href="http://127.0.0.1/cmd.php?file=data://text/plain;base64,PD9waHAgcGhwaW5mbygpPz4=">http://127.0.0.1/cmd.php?file=data://text/plain;base64,PD9waHAgcGhwaW5mbygpPz4=</a></p></blockquote><p>关于zip://、compress.bzip2://、compress.zlib://这三个协议目前还没有遇到相关题目，以后遇到再总结更新</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> note2 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 笔记 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>PHP中foreach函数笔记</title>
       <link href="note1/undefined-undefined.html"/>
       <url>note1/undefined-undefined.html</url>

