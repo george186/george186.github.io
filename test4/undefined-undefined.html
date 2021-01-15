@@ -155,14 +155,13 @@
             </div>
             <h2 class="post-title">寒假练习1</h2>
             <div class="post-meta">
-                emm... 2142 words in the article |
+                emm... 2140 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
         <div class="post-content markdown-body">
             <p>寒假到了，菜鸡练习时间到了。争取每天至少buuctf一道题，并且加上sql注入的学习。<br>因为太长没练手了，所以先来一道代码审计题。</p>
-<p>#[HCTF 2018]WarmUP1</p>
-<p>打开题目发现只有一个大滑稽。<br>于是查看源码<br><img src="https://s3.ax1x.com/2021/01/15/s0MjeJ.md.png" alt="s0MjeJ.md.png"><br>发现&lt; !–source.php– &gt;这个php文件，于是再在网址中打开就可以发现真正的源码（截图没有截全）<br><img src="https://s3.ax1x.com/2021/01/15/s0QJTs.md.png" alt="s0QJTs.md.png"><br>观察可以发现还有一个hint.php文件，于是在网址打开它看一下。<br><img src="https://s3.ax1x.com/2021/01/15/s0QX1f.md.png" alt="s0QX1f.md.png"><br>可以知道flag被放在ffffllllaaaagggg目录中，又因为下面的代码中有include（）这个包含函数，并且要上传file这个参数。<br><img src="https://s3.ax1x.com/2021/01/15/s0lI2V.md.png" alt="s0lI2V.md.png"><br>这就要求我们要满足 checkFile(&amp;$page)函数，然后再构造payload，使用../进行跳转到ffffllllaaaagggg目录，就可以得到flag。<br>那么接下来就是对这个函数进行研究。  </p>
+<h1 id="HCTF-2018-WarmUP1"><a href="#HCTF-2018-WarmUP1" class="headerlink" title="[HCTF 2018]WarmUP1"></a>[HCTF 2018]WarmUP1</h1><p>打开题目发现只有一个大滑稽。<br>于是查看源码<br><img src="https://s3.ax1x.com/2021/01/15/s0MjeJ.md.png" alt="s0MjeJ.md.png"><br>发现&lt; !–source.php– &gt;这个php文件，于是再在网址中打开就可以发现真正的源码（截图没有截全）<br><img src="https://s3.ax1x.com/2021/01/15/s0QJTs.md.png" alt="s0QJTs.md.png"><br>观察可以发现还有一个hint.php文件，于是在网址打开它看一下。<br><img src="https://s3.ax1x.com/2021/01/15/s0QX1f.md.png" alt="s0QX1f.md.png"><br>可以知道flag被放在ffffllllaaaagggg目录中，又因为下面的代码中有include（）这个包含函数，并且要上传file这个参数。<br><img src="https://s3.ax1x.com/2021/01/15/s0lI2V.md.png" alt="s0lI2V.md.png"><br>这就要求我们要满足 checkFile(&amp;$page)函数，然后再构造payload，使用../进行跳转到ffffllllaaaagggg目录，就可以得到flag。<br>那么接下来就是对这个函数进行研究。  </p>
 <blockquote>
 <p>if (! isset($page) || !is_string($page))</p>
 </blockquote>
