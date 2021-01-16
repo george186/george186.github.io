@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>寒假练习2</title>
+      <link href="test5/undefined-undefined.html"/>
+      <url>test5/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>最近两天刚学sql注入，发现还是要有数据库的基础才行，（否则连sql的语句都看不懂啥意思）所以正在学数据库，sql的题暂时就先放一下，先做别的题了。当然也会更新一下学数据库的笔记。  </p><h1 id="极客大挑战-2019-Havefun-1"><a href="#极客大挑战-2019-Havefun-1" class="headerlink" title="[极客大挑战 2019]Havefun 1"></a>[极客大挑战 2019]Havefun 1</h1><p>这道题目还是很简单的，打开题目发现一只猫。<br><img src="https://s3.ax1x.com/2021/01/16/sDcJEQ.md.png" alt="sDcJEQ.md.png"><br>对于这种页面点不动的题，直接查看源码。<br><img src="https://s3.ax1x.com/2021/01/16/sDc5DO.md.png" alt="sDc5DO.md.png"><br>可以看到源码中将<strong>cat</strong>设为变量，并使用get方式传参。后面又说当变量cat==dog这个字符串时，就会显示flag。<br>那么接下来就很简单了。直接在url上输入就可以了。<br><img src="https://s3.ax1x.com/2021/01/16/sDgjY9.md.png" alt="sDgjY9.md.png"><br>得到flag。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test5 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>寒假练习1</title>
       <link href="test4/undefined-undefined.html"/>
       <url>test4/undefined-undefined.html</url>

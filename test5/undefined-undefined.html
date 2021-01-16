@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>Archives - Hexo</title>
+<title>寒假练习2 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,8 +114,18 @@
 
             <div class="page-title">
     <ul>
-        <li><a href="/" data-name="Home" title="Back Home">Home</a></li>
-        <li><a href="/tags" data-name="Tag Cloud" title="Tag Cloud">Tags</a></li>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
         <li class="page-search">
     <form id="search" class="search-form">
         <input type="text"
@@ -131,127 +141,62 @@
 <div class="main-inner">
     <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
         <div class="post-header">
-            <h3 class="post-title">Nice 🥳 10 posts in total. Keep on posting.</h3>
-        </div>
-        
-
-        <div class="post-content markdown-body" itemprop="articleBody">
-            <div class="archives">
-                
-                
-                
-                
-                
-                <div class="archives-item">
-                    <h2>2021年01月</h2>
-                    <ul class="archives_list">
-                        
-                        <li>16日16:51:35
-                            <a href="/test5/undefined-undefined.html">寒假练习2</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>15日15:35:37
-                            <a href="/test4/undefined-undefined.html">寒假练习1</a>
-                            
-                        </li>
-                        
-                    </ul>
-                </div>
-                
-                
-                
-                
-                
-                <div class="archives-item">
-                    <h2>2020年12月</h2>
-                    <ul class="archives_list">
-                        
-                        <li>05日22:25:22
-                            <a href="/test3/undefined-undefined.html">web第二周练习ssrf1</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>03日18:33:24
-                            <a href="/test2/undefined-undefined.html">第二周习题1</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>02日23:12:18
-                            <a href="/test1/undefined-undefined.html">攻防世界练习---伪协议</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>02日21:52:25
-                            <a href="/note2/undefined-undefined.html">PHP伪协议笔记</a>
-                            
-                        </li>
-                        
-                    </ul>
-                </div>
-                
-                
-                
-                
-                
-                <div class="archives-item">
-                    <h2>2020年11月</h2>
-                    <ul class="archives_list">
-                        
-                        <li>29日15:49:38
-                            <a href="/note1/undefined-undefined.html">PHP中foreach函数笔记</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>28日22:41:48
-                            <a href="/note/undefined-undefined.html">第一周学习报告</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>28日16:42:13
-                            <a href="/test/undefined-undefined.html">web第一周练习</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>22日20:45:37
-                            <a href="/%E7%BB%83%E4%B9%A0/undefined-undefined.html">web习题练习1</a>
-                            
-                        </li>
-                        
-                    </ul>
-                </div>
-                
-                
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-01-16">2021-01-16</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">寒假练习2</h2>
+            <div class="post-meta">
+                emm... 245 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
+        <div class="post-content markdown-body">
+            <p>最近两天刚学sql注入，发现还是要有数据库的基础才行，（否则连sql的语句都看不懂啥意思）所以正在学数据库，sql的题暂时就先放一下，先做别的题了。当然也会更新一下学数据库的笔记。  </p>
+<h1 id="极客大挑战-2019-Havefun-1"><a href="#极客大挑战-2019-Havefun-1" class="headerlink" title="[极客大挑战 2019]Havefun 1"></a>[极客大挑战 2019]Havefun 1</h1><p>这道题目还是很简单的，打开题目发现一只猫。<br><img src="https://s3.ax1x.com/2021/01/16/sDcJEQ.md.png" alt="sDcJEQ.md.png"><br>对于这种页面点不动的题，直接查看源码。<br><img src="https://s3.ax1x.com/2021/01/16/sDc5DO.md.png" alt="sDc5DO.md.png"><br>可以看到源码中将<strong>cat</strong>设为变量，并使用get方式传参。后面又说当变量cat==dog这个字符串时，就会显示flag。<br>那么接下来就很简单了。直接在url上输入就可以了。<br><img src="https://s3.ax1x.com/2021/01/16/sDgjY9.md.png" alt="sDgjY9.md.png"><br>得到flag。</p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
     </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
 </div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->
