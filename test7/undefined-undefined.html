@@ -1,0 +1,317 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>sql注入闯关1 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-01-17">2021-01-17</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">sql注入闯关1</h2>
+            <div class="post-meta">
+                emm... 2141 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>要想学sql注入，就要不断练习。而sqli-labs这个闯关游戏就是一个很好的练习条件。这个寒假要过前十关。<br>关于这个游戏的安装百度即可，就不做详细记录了。<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42277564/article/details/80583959?ops_request_misc=%25257B%252522request%25255Fid%252522%25253A%252522161090447216780269871621%252522%25252C%252522scm%252522%25253A%25252220140713.130102334..%252522%25257D&request_id=161090447216780269871621&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-1-80583959.first_rank_v2_pc_rank_v29&utm_term=sql%E8%81%94%E5%90%88%E6%9F%A5%E8%AF%A2">sql注入的联合查询</a></p>
+<h1 id="Less-1"><a href="#Less-1" class="headerlink" title="Less-1"></a>Less-1</h1><p>打开第一关，可以看到很简洁的界面。<br><img src="https://s3.ax1x.com/2021/01/17/syuvdg.md.png" alt="syuvdg.md.png"><br>让我们在url中输入变量id。先输入?id=1后回显如下。<br><img src="https://s3.ax1x.com/2021/01/17/syKOpR.md.png" alt="syKOpR.md.png"><br>但是输入?id=1’后报错，说明存在sql注入。<br>接下来按照程序一步步来。先来判断注入类型。  </p>
+<blockquote>
+<p>?id=1 and 1=1<br>?id=1 and 1=2<br>?id=1’ and ‘1’=’1<br>?id=1’ amd ‘1’=’2</p>
+</blockquote>
+<p>发现最后一个没有回显，所有知道是字符型注入。<br>接着判断字段个数。  </p>
+<blockquote>
+<p>?id=1’ order by 1–+<br>?id=1’ order by 2–+<br>?id=1’ order by 3–+<br>?id=1’ order by 4–+</p>
+</blockquote>
+<p>发现第四个时出现错误，说明有这个表有三个字段，也就是三列。<br><img src="https://img.imgdb.cn/item/600460473ffa7d37b3b711fa.png"><br>接着查看页面的显示位。也就是拿哪几位会显示到界面上。输入以下payload  </p>
+<blockquote>
+<p>?id=999’ union select 1,2,3–+</p>
+</blockquote>
+<p>注意不能是?id=1或?id=2之类的，因为这样会输出id=1或id=2的一行行的数据，这就无法判断是那一位回显到页面上了。但如果我们输入一个不存在的id，那么第一行就会变成空行，这时候union后面的查询语句就成为了第一行，相应的2，3位就显示在页面上了。<br><img src="https://img.imgdb.cn/item/600462263ffa7d37b3b7ed5a.png"><br>可以看出2，3位回显到页面，那么接下来构造payload要在2，3为上改动。<br>接下来爆库名  </p>
+<blockquote>
+<p>?id=1’ union select 1,2,database()–+</p>
+</blockquote>
+<p>可以查看当前使用的库的名称。<br><img src="https://s3.ax1x.com/2021/01/18/sylSFe.md.png" alt="sylSFe.md.png"><br>可以知道数据库的名字为<strong>security</strong>，接下来就是爆这个数据库中的表名了。这里的语句比较长，但是很好理解，语句如下。  </p>
+<blockquote>
+<p>?id=1’ union select 1,(select group _concat(table _name) from information _schema.tables where table _  schema=’security’),database()–+</p>
+</blockquote>
+<p>注意这个语句要用括号括起来，否则会出错。具体原因我还没有找到。。。。<br>那么我们来理解一下这个新的长语句的意思吧。  </p>
+<hr>
+<blockquote>
+<p>(select group _concat(table _name) from information _schema.tables where table _  schema=’security’)</p>
+</blockquote>
+<p>这个句子中有一个group_ concat()函数，这个函数的作用将对应字段的所有结果都查找并组合返回到一条记录中。<br><code>在SQL中这个函数可以将某一字段符合要求的该段对应的行的数据在一行显示。</code><br>而table _name很好理解，它就是表的名字的意思。<br>接下来是information _schema.tables。我们已经知道information _schema是系统自带的库，它包含了所有库的信息。所以information _schema.tables就是所有库中的表的信息。<br>where这个相当于编程中的if语句，它是一个判断语句。<br>table _ schema是数据库名称的意思。  </p>
+<hr>
+<p>综上可以知道这个语句的意思：从information _schema.tables中查询表的名字当数据库的名字为’security’。<br>也就是查询’security’库中所有表的名字并返回到到一条记录中。<br>得到的结果如图。<br><img src="https://s3.ax1x.com/2021/01/18/sy1z2d.md.png" alt="sy1z2d.md.png"><br>可以得到security库中有emails，referers，uagents，users四个表。<br>那么接下来就是爆字段了。  </p>
+<blockquote>
+<p>select group_ concat(column_name) from information _ schema.columns where table _name=’users’ </p>
+</blockquote>
+<p>爆出users表中的字段。<br><img src="https://s3.ax1x.com/2021/01/18/sy3GiF.md.png" alt="sy3GiF.md.png"><br>可以知道有id，username，password三个字段。那么接下来就是查询这三列的信息了。  </p>
+<blockquote>
+<p>select group_ concat(username) from security.users<br>select group_ concat(password) from security.users</p>
+</blockquote>
+<p><img src="https://s3.ax1x.com/2021/01/18/syGi4S.md.png" alt="syGi4S.md.png"><br>from security.users表示从security数据库users表中查询。<br>得到用户信息。其他的表按照上述操作即可。</p>
+<hr>
+<h1 id="知识点小结："><a href="#知识点小结：" class="headerlink" title="知识点小结："></a>知识点小结：</h1><p>1：database()是一个函数，可以查看当前使用的数据库名字。<br>2：group_ concat()函数，这个函数的作用将对应字段的所有结果都查找并组合返回到一条记录中。<br>3：information _schema.tables包含了所有库中表的信息，此外还有information _schema.columns（包含所有库中列的信息。）等。<br>4：table _name，columns _ name等均可以直译。<br>5：sql注入语句逻辑很好理解，可以当成英语语句或者编程语句来理解。大致如下：<br>select ···查询···<br>from ···从···中<br>where···当···时</p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>
