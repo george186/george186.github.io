@@ -30,15 +30,15 @@
     
     <entry>
       <title>寒假练习4</title>
-      <link href="test7/undefined-undefined.html"/>
-      <url>test7/undefined-undefined.html</url>
+      <link href="test8/undefined-undefined.html"/>
+      <url>test8/undefined-undefined.html</url>
       
         <content type="html"><![CDATA[<p>今天还是注入题。  </p><h1 id="极客大挑战-2019-EasySQL-1"><a href="#极客大挑战-2019-EasySQL-1" class="headerlink" title="[极客大挑战 2019]EasySQL 1"></a>[极客大挑战 2019]EasySQL 1</h1><p>打开页面，发现这次和之前的注入有点不一样。<br><img src="https://s3.ax1x.com/2021/01/18/scS2bq.md.png" alt="scS2bq.md.png"><br>这次让输入两个值，分别是用户名和密码，而之前输入的都只有一个。但是还是按照之前的顺序来，先判断有没有注入。<br>输入username=1’,password=1’发现回显出错。<br><img src="https://s3.ax1x.com/2021/01/18/scpQLn.md.png" alt="scpQLn.md.png"><br>由出错可以判断出是字符型注入。<br>接着是查询字段，但是输入1’ order by 1# 等却无法查询，仍然是报错。<br>那就跳过这一步，接着就是查看是否有显示位。我输入的是  </p><blockquote><p>username=999’ union select 1,2,database()#</p></blockquote><p>结果直接出flag了，十分懵b。<br><img src="https://s3.ax1x.com/2021/01/18/sc9qN6.md.png" alt="sc9qN6.md.png"><br>接着我又查了一下别人的做法，发现别人用到了万能密码来做，下面讲解一下万能密码。  </p><hr><h1 id="万能密码"><a href="#万能密码" class="headerlink" title="万能密码"></a>万能密码</h1><p>用户进行用户名和密码验证时，网站需要查询数据库。查询数据库就是执行SQL语句。<br>用户登录时，后台执行的数据库查询操作（SQL语句）是：<br>【Select user _ id,user _ type,email From users Where user _ id=’用户名’ And password=’密码’】。<br>由于网站后台在进行数据库查询的时候没有对单引号进行过滤，当输入用户名【admin】和万能密码【2’or’1】时，执行的SQL语句为：<br>【Select user _ id,user _ type,email From users Where user _ id=’admin’ And password=’2’or’1’】。<br>由于SQL语句中逻辑运算符具有优先级，【=】优先于【and】，【and】优先于【or】，且适用传递性。因此，此SQL语句在后台解析时，分成两句：<br>【Select user _ id,user _ type,email From users Where user _ id=’admin’ And password=’2’】和【’1’】，两句bool值进行逻辑or运算，恒为TRUE。<br>SQL语句的查询结果为TRUE，就意味着认证成功，也可以登录到系统中。<br>输入用户名【admin】，密码【2’or’1】，即可登录成功。  </p><hr><p>简而言之这个就是利用or的判定方式（左右两边只要一边为真，那么总体为真）来通过SQL语句的查询认证。同理，万能密码还会有很多，比如username=1’ or 1=1#,这样实际上执行的SQL语句就成为了<br>【Select user _ id,user _ type,email From users Where username=’1’】和【1=1】。（#为SQL的注释符，所以#后面的字符不再进行判定）<br>因为后面为真，所以SQL语句查询where的判定为真。也就通过了查询认证，所以得到flag。</p>]]></content>
       
       
       <categories>
           
-          <category> test7 </category>
+          <category> test8 </category>
           
       </categories>
       
