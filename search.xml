@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>寒假练习5</title>
+      <link href="test9/undefined-undefined.html"/>
+      <url>test9/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天来一道捉迷藏的题目。  </p><h1 id="极客大挑战-2019-Secret-File-1"><a href="#极客大挑战-2019-Secret-File-1" class="headerlink" title="[极客大挑战 2019]Secret File 1"></a>[极客大挑战 2019]Secret File 1</h1><p>打开题目，发现如下界面。<br><img src="https://s3.ax1x.com/2021/01/19/sg4bfx.md.png" alt="sg4bfx.md.png"><br>看见这种界面，而且没有可以点的地方的题目一律f12伺候。<br>从源码中可以看到有一个php文件。<br><img src="https://s3.ax1x.com/2021/01/19/sgIlad.md.png" alt="sgIlad.md.png"><br>于是我们就打开这个Archive_room.php文件。<br><img src="https://s3.ax1x.com/2021/01/19/sgTS74.md.png" alt="sgTS74.md.png"><br>果然跳转到另一个页面，这次还有一个点击按钮，点一下试试。<br><img src="https://s3.ax1x.com/2021/01/19/sgbM4J.md.png" alt="sgbM4J.md.png"><br>就知道不会那么简单，对这种一闪而过的情况直接进行抓包，给他拦下来。<br><img src="https://s3.ax1x.com/2021/01/19/sgbW5Q.md.png" alt="sgbW5Q.md.png"><br>通过抓包可以看到中间还经过了一个php页面，于是再回到题目中输入一下。<br><img src="https://s3.ax1x.com/2021/01/19/sgqwZT.md.png" alt="sgqwZT.md.png"><br>跳转到源码页面了。<br>这个代码很容易懂，通过get方式传参一个file变量，而且有include()<br>函数，很明显是一个文件包含漏洞。可以用伪协议来做这道题。同时可以看到它过滤了一些伪协议，但是相较于之前学长出过的题过滤的还是太轻了（哈哈哈哈哈）。<br>直接使用php://filter协议读取flag.php里面的源码。构造payload。  </p><blockquote><p>?file=php://filter/read=convert.base64-encode/resource=flag.php</p></blockquote><p>这样就能得到经过base64编码过的源码，再解码一下就能得到flag。<br><img src="https://s3.ax1x.com/2021/01/19/sgjXcj.md.png" alt="sgjXcj.md.png"><br>这道题目主要还是找到藏着的php文件，后面的代码审计反而比较简单。 </p><hr><p>附上我的php伪协议笔记<br><a href="https://george186.github.io/note2/undefined-undefined.html">php伪协议总结</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test9 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>万能密码总结</title>
       <link href="note3/undefined-undefined.html"/>
       <url>note3/undefined-undefined.html</url>
