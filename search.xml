@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>寒假练习9</title>
+      <link href="test14/undefined-undefined.html"/>
+      <url>test14/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天原本像做那道easy_tornado的题，但是搞了半天，看了别人的wp依旧是半知不解，感觉要彻底了解这道题还需要知道不少别的从没见过的东西（我太菜了），所以就先放一下那道题，先往后写吧。  </p><h1 id="极客大挑战-2019-Knife-1"><a href="#极客大挑战-2019-Knife-1" class="headerlink" title="[极客大挑战 2019]Knife 1"></a>[极客大挑战 2019]Knife 1</h1><p>其实这道题很简单，但是不知道为什么做出来的人数这么少，估计是别人不屑于做这道题吧。。。。。<br>打开界面，直接说出来了菜刀二字，是上传一句话没跑了。更友善的是这道题直接把一句话木马给你了，都不用自己写，而且给了你上传的方法。<br>（这么好的题目我哭了）<br><img src="https://i.loli.net/2021/01/23/mnZ4IiADqey7Hbx.png" alt="62.png"><br>虽然有些不敢相信，但是还是直接post把一句话传了过去，接着就是使用剑蚁进行连接，密码也就是syc。<br>接着我们尝试连接一下。<br><img src="https://i.loli.net/2021/01/23/5Sdj4vLFbZJKgxN.png" alt="63.png"><br>真的成功了。这题就是这么简单，接着在根目录下找到flag文件就行了。  </p><hr><h2 id="关于一句话木马"><a href="#关于一句话木马" class="headerlink" title="关于一句话木马"></a>关于一句话木马</h2><p>这个一句话木马也是web中见到很多次的一个进入对方后台的手段了。其原理其实比较简单。当后台代码对在网页上上传的文件没有进行检测时，我们可以上传<br><?php  @eval($_REQUEST['shell']);  ?><br>这样的一个php文件(改后缀为php)。而这样的一句代码就可以让我们使用get或者post的传参方式传给shell这个参数，让它来执行一些命令。当然这样子一次次的输入命令有些麻烦，这时利用中国菜刀或者剑蚁这些工具就可以更加简单直观的看到该网站下的所有文件，不用再输入命令来一一查看。<br>更多详细的的讲解在这篇博客里：<br><a href="https://blog.csdn.net/qq_41500251/article/details/100177972?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161139862016780261976336%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=161139862016780261976336&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-2-100177972.pc_search_result_before_js&utm_term=%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%9C%A8%E9%A9%AC%E5%8E%9F%E7%90%86&spm=1018.2226.3001.4187">一句话木马原理</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test14 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>寒假练习8</title>
       <link href="test13/undefined-undefined.html"/>
       <url>test13/undefined-undefined.html</url>
