@@ -4,6 +4,25 @@
   
     
     <entry>
+      <title>寒假练习16</title>
+      <link href="test22/undefined-undefined.html"/>
+      <url>test22/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天又是一道网站备份文件的题目。  </p><h1 id="ACTF2020-新生赛-BackupFile-1"><a href="#ACTF2020-新生赛-BackupFile-1" class="headerlink" title="[ACTF2020 新生赛]BackupFile 1"></a>[ACTF2020 新生赛]BackupFile 1</h1><p>这道题目比较简单，打开题目发现让我们找藏起来的文件，那么应该也就是让我们找到备份文件了。<br>前面我们刚知道备份文件的后缀和名称有很多，而这一题就需要我们使用工具来找到这个文件。<br>这里我使用的是dirsearch这个扫描工具（可以在网上搜索安装）。输入下面命令。  </p><blockquote><p>python dirsearch.py -u <a href="http://13e8bfaa-7a05-43ed-a368-d041ed8501f8.node3.buuoj.cn/">http://13e8bfaa-7a05-43ed-a368-d041ed8501f8.node3.buuoj.cn/</a> -e php<br><img src="https://i.loli.net/2021/02/01/TdFEwY4vZB1bPpX.png" alt="74.png"><br>这个命令需要在cmd中输入，要先进入这个工具所在的目录才能使用。<br>可以发现，这个网页的备份文件为/index.php.bak。<br><img src="https://i.loli.net/2021/02/01/XeuvY2aKsdbI95r.png" alt="75.png"><br>接着我们就可以打开这个文件，查看源码了。  </p></blockquote><p>可以看到源码还是很简单的，通过get方式传入参数赋给key变量，key只能是数字。还定义了一个字符串str，接着就是将key和str进行比较，注意这里是==。两个等号，是弱类型比较，只比较值而不比较变量类型，但是int类型和str类型是无法直接比较的，所以当比较时会将字符串的首串数字提出来，之后的省去，用这串数字来和int类型的变量进行比较。<br>所以说str在比较时所用的字符串也就是123，那么我们传参使key=123就可以了。<br>构造/?key=123就可以得到flag。<br><img src="https://i.loli.net/2021/02/01/SAanwxbRYk4G6Mf.png" alt="76.png"></p><hr><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>关于备份文件也就这么多知识点了，这次还考了比较类型，强弱类型比较并不是很难，下面附上关于这方面的讲解。<br><a href="https://blog.csdn.net/Auuuuuuuu/article/details/79621635?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161217660316780271533658%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=161217660316780271533658&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-2-79621635.pc_search_result_cache&utm_term=php+%E6%95%B0%E5%80%BC%E6%AF%94%E8%BE%83&spm=1018.2226.3001.4187">php中的==和===比较</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test22 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>寒假练习15</title>
       <link href="test21/undefined-undefined.html"/>
       <url>test21/undefined-undefined.html</url>
