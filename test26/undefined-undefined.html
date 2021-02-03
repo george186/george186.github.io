@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>tags - 练习 - Hexo</title>
+<title>寒假练习18 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,245 +139,87 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-02-03">2021-02-03</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">寒假练习18</h2>
+            <div class="post-meta">
+                emm... 1266 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天做了一道别样的上传文件题。   </p>
+<h1 id="SUCTF-2019-CheckIn-1"><a href="#SUCTF-2019-CheckIn-1" class="headerlink" title="[SUCTF 2019]CheckIn 1"></a>[SUCTF 2019]CheckIn 1</h1><p>打开题目，发现让我们上传文件，毫不犹豫的写了个一句话木马上传抓包。<br><img src="https://i.loli.net/2021/02/04/WyhbxgpBLC5POAm.png" alt="13.png"><br>抓包后发现它过滤了php语言中的<?和?>符号，从以前做过的类似的题目积累可以知道这个符号用&lt;script来绕过，所以这样构造一句话木马。  </p>
+<blockquote>
+<p>&lt; script language=”php”&gt;eval($_REQUEST[shell]) </script >  </p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/04/L2wu7oOjN59Y1aP.png" alt="14.png">  </p>
+<p>接着它检测出来这个文件不是图片。我们先修改文件类型Content-Type，改为image/jpg。<br><img src="https://i.loli.net/2021/02/04/c9MqKxInWEv5bjP.png" alt="15.png"><br>发现它依旧检测出来不是图片，那么我们就在文件头加上GIF89a图片头。  </p>
+<p><img src="https://i.loli.net/2021/02/04/pgKyNdIYWXStC4n.png" alt="16.png"><br>可以可看到成功上传，接着就是修改文件后缀，让他是一个php文件，只有这样才能执行我们的一句话代码。但是经过多次尝试可以知道它过滤了php的后缀，所以我们要想别的方法来上传。  </p>
+<hr>
+<h2 id="user-ini文件"><a href="#user-ini文件" class="headerlink" title=".user.ini文件"></a>.user.ini文件</h2><p>看了别人的wp后发现这道题要利用.user.ini文件来绕过对php后缀名的检测。<br>这个文件是php中的配置文件，搭过博客的可以知道配置文件管理着许多操作，而php.ini就是管理着所有php配置的配置文件，是php的默认配置文件，也就相当于admin用户。<br>但是.user.ini也是php配置文件，与默认的php.ini不同，这个是我们用户可以自定义的php.ini，当然，它可以操作的配置项相较于php.ini来说较少，也就相当于普通用户。<br>其中，利用.user.ini可以配置的项中有两个可以为我们所用。  </p>
+<blockquote>
+<p>auto_ append _ file<br>auto_ prepend _file</p>
+</blockquote>
+<p>指定一个文件，自动包含在要执行的文件前，类似于在文件前调用了include()函数。而auto_ append_file类似，只是在文件后面包含。 使用方法很简单，直接写在.user.ini中：  </p>
+<blockquote>
+<p>auto_ prepend_file=01.gif</p>
+</blockquote>
+<p>01.gif就是要包含的文件。这样就可以使所有的php文件都包含一个01.gif的文件。<br>所以我们就可以利用这一点来构造后门，上传一句话木马。  </p>
+<hr>
+<p>知道道题原理后我们可以先上传一个.user.ini文件。  </p>
+<blockquote>
+<p>GIF89a<br>auto_ prepend_file=shell.gif<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/ylJyfP"><img src="https://s3.ax1x.com/2021/02/04/ylJyfP.md.png" alt="ylJyfP.md.png"></a><br>这样就实现了一个配置——使所有的php文件都包含一个shell.gif文件，这样就能解析我们上传的图片马。从而实现一句话木马功能。<br>接着再上传我们的图片马。<br><a target="_blank" rel="noopener" href="https://imgchr.com/i/ylJROg"><img src="https://s3.ax1x.com/2021/02/04/ylJROg.md.png" alt="ylJROg.md.png"></a><br>我们可以看到文件中有一个index.php文件，而我们的图片马也就包含在了这个php文件中，进而被解析，成为后门。<br>接下来用剑蚁连接或者直接在网址post数据就可以查看到flag了。  </p>
+</blockquote>
+<hr>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题给出了另一种绕过上传文件限制的思路，当过滤了php的所有可以用的后缀名时，我们可以通过修改php的配置文件令所有php文件都包含我们上传的图片马，从而可以实现上传图片马被解析达到上传一句话木马的目的。<br>下面附上详细的讲解。<br><a target="_blank" rel="noopener" href="https://wooyun.js.org/drops/user.ini%E6%96%87%E4%BB%B6%E6%9E%84%E6%88%90%E7%9A%84PHP%E5%90%8E%E9%97%A8.html">user.ini文件构成的PHP后门</a>  </p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2021-01-17
-            
         </div>
-        <a class="post-title" href="/test6/undefined-undefined.html" target="_blank" title="寒假练习3">寒假练习3</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        寒假练习3
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2021-01-16
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
             
         </div>
-        <a class="post-title" href="/test5/undefined-undefined.html" target="_blank" title="寒假练习2">寒假练习2</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        寒假练习2
-    </div>
-</article>
-
-
-
         
-            
-<article class="post">
+    </article>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2021-01-15
-            
-        </div>
-        <a class="post-title" href="/test4/undefined-undefined.html" target="_blank" title="寒假练习1">寒假练习1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        寒假练习1
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-12-05
-            
-        </div>
-        <a class="post-title" href="/test3/undefined-undefined.html" target="_blank" title="web第二周练习ssrf1">web第二周练习ssrf1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web第二周练习ssrf1
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-12-03
-            
-        </div>
-        <a class="post-title" href="/test2/undefined-undefined.html" target="_blank" title="第二周习题1">第二周习题1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        第二周习题1
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-12-02
-            
-        </div>
-        <a class="post-title" href="/test1/undefined-undefined.html" target="_blank" title="攻防世界练习---伪协议">攻防世界练习---伪协议</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        攻防世界练习---伪协议
-    </div>
-</article>
 
-
-
-        
-            
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
-            
-        </div>
-        <a class="post-title" href="/test/undefined-undefined.html" target="_blank" title="web第一周练习">web第一周练习</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web第一周练习
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-22
-            
-        </div>
-        <a class="post-title" href="/%E7%BB%83%E4%B9%A0/undefined-undefined.html" target="_blank" title="web习题练习1">web习题练习1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web习题练习1
-    </div>
-</article>
-
-
-
-        
-    
 </div>
 
-<div id="btn-pager">
-    
-    <a class="extend prev" rel="prev" href="/tags/%E7%BB%83%E4%B9%A0/page/2/">Prev</a><a class="page-number" href="/tags/%E7%BB%83%E4%B9%A0/">1</a><a class="page-number" href="/tags/%E7%BB%83%E4%B9%A0/page/2/">2</a><span class="page-number current">3</span>
-</div>
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->

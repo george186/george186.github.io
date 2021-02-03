@@ -155,7 +155,7 @@
             </div>
             <h2 class="post-title">寒假练习13</h2>
             <div class="post-meta">
-                emm... 1254 words in the article |
+                emm... 1230 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
@@ -167,7 +167,7 @@
 </blockquote>
 <p>接着打开抓包工具，将我的一句话上传上去。<br><img src="https://i.loli.net/2021/01/27/5gdpqW2U6BnVLTh.png" alt="52.png"><br>果然被拦截了，它提醒我们文件不是image类型的，我们可以在左面文件信息中Content-Type一栏看到类型为text/plain。所以我们将其改一下就行了，我们改为image/jpg再次上交。<br>这次又给我们拦了下来。<br><img src="https://i.loli.net/2021/01/27/S2B3dy6zXPHIgtp.png" alt="53.png"><br>它说我们的一句话内容有&lt;?这个字符，这很明显涉及到了一句话的变形，也就是用其他的字符替代&lt;?。<br>这个在网上不难查到，我构造了以下一句话。  </p>
 <blockquote>
-<p><code>&lt;script language=&quot;php&quot;&gt;eval($_REQUEST[shell])&lt;/script&gt;</code></p>
+<p>&lt; script language=”php”&gt;eval($_REQUEST[shell])</script ></p>
 </blockquote>
 <p>也就是说可以用script来代替<?，?>标签。<br>接下来它又提出了要求。<br><img src="https://i.loli.net/2021/01/27/6EscuY7ah3TRUOS.png" alt="54.png"><br>它再一次验证了文件类型，要求我们的文件内容必须是image，但是一句话木马怎么可能是图片呢，这时我们也不能再修改Content-Type，而是要让检测认为我们这个是图片。这就要用到图片头文件欺骗。  </p>
 <hr>
