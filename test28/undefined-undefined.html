@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>categories - test25 - Hexo</title>
+<title>寒假练习20 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,44 +139,90 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-02-05">2021-02-05</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">寒假练习20</h2>
+            <div class="post-meta">
+                emm... 1624 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天的题目是一道综合型的题目。  </p>
+<h1 id="ZJCTF-2019-NiZhuanSiWei-1"><a href="#ZJCTF-2019-NiZhuanSiWei-1" class="headerlink" title="[ZJCTF 2019]NiZhuanSiWei 1"></a>[ZJCTF 2019]NiZhuanSiWei 1</h1><p>打开题目，可以看到源码。<br><img src="https://i.loli.net/2021/02/05/pGI7dQRwKS8JNHF.png" alt="58.png"><br>分别有三个变量，都是以get方式传参。可以看到，我们必须要满足第一个if才能有后面的动作。  </p>
+<blockquote>
+<p>if(isset($text)&amp;&amp;(file_ get_contents($text,’r’)===”welcome to the zjctf”))</p>
+</blockquote>
+<p>这个if是先判断text是否为变量，然后读取text里面的内容并和welcome to the zjctf比较，如果text内容是这句话那么就可以接着进行。<br>一开始我想的是直接传参，构造/?text=welcome to the zjctf。<br>但是发现这样行不通，猜测是file_ get_contents（）函数是读取文件内容，而我们传参只是将值赋给了变量，这仍旧无法使函数读出text文件里有什么内容。<br>所以只能换另一种方法，用伪协议data://来写入字符串。关于伪协议可以查看我的另一篇博客笔记。这里简单说一下data://伪协议。  </p>
+<hr>
+<h2 id="伪协议data"><a href="#伪协议data" class="headerlink" title="伪协议data://"></a>伪协议data://</h2><p>使用条件allow _url _fopen ：on<br>allow _url _include：on<br>可以用该协议传递相应格式的数据。通常可以用来执行php代码<br>data://text/plain，<br>data://text/plain；base64，  </p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://127.0.0.1/cmd.php?file=data://text/plain">http://127.0.0.1/cmd.php?file=data://text/plain</a>,<?php phpinfo()?></p>
+<p><a target="_blank" rel="noopener" href="http://127.0.0.1/cmd.php?file=data://text/plain;base64,PD9waHAgcGhwaW5mbygpPz4=">http://127.0.0.1/cmd.php?file=data://text/plain;base64,PD9waHAgcGhwaW5mbygpPz4=</a>  </p>
+</blockquote>
+<hr>
+<p>所以我们可以这样构造payload，把welcome to the zjctf写入text这个文件中。  </p>
+<blockquote>
+<p>?text=data://text/plain,welcome to the zjctf</p>
+</blockquote>
+<p>可以看到我们进入下一个界面。<br><img src="https://i.loli.net/2021/02/05/bRWcZJ21glnaCqx.png" alt="59.png"><br>根据开始的源码可以看到有一个uesless.php，可以确定这个是我们接下来要查看的文件。<br>看到有这样一个函数：include($file);那就是include（）包含漏洞了，直接上伪协议php://filter来读这个文件。  </p>
+<blockquote>
+<p>file=php://filter/read=convert.base64-encode/resource=useless.php  </p>
+</blockquote>
+<p>经过解码后得到这个php文件的源码。<br><img src="https://i.loli.net/2021/02/05/BT56PSd4AiI7L3j.png" alt="60.png"><br>可以看出来flag在flag.php里，我们如何读取这个文件呢，可以看到这个文件里有一个file_ get_contents（）函数，而里面的参数就是file，所以我们给file赋值flag.php就可以读取flag.php文件。<br>接着就是如何构造payload了，在这里我犯了个迷糊，文件里可以看到要序列化，一开始我直接来了个/?file=O:4:”Flag”:1:{s:4:”file”;s:8:”flag。php”;}却发现来了个not now，回头再看看源码发现漏了password这个变量。<br>因为file变量是被正则过滤了flag这个字符串的。所以我们不能通过file来上传我们的序列化。<br>所以我们应该再传参password。  </p>
+<blockquote>
+<p>/?password=O:4:”Flag”:1:{s:4:”file”;s:8:”flag.php”;}</p>
+</blockquote>
+<p>这样变量password经过反序列化函数后就可以读取flag了。<br>最后要按一下f12才能看到flag。  </p>
+<hr>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目三个变量各有用处，text是开始的第一步要用到的，而file用来查看另一个php文件，password变量用来读取flag。<br>这道题目考了伪协议和序列化的知识，本身不难，重点是第一个data://伪协议的使用，之前我以为这个只能执行php代码，这道题让我知道了它还有写入的功能。确实长了见识。</p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2021-02-02
-            
         </div>
-        <a class="post-title" href="/test25/undefined-undefined.html" target="_blank" title="sql注入练习5-6">sql注入练习5-6</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        sql注入练习5-6
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
     
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
 </div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->

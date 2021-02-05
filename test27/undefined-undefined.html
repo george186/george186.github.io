@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>categories - test25 - Hexo</title>
+<title>寒假练习19 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,44 +139,87 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-02-04">2021-02-04</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">寒假练习19</h2>
+            <div class="post-meta">
+                emm... 1328 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天又学到了一种特殊的sql绕过注入的方法。  </p>
+<h1 id="BJDCTF2020-Easy-MD5-1"><a href="#BJDCTF2020-Easy-MD5-1" class="headerlink" title="[BJDCTF2020]Easy MD5 1"></a>[BJDCTF2020]Easy MD5 1</h1><p>打开题目，是一个登录页面。<br><img src="https://i.loli.net/2021/02/04/vr9YKLGBQIxnEzt.png" alt="19.png"><br>他让我们提交查询，可以猜想这是一个sql注入题，但是无论如何注入都没有回显和报错，这让我不知道如何进行下去，只能先抓包试一下。<br><img src="https://i.loli.net/2021/02/04/Qs6LvM8yREoYfhc.png" alt="20.png"><br>通过抓包的请求头里的信息可以看到有一个提示：<br>select * from ‘admin’ where password=md5($pass,true)<br>看来这个就是后台的sql语句了，可以看到我们输入的password经过了一个md5（）函数的加密，变成了别的语句。这也就解释了为什么我们输入的用于注入的语句都失效了。  </p>
+<h2 id="md5函数"><a href="#md5函数" class="headerlink" title="md5函数"></a>md5函数</h2><p><img src="https://i.loli.net/2021/02/04/APICF3yWV5iRsb9.png" alt="21.png"><br>可以看到，md5函数计算出来的md5散列被规定成原始 16 字符二进制格式输出，那么这样会输出什么呢？我测试了一下。<br><img src="https://i.loli.net/2021/02/04/RZmJ7LVrh9uBMTw.png" alt="22.png"><br>好家伙，完全不能看，所以现在我们要做的就是找到一个字符串，当他经过这个md5函数后输出的字符串仍然可以用于sql注入。<br>到这个地方我就卡住了，只能看一下别人是如何做到的。<br>看了别人的wp发现可以写一个脚本来找到这样的字符串(tql)，我直接把这个字符串拿过来用了。  </p>
+<blockquote>
+<p>ffifdyop</p>
+</blockquote>
+<p>这个字符串在经过md5函数后就成了’or’6\xc9]\x99\xe9!r,\xf9\xedb\x1c这样的字符，再经过mysql的转化后成了’or’6]!r,b。<br>这样一来，后台的sql语句就成了这样的：  </p>
+<blockquote>
+<p>select * from ‘admin’ where password=’’or’6]!r,b’</p>
+</blockquote>
+<p>当or后面接的是一个数字的话，sql语句就变成：  </p>
+<blockquote>
+<p>select * from ‘admin’ where password=’’or true</p>
+</blockquote>
+<p>这也就是一个万能密码。所以我们可以成功登入。<br><img src="https://i.loli.net/2021/02/04/z6PEBMjLsOfqSu9.png" alt="23.png"><br>查看源码。<br><img src="https://i.loli.net/2021/02/04/kFKr3CvQa4H5es9.png" alt="24.png"><br>发现这里是一个md5的弱类型绕过。他要求我们输入的a，b变量 不相等，但是经过md5加密后相等。<br>如果我们输入构造这样的payload  </p>
+<blockquote>
+<p>/?a=QNKCDZO&amp;b=s878926199a  </p>
+</blockquote>
+<p>那么他们本来是不相等的，但是经过md5加密后的开头都是0e，而这样的开头在==比较下会被识别为科学计数法，也就是0，那么0=0为真，所以就能满足这两个条件。<br>这样的字符串有很多：240610708，aabg7XSs，aabC9RqS，<br>s878926199a。<br>接着我们进入下一个界面.<br><img src="https://i.loli.net/2021/02/04/w8XKuFZl6Q1SHym.png" alt="25.png"><br>发现这是一个强类型的绕过，如果我们再次输入上面的字符串，到了===的md5比较就没办法绕过了。因为===要求全等，也就说不能看作科学计数法。所以我们要用别的方法。<br>可以知道，当md5函数收到的不是字符串而是数组的时候，它并不会报错，而是会返回null，在强比较===里，null===null为真。这样就能绕过了。<br>所以我们这样构造：  </p>
+<blockquote>
+<p>param1[]=1&amp;param2[]=2</p>
+</blockquote>
+<p>这样post过去就能得到flag了。  </p>
+<hr>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题最重要的一点还是绕过md5的sql注入，这个字符串确实对我来说还是不好找到的，后面的md5绕过其实网上有很多字符串，多积累在这个地方还是难不倒的。<br>附上md5绕过的讲解和积累。<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/EC_Carrot/article/details/109525162?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161242526816780255252599%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=161242526816780255252599&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-7-109525162.pc_search_result_cache&utm_term=php+md5%E5%BC%BA%E7%B1%BB%E5%9E%8B%E7%BB%95%E8%BF%87&spm=1018.2226.3001.4187">【PHP】MD5比较漏洞 弱比较、强比较、强碰撞</a></p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2021-02-02
-            
         </div>
-        <a class="post-title" href="/test25/undefined-undefined.html" target="_blank" title="sql注入练习5-6">sql注入练习5-6</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        sql注入练习5-6
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
     
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
 </div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->

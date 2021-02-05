@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>sql注入练习5 - Hexo</title>
+<title>sql注入练习5-6 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -153,9 +153,9 @@
                 </p>
                 <p>一个写代码的「伪文人」</p>
             </div>
-            <h2 class="post-title">sql注入练习5</h2>
+            <h2 class="post-title">sql注入练习5-6</h2>
             <div class="post-meta">
-                emm... 4185 words in the article |
+                emm... 4249 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
@@ -226,7 +226,8 @@
 <blockquote>
 <p>?id=1’ and (select 1 from(select count( * ),concat((select username from security.users limit 0,1),floor(rand(0) *2))as a from information_schema.tables group by a)x)–+</p>
 </blockquote>
-<p><a target="_blank" rel="noopener" href="https://imgchr.com/i/yMTmQK"><img src="https://s3.ax1x.com/2021/02/03/yMTmQK.md.png" alt="yMTmQK.md.png"></a><br>通过改变0，1，2，3…..来一个个读取数据。<br>至此，sql的双查询注入就结束了。</p>
+<p><a target="_blank" rel="noopener" href="https://imgchr.com/i/yMTmQK"><img src="https://s3.ax1x.com/2021/02/03/yMTmQK.md.png" alt="yMTmQK.md.png"></a><br>通过改变0，1，2，3…..来一个个读取数据。<br>至此，sql的双查询注入就结束了。  </p>
+<h1 id="Less-6"><a href="#Less-6" class="headerlink" title="Less-6"></a>Less-6</h1><p>这道题和第五关几乎一样，唯一不同的就是闭合方式不同，第五关是单引号闭合，这一关是双引号闭合。其余的语句都不变。</p>
 <hr>
 <h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>双查询注入是报错注入的一种方法，报错注入就是利用了sql的语句的报错来获得数据库的信息，除了双查询注入外还有别的报错注入的方法，比如通过updatexml报错，通过ExtractValue报错 ，双查询注入利用的是通过floor报错，这三种方法本质相同，都是利用函数的报错。之后会把另外的报错注入方法总结一下。<br>关于双查询注入，其实还是有一些地方需要继续探究的，下面附上相关博客和双查询注入的格式。  </p>
 <blockquote>
