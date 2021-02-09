@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>tags - 笔记 - Hexo</title>
+<title>关于报错注入concat函数的替换 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,184 +139,75 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-02-09">2021-02-09</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">关于报错注入concat函数的替换</h2>
+            <div class="post-meta">
+                emm... 1395 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>好久没做过笔记了，昨天做的一道题目中sql报错注入时concat函数被过滤导致基于updatexml（）函数的报错注入没法进行（关于这个函数的报错注入详见之前的博客）。<br>因为updatexml（）函数函数的报错是基于查找的字符的位置的格式不对而报错的，所以要用到concat函数将错误格式的字符和要查的字符串连接起来。如下  </p>
+<blockquote>
+<p>select username from security.user where id=1 and (updatexml(‘anything’,<strong>concat</strong>(‘~’,(select database())),’anything’))</p>
+</blockquote>
+<p>但是这道题将concat函数过滤了，那么还有没有别的函数可以代替了呢？<br>看了别人的wp后发现了可以用make_set()函数来代替。  </p>
+<hr>
+<h2 id="MAKE-SET-bits-str1-str2-…"><a href="#MAKE-SET-bits-str1-str2-…" class="headerlink" title="MAKE_SET(bits,str1,str2,…)"></a>MAKE_SET(bits,str1,str2,…)</h2><p>返回一个设定值(含子字符串分隔字符串”,”字符)，在设置位的相应位的字符串。str1对应于位0，str2到第1位，依此类推。在str1，str1有NULL值，…那么不添加到结果。<br>如make_ set(1,’a’,’b’,’c’)<br>返回的结果就是a，因为bits会转为二进制，1的二进制为0001，倒过来排序为1000，对应str1，也就取a。<br>接下来才是重点。<br>当make_set(3,’a’,’b’,’c’)时返回的是a，b。<br>并到过来排序，3的二进制是0011，倒过来是1100，所以对应str1，str2，那么就返回a，b。  </p>
+<hr>
+<p>那么我们不就可以用它来替代concat函数了吗。<br>这样构造：<br>爆列名</p>
+<blockquote>
+<p>view.php?no=1 and updatexml(1,make _set(3,’~’,(select group _concat(column _name) from information _schema.columns where table _name=”users”)),1)#</p>
+</blockquote>
+<p>这样make_set()函数实际返回的值就是“<del>,列名”,这样格式依旧是错误的，可以成功报错。<br>后面爆data信息的时候因为字符串较长，可以用substring()来一段一段的截取。<br>附上截图<br><img src="https://i.loli.net/2021/02/09/8AcY1Bgotb7KkRh.png" alt="5.png"><br><img src="https://i.loli.net/2021/02/09/a6zTKAwDfbyVUE8.png" alt="6.png"><br>关于make _set()函数的讲解。<br>[MySQL make_set()的用法](<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41725312/article/details/83039525?ops_request_misc=%25257B%252522request%25255Fid%252522%25253A%252522161278616016780264099884%252522%25252C%252522scm%252522%25253A%25252220140713.130102334.pc%25255Fall.%252522%25257D&amp;request_id=161278616016780264099884&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2">https://blog.csdn.net/qq_41725312/article/details/83039525?ops_request_misc=%25257B%252522request%25255Fid%252522%25253A%252522161278616016780264099884%252522%25252C%252522scm%252522%25253A%25252220140713.130102334.pc%25255Fall.%252522%25257D&amp;request_id=161278616016780264099884&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2</a></del>all<del>first_rank_v2</del>rank_v29-1-83039525.pc_search_result_cache&amp;utm_term=make_set)</p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2021-02-09
-            
         </div>
-        <a class="post-title" href="/note5/undefined-undefined.html" target="_blank" title="关于报错注入concat函数的替换">关于报错注入concat函数的替换</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        关于报错注入concat函数的替换
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2021-01-28
+            <a href="/tags/%E7%AC%94%E8%AE%B0/">笔记</a>
             
         </div>
-        <a class="post-title" href="/note4/undefined-undefined.html" target="_blank" title="sql绕过方法笔记">sql绕过方法笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        sql绕过方法笔记
-    </div>
-</article>
-
-
-
         
-            
-<article class="post">
+    </article>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2021-01-18
-            
-        </div>
-        <a class="post-title" href="/note3/undefined-undefined.html" target="_blank" title="万能密码总结">万能密码总结</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        万能密码总结
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-12-02
-            
-        </div>
-        <a class="post-title" href="/note2/undefined-undefined.html" target="_blank" title="PHP伪协议笔记">PHP伪协议笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        PHP伪协议笔记
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-29
-            
-        </div>
-        <a class="post-title" href="/note1/undefined-undefined.html" target="_blank" title="PHP中foreach函数笔记">PHP中foreach函数笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        PHP中foreach函数笔记
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
-            
-        </div>
-        <a class="post-title" href="/note/undefined-undefined.html" target="_blank" title="第一周学习报告">第一周学习报告</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        第一周学习报告
-    </div>
-</article>
 
-
-
-        
-    
 </div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->
