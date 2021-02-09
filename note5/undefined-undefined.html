@@ -155,7 +155,7 @@
             </div>
             <h2 class="post-title">关于报错注入concat函数的替换</h2>
             <div class="post-meta">
-                emm... 1395 words in the article |
+                emm... 1397 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
@@ -172,7 +172,7 @@
 <blockquote>
 <p>view.php?no=1 and updatexml(1,make _set(3,’~’,(select group _concat(column _name) from information _schema.columns where table _name=”users”)),1)#</p>
 </blockquote>
-<p>这样make_set()函数实际返回的值就是“<del>,列名”,这样格式依旧是错误的，可以成功报错。<br>后面爆data信息的时候因为字符串较长，可以用substring()来一段一段的截取。<br>附上截图<br><img src="https://i.loli.net/2021/02/09/8AcY1Bgotb7KkRh.png" alt="5.png"><br><img src="https://i.loli.net/2021/02/09/a6zTKAwDfbyVUE8.png" alt="6.png"><br>关于make _set()函数的讲解。<br>[MySQL make_set()的用法](<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41725312/article/details/83039525?ops_request_misc=%25257B%252522request%25255Fid%252522%25253A%252522161278616016780264099884%252522%25252C%252522scm%252522%25253A%25252220140713.130102334.pc%25255Fall.%252522%25257D&amp;request_id=161278616016780264099884&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2">https://blog.csdn.net/qq_41725312/article/details/83039525?ops_request_misc=%25257B%252522request%25255Fid%252522%25253A%252522161278616016780264099884%252522%25252C%252522scm%252522%25253A%25252220140713.130102334.pc%25255Fall.%252522%25257D&amp;request_id=161278616016780264099884&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2</a></del>all<del>first_rank_v2</del>rank_v29-1-83039525.pc_search_result_cache&amp;utm_term=make_set)</p>
+<p>这样make_set()函数实际返回的值就是“’<del>‘,列名”,这样格式依旧是错误的，可以成功报错。<br>后面爆data信息的时候因为字符串较长，可以用substring()来一段一段的截取。<br>附上截图<br><img src="https://i.loli.net/2021/02/09/8AcY1Bgotb7KkRh.png" alt="5.png"><br><img src="https://i.loli.net/2021/02/09/a6zTKAwDfbyVUE8.png" alt="6.png"><br>关于make _set()函数的讲解。<br>[MySQL make_set()的用法](<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41725312/article/details/83039525?ops_request_misc=%25257B%252522request%25255Fid%252522%25253A%252522161278616016780264099884%252522%25252C%252522scm%252522%25253A%25252220140713.130102334.pc%25255Fall.%252522%25257D&amp;request_id=161278616016780264099884&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2">https://blog.csdn.net/qq_41725312/article/details/83039525?ops_request_misc=%25257B%252522request%25255Fid%252522%25253A%252522161278616016780264099884%252522%25252C%252522scm%252522%25253A%25252220140713.130102334.pc%25255Fall.%252522%25257D&amp;request_id=161278616016780264099884&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2</a></del>all<del>first_rank_v2</del>rank_v29-1-83039525.pc_search_result_cache&amp;utm_term=make_set)</p>
 
             
                 
