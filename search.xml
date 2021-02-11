@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>寒假练习24</title>
+      <link href="test32/undefined-undefined.html"/>
+      <url>test32/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>sql注入的许多不起眼的地方都有可能是一个绕过方法。  </p><h1 id="GXYCTF2019-BabySQli-1"><a href="#GXYCTF2019-BabySQli-1" class="headerlink" title="[GXYCTF2019]BabySQli 1"></a>[GXYCTF2019]BabySQli 1</h1><p>打开这道题，发现是个登陆界面。<br><img src="https://i.loli.net/2021/02/11/VLlEiAzqRgaoy8T.png" alt="1.png"><br>接着就尝试万能密码，发现不行。再尝试常规注入，发现不行。最后尝试报错注入和盲注，发现依旧不行。<br>随后又查了一下过滤了啥。进行fuzz测试后发现过滤了( 、)、=、or等字符。随后又进行绕过，但是始终绕不过去。到这里就没有什么头绪了，只能看一眼别人的wp了。  </p><p>看了别人的wp后发现源码里面有提示。。。。。。<br><img src="https://i.loli.net/2021/02/11/dlwqIB2UcJ4uCrv.png" alt="2.png"><br>当进入报错回显页面是有一串奇怪的字符串，只有大写字母和数字构成，可以猜到这是一串base32编码。拿去解密一下。<br><img src="https://i.loli.net/2021/02/11/jmQTEIcGgpZWADM.png" alt="3.png"><br>解完后的编码后面有两个等号，很明显是base64编码。再次解码。<br><img src="https://i.loli.net/2021/02/11/b98rqJPVXKFew4O.png" alt="4.png"><br>解完后是这样一句sql语句：  </p><blockquote><p>select * from user where username = ‘$name’</p></blockquote><p>可以看出来我们要输入已经在数据库里存在的用户名才不会被过滤。<br>再回看被过滤的字符串中or可以使用大小写过滤，那么我们可以查出来这个数据库有几列。  </p><blockquote><p>输入username=1’ Order by 3#</p></blockquote><p><img src="https://i.loli.net/2021/02/11/l5ExYurgePhiCmG.png" alt="5.png"><br>发现用户名错了，看来必须输入正确的用户名，猜一手admin，（后来发现这个用户名可以用sqlmap跑出来）  </p><blockquote><p>username=admin’ Order by 3#</p></blockquote><p><img src="https://i.loli.net/2021/02/11/UdebF5kABupwGt1.png" alt="6.png"><br>用户名对了，密码不对，接着试有几列。  </p><blockquote><p>username=admin’ Order by 4#</p></blockquote><p><img src="https://i.loli.net/2021/02/11/MuZLkVGHlJgEhN5.png" alt="7.png"><br>数据有三列。应该是id，username，password。（这三个列名可以sqlmap跑出来）并且可以得密码是经过md5加密过的。<br>但是接下来该怎么办呢？这里就要回顾一下刚开始学sql注入时的一个小细节了。<br>刚开始学sql注入时，当我们使用联合查询查库名等信息时，我们可以注意到如果我们使用数据库中已有的id那么我们是查不出来东西的，比如以下语句。  </p><blockquote><p>?id=1’ union select 1,2,database()–+</p></blockquote><p>这样是查不出来的，要想查出数据库名字，就要取一个不存在的id，比如id=999，这样就能爆出数据库。  </p><blockquote><p>?id=999’ union select 1,2,database()–+  </p></blockquote><p>为什么会这样呢？这就涉及到sql查询中的一个现象，当在<strong>联合查询过程中如果数据库中没有对应的结果时,数据库会临时创建一个虚拟数据。</strong>比如当我输入id=999’ union select 1,2,database()–+是，就相当于创建了一个id为999的用户的数据，那么后面联合查询到的信息就能回显到界面了。  </p><p>因为我们已经知道了这个登录的数据库中一定有一个admin用户，但是不知道密码。那么我们能不能利用上面的思路，来绕过原本密码的验证呢？  </p><p>答案是可以的。  </p><blockquote><p>构造name=1’ union select 0,’admin’,’81dc9bdb52d04dc20036dbd8313ed055’#&amp;pw=1234</p></blockquote><p>可以看到，我们的联合查询要查询的id为0，但是数据库里没有这个id，所以他就构造了一个id为0的数据，而这行数据的的用户名是admin，密码是md5加密过的1234，而我们在界面输入的密码也是1234。当系统执行时，它会认证用户名和密码的正确性，这是就会把我们的虚拟数据拿出来比对，结果显而易见。我们可以成功登入。  </p><hr><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题考察了sql注入的联合查询的一个特性，利用这个特性可以绕开密码和用户的认证。这也提醒我要注意以前做过的题目中的细节，说不定它就是下一道题的关键。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test32 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>关于报错注入concat函数的替换</title>
       <link href="note5/undefined-undefined.html"/>
       <url>note5/undefined-undefined.html</url>
