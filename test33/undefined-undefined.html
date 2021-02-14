@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>寒假练习12 - Hexo</title>
+<title>寒假练习25 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -149,63 +149,123 @@
                 <p><span class="label">Author</span>
                     <a href="https://george186.github.io"
                        target="_blank">george</a>
-                    <span title="Last edited at&nbsp;2021-01-26">2021-01-26</span>
+                    <span title="Last edited at&nbsp;2021-02-14">2021-02-14</span>
                 </p>
                 <p>一个写代码的「伪文人」</p>
             </div>
-            <h2 class="post-title">寒假练习12</h2>
+            <h2 class="post-title">寒假练习25</h2>
             <div class="post-meta">
-                emm... 2327 words in the article |
+                emm... 3962 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
         <div class="post-content markdown-body">
-            <p>今天科目三还是挂了（心态炸了了了了了了了）但是每日一题还是不能落下（hhhh）。  </p>
-<h1 id="极客大挑战-2019-PHP-1"><a href="#极客大挑战-2019-PHP-1" class="headerlink" title="[极客大挑战 2019]PHP 1"></a>[极客大挑战 2019]PHP 1</h1><p>打开题目，发现这样一个界面。<br><img src="https://i.loli.net/2021/01/26/Bqr97GaewV2yZlb.png" alt="43.png"><br>提示我们说文件备份了，那么我们第一步就是找出网页备份的文件。<br>看到别人的wp都是用软件工具扫描出来文件的，我是从网上找到了一个python小脚本找到的。<br>在找备份文件之前，我们要知道一些常见的网站源码备份文件后缀和文件名。<br><img src="https://i.loli.net/2021/01/26/Xcw2RKEa6O7yDCf.jpg" alt="20200823094336965.jpg"><br>接下来给出我白嫖的小脚本。  </p>
+            <p>过完年的我又来更新了！每天一题，争取稳步提升。<br>今天这道题其实有很多细节，但是我没有注意到，第一次误打误撞做出来了。回来看了别人的wp才发现不少知识点。。。。  </p>
+<h1 id="网鼎杯-2020-青龙组-AreUSerialz-1"><a href="#网鼎杯-2020-青龙组-AreUSerialz-1" class="headerlink" title="[网鼎杯 2020 青龙组]AreUSerialz 1"></a>[网鼎杯 2020 青龙组]AreUSerialz 1</h1><p>打开题目，一堆代码。。。。。。。<br><img src="https://i.loli.net/2021/02/15/Q8rTyRPAW45KGiD.png" alt="1.png">  </p>
 <pre><code>
-import requests
+&lt;?php
 
-url = &quot;http://acafbeb4-1e4b-4d38-8923-96ce6dd6453e.node3.buuoj.cn/&quot;
+include(&quot;flag.php&quot;);
 
-li1 = [&#39;web&#39;, &#39;website&#39;, &#39;backup&#39;, &#39;back&#39;, &#39;www&#39;, &#39;wwwroot&#39;, &#39;temp&#39;]  
-li2 = [&#39;tar&#39;, &#39;tar.gz&#39;, &#39;zip&#39;, &#39;rar&#39;]  
-for i in li1:  
-    for j in li2:  
-        url_ final = url + &quot;/&quot; + i + &quot;.&quot; + j  
-        r = requests.get(url_final)  
-        print(r)  
+highlight _ file(__ FILE__);
+
+class FileHandler &#123;
+
+    protected $op;
+    protected $filename;
+    protected $content;
+
+    function __construct() &#123;
+        $op = &quot;1&quot;;
+        $filename = &quot;/tmp/tmpfile&quot;;
+        $content = &quot;Hello World!&quot;;
+        $this-&gt;process();
+    &#125;
+
+    public function process() &#123;
+        if($this-&gt;op == &quot;1&quot;) &#123;
+            $this-&gt;write();
+        &#125; else if($this-&gt;op == &quot;2&quot;) &#123;
+            $res = $this-&gt;read();
+            $this-&gt;output($res);
+        &#125; else &#123;
+            $this-&gt;output(&quot;Bad Hacker!&quot;);
+        &#125;
+    &#125;
+
+    private function write() &#123;
+        if(isset($this-&gt;filename) &amp;&amp; isset($this-&gt;content)) &#123;
+            if(strlen((string)$this-&gt;content) &gt; 100) &#123;
+                $this-&gt;output(&quot;Too long!&quot;);
+                die();
+            &#125;
+            $res = file_put_contents($this-&gt;filename, $this-&gt;content);
+            if($res) $this-&gt;output(&quot;Successful!&quot;);
+            else $this-&gt;output(&quot;Failed!&quot;);
+        &#125; else &#123;
+            $this-&gt;output(&quot;Failed!&quot;);
+        &#125;
+    &#125;
+
+    private function read() &#123;
+        $res = &quot;&quot;;
+        if(isset($this-&gt;filename)) &#123;
+            $res = file_get_contents($this-&gt;filename);
+        &#125;
+        return $res;
+    &#125;
+
+    private function output($s) &#123;
+        echo &quot;[Result]: &lt;br&gt;&quot;;
+        echo $s;
+    &#125;
+
+    function __destruct() &#123;
+        if($this-&gt;op === &quot;2&quot;)
+            $this-&gt;op = &quot;1&quot;;
+        $this-&gt;content = &quot;&quot;;
+        $this-&gt;process();
+    &#125;
+
+&#125;
+
+function is_valid($s) &#123;
+    for($i = 0; $i &lt; strlen($s); $i++)
+        if(!(ord($s[$i]) &gt;= 32 &amp;&amp; ord($s[$i]) &lt;= 125))
+            return false;
+    return true;
+&#125;
+
+if(isset($_GET&#123;&#39;str&#39;&#125;)) &#123;
+
+    $str = (string)$_GET[&#39;str&#39;];
+    if(is_valid($str)) &#123;
+        $obj = unserialize($str);
+    &#125;
+
+&#125;  
 </code></pre>
-<p>这个脚本是列了两个小表，然后排列组合一个个试，其实那些软件的原理类似，只不过有更全面的字典，扫出来的可能性更高，脚本跑完后，从返回的信息可以看到找到了网站的源码备份文件名和后缀。<br><img src="https://i.loli.net/2021/01/26/XLuVT97HhBlc1fn.png" alt="44.png"><br>可以得知，返回200的组合为<a target="_blank" rel="noopener" href="http://www.zip,所以在网页url后面输入www.zip就可以得到备份文件./">www.zip，所以在网页url后面输入www.zip就可以得到备份文件。</a><br><img src="https://i.loli.net/2021/01/26/RLrGptETHaqN7gS.png" alt="45.png"><br>打开这个压缩包，里面有三个php文件引人注意。<br><img src="https://i.loli.net/2021/01/26/aHDCBJmE3Unrzwp.png" alt="46.png"><br>先打开flag.php，直觉告诉我里面的内容不是真的flag，上交了一下果然如此。那么就再打开index.php文件。<br><img src="https://i.loli.net/2021/01/26/ArvpGHktOq9LRIu.png" alt="47.png"><br>通过代码可以得知包含了class.php文件，并且以get方式上传变量select，但是这个unserialize（）函数是最重要的，它是一个反序列化函数，这也就是要求我们上传的字符是序列化过的。这里要先简单讲一下序列化。  </p>
-<hr>
-<h2 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h2><p>序列化在jave中很重要，把对象转换为字节序列的过程称为对象的序列化，但是目前在我做过的ctf题目中，对序列化可以理解为把对象编码，在php里要用到serialize() 函数，这个函数用于序列化对象或数组，并返回一个字符串。  </p>
-<hr>
-<p>接下来我们查看class.php文件。<br><img src="https://i.loli.net/2021/01/26/Is7YHx2B94r1lwp.png" alt="48.png"><br>代码不复杂，定义了一个类为Name，可以知道最终的要求是要我们令password=100，username=admin。并将这个Name类序列化，一开始想的很简单，立刻使用函数进行序列化。<br><img src="https://i.loli.net/2021/01/26/UwgsX3IQJ49VnDZ.png" alt="49.png"><br>这个序列化是比较粗糙的，不规范的。下面说一下具体格式。  </p>
+<p>代码很长，所以要找重点，开头定义三个变量，op,filename,content。接着分别给这三个变量赋予了值，然后就是process()函数，这个函数检查op变量的值，如果op=1，那么转到write()函数，如果op=2，那么转到read()函数。<br>我们已经可以知道，flag在flag.php里，所以我们要用的是read()函数来读出来flag.php里的信息。<br>read函数很简单，直接一个file _get _contents()函数读出变量filename里的文件信息。然后赋予res变量，最后返回res变量。<br>到这里我们大概就明白这道题的思路了，让op=2，filename=我们要查看的文件名，对这些变量进行序列化。然后赋予一个变量进行传参。  </p>
+<p>那么接着往后看吧，有一个__destruct()魔术函数，这个函数一开始我是没有在意的，直接看的里面的内容，其实理解的结果差不多。  </p>
+<p>这个魔术函数会在对象被销毁时（即从内存中清除前）调用。也就是说，当我们给op这个对象进行赋值时，是销毁了之前的值的，这时这个函数就会被调用，执行什么呢？他会判断我们的op的值是不是等于字符串”2”,<strong>注意这里判断的是op是否等于字符串”2”，而非整形数字2,因为这里是===，属于强比较，会比较值和字符类型。前面的process()函数中是==，只判断op的值是不是2，不判断类型。</strong>  </p>
+<p>所以如果它判断op为字符串”2”，那么就会把它的值变回原来的一样。如果不是，那么就会把对象content里的值清空，执行process()函数。  </p>
+<p>再往后就是is_valid函数。这个其实是一个坑，因为一开始我没注意到这三个对象的类型是protected，而是按照pubulic类型来序列化的，所以误打误撞的绕过了这个函数，下面具体解释一下这个函数作用。  </p>
+<p>这个函数，首先将我们传入的字符串一个一个的取出来然后用ord()函数来返回每一个字符的ASCII码，进行检查要求它们在32–125之间，也就是可以要求上传的都是可以打印的字符。否则就返回false。  </p>
+<p>但是前面我们已经知道这三个对象的类型是protected，在正常的序列化情况下是这样的：  </p>
 <blockquote>
-<p>O:(类字符串长度):”(类名字)”:(类存在的不同属性个数):{序列化的字符串}</p>
+<p>protected类型:属性名变为”%00*%00属性名”</p>
 </blockquote>
-<p>所以最后的结果是这样的。  </p>
+<p>而%00这个是无法打印的字符，所以是通不过的，同理Private类型也是如此，但是在php7.1以上的版本对对象类型并不敏感，所以我们构造public对象也是可以的，而且还成功绕过了这一函数，所以我是误打误撞了哈哈哈哈。  </p>
+<p>最后就是我们上传的方法，get上传，字符串名字为str，于是我先构造这样的payload。  </p>
 <blockquote>
-<p>O:4:”Name”:2:{s:8:”username”;s:5:”admin”;s:8:”password”;i:100;}</p>
+<p>?str=O:11:”FileHandler”:3:{s:2:”op”;i:2;s:8:”filename”;s:8:”flag.php”;s:7:”content”;s:12:”Hello World!”;}</p>
 </blockquote>
-<p>但是当我这样构造payload时却什么也没显示。应该是哪里出了问题，再一次检查代码，发现一个有点不同的函数**function __wakeup()**，这是一个php的魔法函数，当使用unserialse()函数时会被自动调用，通过代码可以知道，它会将我们的username改为guest而不是admin，所以我们什么也没有显示。<br>那么接下来我们就要绕过这个函数了，这里给出绕过方法  </p>
+<p>但是回显确实空，这说明我们的read函数并没有成功执行。<br><img src="https://i.loli.net/2021/02/15/32GhFZaSMwDVXlv.png" alt="2.png"><br>应该是不知道flag.php的绝对路径，所以无法直接读取，那么我们就用伪协议来读这个文件。  </p>
 <blockquote>
-<p>wakeup()漏洞就是与整个属性个数值有关。当序列化字符串表示对象属性个数的值大于真实个数的属性时就会跳过wakeup的执行。</p>
+<p>?str=O:11:”FileHandler”:3:{s:2:”op”;i:2;s:8:”filename”;s:57:”php://filter/read=convert.base64-encode/resource=flag.php”;s:7:”content”;s:12:”Hello World!”;}</p>
 </blockquote>
-<p>也就是说如果我们把属性2改为3，那么它就会跳过这个函数的执行。所以重新构造payload。  </p>
-<blockquote>
-<p>O:4:”Name”:3:{s:8:”username”;s:5:”admin”;s:8:”password”;i:100;}</p>
-</blockquote>
-<p>可这次却被禁止访问了。<br><img src="https://i.loli.net/2021/01/26/ExKbkNQ9nmjqD3p.png" alt="50.png"><br>从显示的界面可以知道是password出了问题，但是再三检查还是不知道为什么会出错，这时候在网上看到了序列化的三种不同类型：Private类型，Protected类型，public类型，这三个类型序列话后的格式也不同。  </p>
-<blockquote>
-<p>pubulic类型：就是上面正常的格式<br>Private类型：属性名变为”%00类名%00属性名”这里的%00是空格的url编码。<br>protected类型:属性名变为”%00*%00属性名”  </p>
-</blockquote>
-<p>显然，因为属性名的变化，那么属性名的长度也会变化，因为代码中变量修饰用的是private，所以我们重新构造一下payload。  </p>
-<blockquote>
-<p>O:4:”Name”:3:{s:14:”%00Name%00username”;s:5:”admin”;s:14:”%00Name%00password”;i:100;}</p>
-</blockquote>
-<p>这次再上传就没有问题了，得到flag。  </p>
-<hr>
-<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目主要还是考的序列化，同时还有恢复网站源码备份文件，和之前做过的序列化不同的是这次题目更加细节，考察了魔法函数的绕过和变量的修饰不同类型，关于反序列化还有更多知识点，魔法函数也不止这一个，绕过的方式也有很多。这些都要不断积累。<br>下面附上相关博客，以便深入学习。<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36551991/article/details/109297826?ops_request_misc=&request_id=&biz_id=102&utm_term=%E4%BB%80%E4%B9%88%E6%98%AF%E5%BA%8F%E5%88%97%E5%8C%96&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-8-109297826.pc_search_result_before_js&spm=1018.2226.3001.4187">看完你就懂什么是序列化和反序列化了</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/u011215133/article/details/51177843?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161166468616780274140083%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=161166468616780274140083&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~baidu_landing_v2~default-8-51177843.pc_search_result_before_js&utm_term=%E5%BA%8F%E5%88%97%E5%8C%96&spm=1018.2226.3001.4187">什么是序列化，为什么要序列化。</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_46383107/article/details/109770976">浅谈反序列漏洞</a></p>
+<p>果然显示了base64编码过的内容，拿去解码就得到flag。<br><img src="https://i.loli.net/2021/02/15/oNgRY9O3HIduChG.png" alt="3.png">  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题并不是很难，看似代码很长但是不难理解，只不过有很多小细节在这里，这次是运气好做了出来，但是下次就不一定了。但是利用php版本的不同来绕过函数还是不好想到的。只能多试试不同的解法，要敢于试，说不定就有结果。<br>对代码审计的题目还是要沉下心，抓住重点，一步步来。</p>
 
             
                 
