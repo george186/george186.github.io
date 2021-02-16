@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>Hexo - </title>
+<title>sql闯关练习7 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="active">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,105 +139,88 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-02-15">2021-02-15</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">sql闯关练习7</h2>
+            <div class="post-meta">
+                emm... 262 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天把sql闯关给补一下。  </p>
+<h1 id="Less-7"><a href="#Less-7" class="headerlink" title="Less-7"></a>Less-7</h1><p>这一关注入的方法其实在原理上并不难理解，就是上传一句话木马来连接数据库。<br>一句话木马已经很熟悉了，既然它可以在上传文件时造成漏洞，从而获取网站后台信息文件，那么它也可以用于sql注入中，这里就要用到一个新的命令来上传文件。  </p>
+<h2 id="into-outfile命令与路径"><a href="#into-outfile命令与路径" class="headerlink" title="into outfile命令与路径"></a>into outfile命令与路径</h2><p>into outfile命令是一个可以将查询结果输出保存到一个文件中的命令，也就是向数据库写入一个文件，但是要想执行这个命令就必须要知道网站的在系统中的具体路径（绝对路径)。而这个语句的样式如下：  </p>
+<blockquote>
+<p>select “<?php @eval($_POST['123]);?>“ into outfile “XXX\test.php” </p>
+</blockquote>
+<p>那么怎么知道绝对路径呢？这里介绍两个参数：<br>@@datadir 读取数据库路径<br>@@basedir MYSQL 获取安装路径<br>这两个参数在MySQL的配置中都能找到，而这两个参数在sql注入中可以回显出数据库和安装的路径。这样我们就不难得到网站路径了。  </p>
+<hr>
+<p>这里补充一下各个系统的网站默认路径。<br>winserver的iis默认路径c:\Inetpub\wwwroot</p>
+<p>linux的nginx一般是/usr/local/nginx/html，/home/wwwroot/default，/usr/share/nginx，/var/www/htm等</p>
+<p>apache 就…/var/www/htm，…/var/www/html/htdocs</p>
+<p>phpstudy 就是…\PhpStudy20180211\PHPTutorial\WWW\</p>
+<p>xammp 就是…\xampp\htdocs  </p>
+<hr>
+<p>那么现在我们正式开始解决这一关。<br>首先试出闭合方式是id=5’))，并且是字符型注入，接着查出只有三列，<br>但是在这一关无论怎么尝试发现都没有办法回显，那么我们就我们就无法查出数据库路径和安装路径。  </p>
+<p>但是我们可以知道之前那些关是可以成功回显的，所以我用之前的关卡查出了路径。<br><img src="https://i.loli.net/2021/02/16/4urUPCqBIv3nZcE.png" alt="4.png">  </p>
+<p>得到路径后我们就可以结合前面的小扩展猜出网站的绝对路径。（这个其实在电脑上自己就能找出来，因为是本地安装的phpstudy。）  </p>
+<p>接着我们构造sql语句写入一句话代码。  </p>
+<blockquote>
+<p>?id=999’)) union select 1,’<?php @eval($_POST['cmd']);?>‘,3 into outfile ‘D:\phpstudy_pro\WWW\qli-labs-master\124.php’–+</p>
+</blockquote>
+<p>可以看到，我们在第二位上写了一句话代码，并用into outfile命令写入了网站的数据库，并且这个php文件叫做124.php。  </p>
+<p>这里用的 \ \ 而不是平常的 \ 是因为用一个斜杠会在上传时被过滤掉，所以用第二个斜杠对第一个斜杠进行转义，确保上传路径没有问题。  </p>
+<p>注意一点：要想向数据库写入文件，使用into outfile命令是需要数据库file权限的，数据库的file权限规定了数据库用户是否有权限向操作系统内写入和读取已存在的权限。这个权限需要修MySQL的改配置文件才行。  </p>
+<p>很难受的是我做这道题的时候无论怎么修改配置文件也没办法写入成功，弄了半天也不知道问题出现在哪里，所以没有办法进行下一步，使用剑蚁链接了。   </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题其实相当于一个上传文件题目，让我知道了sql注入里也可以通过写入一句话木马等文件来得到数据库信息，原理不难理解，只是对于写入的权限和路径的准确要清楚。</p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2020-11-28
-            
         </div>
-        <a class="post-title" href="/note/undefined-undefined.html" target="_blank" title="第一周学习报告">第一周学习报告</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        第一周学习报告
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
             
         </div>
-        <a class="post-title" href="/test/undefined-undefined.html" target="_blank" title="web第一周练习">web第一周练习</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web第一周练习
-    </div>
-</article>
-
-
-
         
-            
-<article class="post">
+    </article>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-22
-            
-        </div>
-        <a class="post-title" href="/%E7%BB%83%E4%B9%A0/undefined-undefined.html" target="_blank" title="web习题练习1">web习题练习1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web习题练习1
-    </div>
-</article>
-
-
-
-        
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
     
+    
+    
+
 </div>
 
-<div id="btn-pager">
-    
-    <a class="extend prev" rel="prev" href="/page/4/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span>
-</div>
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->

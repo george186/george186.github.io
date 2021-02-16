@@ -4,6 +4,50 @@
   
     
     <entry>
+      <title>sql闯关注入8</title>
+      <link href="test35/undefined-undefined.html"/>
+      <url>test35/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      <categories>
+          
+          <category> test35 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>sql闯关练习7</title>
+      <link href="test34/undefined-undefined.html"/>
+      <url>test34/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天把sql闯关给补一下。  </p><h1 id="Less-7"><a href="#Less-7" class="headerlink" title="Less-7"></a>Less-7</h1><p>这一关注入的方法其实在原理上并不难理解，就是上传一句话木马来连接数据库。<br>一句话木马已经很熟悉了，既然它可以在上传文件时造成漏洞，从而获取网站后台信息文件，那么它也可以用于sql注入中，这里就要用到一个新的命令来上传文件。  </p><h2 id="into-outfile命令与路径"><a href="#into-outfile命令与路径" class="headerlink" title="into outfile命令与路径"></a>into outfile命令与路径</h2><p>into outfile命令是一个可以将查询结果输出保存到一个文件中的命令，也就是向数据库写入一个文件，但是要想执行这个命令就必须要知道网站的在系统中的具体路径（绝对路径)。而这个语句的样式如下：  </p><blockquote><p>select “<?php @eval($_POST['123]);?>“ into outfile “XXX\test.php” </p></blockquote><p>那么怎么知道绝对路径呢？这里介绍两个参数：<br>@@datadir 读取数据库路径<br>@@basedir MYSQL 获取安装路径<br>这两个参数在MySQL的配置中都能找到，而这两个参数在sql注入中可以回显出数据库和安装的路径。这样我们就不难得到网站路径了。  </p><hr><p>这里补充一下各个系统的网站默认路径。<br>winserver的iis默认路径c:\Inetpub\wwwroot</p><p>linux的nginx一般是/usr/local/nginx/html，/home/wwwroot/default，/usr/share/nginx，/var/www/htm等</p><p>apache 就…/var/www/htm，…/var/www/html/htdocs</p><p>phpstudy 就是…\PhpStudy20180211\PHPTutorial\WWW\</p><p>xammp 就是…\xampp\htdocs  </p><hr><p>那么现在我们正式开始解决这一关。<br>首先试出闭合方式是id=5’))，并且是字符型注入，接着查出只有三列，<br>但是在这一关无论怎么尝试发现都没有办法回显，那么我们就我们就无法查出数据库路径和安装路径。  </p><p>但是我们可以知道之前那些关是可以成功回显的，所以我用之前的关卡查出了路径。<br><img src="https://i.loli.net/2021/02/16/4urUPCqBIv3nZcE.png" alt="4.png">  </p><p>得到路径后我们就可以结合前面的小扩展猜出网站的绝对路径。（这个其实在电脑上自己就能找出来，因为是本地安装的phpstudy。）  </p><p>接着我们构造sql语句写入一句话代码。  </p><blockquote><p>?id=999’)) union select 1,’<?php @eval($_POST['cmd']);?>‘,3 into outfile ‘D:\phpstudy_pro\WWW\qli-labs-master\124.php’–+</p></blockquote><p>可以看到，我们在第二位上写了一句话代码，并用into outfile命令写入了网站的数据库，并且这个php文件叫做124.php。  </p><p>这里用的 \ \ 而不是平常的 \ 是因为用一个斜杠会在上传时被过滤掉，所以用第二个斜杠对第一个斜杠进行转义，确保上传路径没有问题。  </p><p>注意一点：要想向数据库写入文件，使用into outfile命令是需要数据库file权限的，数据库的file权限规定了数据库用户是否有权限向操作系统内写入和读取已存在的权限。这个权限需要修MySQL的改配置文件才行。  </p><p>很难受的是我做这道题的时候无论怎么修改配置文件也没办法写入成功，弄了半天也不知道问题出现在哪里，所以没有办法进行下一步，使用剑蚁链接了。   </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题其实相当于一个上传文件题目，让我知道了sql注入里也可以通过写入一句话木马等文件来得到数据库信息，原理不难理解，只是对于写入的权限和路径的准确要清楚。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test34 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>寒假练习25</title>
       <link href="test33/undefined-undefined.html"/>
       <url>test33/undefined-undefined.html</url>
