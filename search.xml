@@ -4,11 +4,36 @@
   
     
     <entry>
+      <title>sql注入闯关9</title>
+      <link href="test36/undefined-undefined.html"/>
+      <url>test36/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      <categories>
+          
+          <category> test36 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>sql闯关注入8</title>
       <link href="test35/undefined-undefined.html"/>
       <url>test35/undefined-undefined.html</url>
       
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<p>这一关考的是布尔盲注。  </p><h1 id="Less-8"><a href="#Less-8" class="headerlink" title="Less-8"></a>Less-8</h1><p>布尔盲注在之前的博客里介绍的很清楚了，这里就不再赘述。直接看题。  </p><p>打开题目，先输入?id=1’ –+，发现回显有You are in………..这样的字符。<br><img src="https://i.loli.net/2021/02/18/Hb5a39pFnBDlRhx.png" alt="5.png"><br>然后我们再进行下一步的判断列数。发现输入order by 4时没有回显，说明有三列。<br><img src="https://i.loli.net/2021/02/18/i4s8LncparToHlB.png" alt="6.png"><br>接着我们判断回显位时发现界面输出的依旧是You are in………..<br><img src="https://i.loli.net/2021/02/18/HJhoLwblt4mfWv6.png" alt="7.png"><br>那我们再试试输入别的。输入错误的sql语句试一下。<br>输入?id=999’ union select database()–+<br><img src="https://i.loli.net/2021/02/18/H9pSarJWfVomGQL.png" alt="8.png"><br>发现没有任何回显。那么我们输入正确的看一下。<br>输入?id=999’ union select 1,2,database()–+<br><img src="https://i.loli.net/2021/02/18/HCrIZisFhwq9AJR.png" alt="9.png"><br>发现回显仍是You are in………..<br>到这里我们差不多已经知道了这一关的注入机制，当我们输入的sql语句为正确时，也就是为真时，页面会有You are in………..  的回显，当我们输入的sql语句为假时，页面便不会有回显。  </p><p>结合上面的情况，我们可以认定这是一个布尔盲注，那么我们就直接套模板来注入了。<br>判断数据库字符长度。</p><blockquote><p>?id=1’ and length((select database()))&gt;8–+</p></blockquote><p><img src="https://i.loli.net/2021/02/18/NXlWzdo1MtGKxZh.png" alt="10.png"><br>当&gt;8时无回显，可以知道数据库长度为7。  </p><p>判断数据库第一个字符。<br>我们可以根据前面的题目知道这个数据库名字是security，s的ASCII码是115，我们拿这个来测试一下。</p><blockquote><p>?id=1’ and ascii(substr((select database()),1,1))&gt;115–+</p></blockquote><p><img src="https://i.loli.net/2021/02/18/HUtnlLzrQ2j6P1s.png" alt="11.png"><br>当判定ASCII码大于115时报错，符合我们的预期。  </p><blockquote><p>?id=1’ and ascii(substr((select database()),1,1))&gt;114–+<br>?id=1’ and ascii(substr((select database()),1,1))=115–+</p></blockquote><p><img src="https://i.loli.net/2021/02/18/5YmakgSVly2LQde.png" alt="12.png"><br><img src="https://i.loli.net/2021/02/18/TJojd3U8s1IFnwm.png" alt="13.png"><br>当判定&gt;114和=115说回显正常，说明布尔盲注是可以的，这个模板是没问题的。<br>那么接下来就按流程走了。已知数据库名字，爆表名，然后爆列名，爆数据，这个过程使用脚本是最简单的，人力注入工作量太大了。</p>]]></content>
       
       
       <categories>
@@ -17,6 +42,12 @@
           
       </categories>
       
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
       
     </entry>
     
