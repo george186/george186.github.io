@@ -4,11 +4,36 @@
   
     
     <entry>
-      <title>sql注入闯关9</title>
+      <title>寒假练习26</title>
+      <link href="test37/undefined-undefined.html"/>
+      <url>test37/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      <categories>
+          
+          <category> test37 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>sql注入闯关9-10与时间盲注</title>
       <link href="test36/undefined-undefined.html"/>
       <url>test36/undefined-undefined.html</url>
       
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<p>今天来学另一个盲注——时间盲注。<br>#Less-9——10<br>其实时间盲注和布尔盲注原理相同，都是利用了网页回显的不同来判断数据库里的信息。<br>我们先来认识一个函数——sleep()<br>这个函数在很多地方都见过，简而言之就是相隔多长时间来响应或者执行命令，括号里面填数字，单位是秒。<br>例如:sleep(6)，那么就是六秒之后才会响应。  </p><p>这个函数就是时间盲注里最重要的函数。其余的函数和布尔盲注里的函数完全相同。  </p><p>那么接下来我们看这一关。<br>打开后我们发现无论我们怎么注入，都只会显示You are in………..这个界面，如果要用到布尔盲注，那么界面的回显就必须不同，这也就是时间盲注中sleep()函数要做到的。  </p><p>首先我们来看这个sql语句。  </p><blockquote><p>?id=1 and if(1=2,1,sleep(10))–+</p></blockquote><p>很明显，这是一个三元运算，如果if函数中第一个语句为真，那么就执行第二个语句，如果第一个语句为假，那么就执行第三个语句。  </p><p>在这个三元运算中，很明显的最终执行的是第三个语句，也就是sleep(10)，也就是说，我们构造这样一个payload，如果这关的页面发生了延迟响应，那么我们也就可以采用时间盲注的方法来代替布尔盲注。<br>开始界面是这样的。<br><img src="https://i.loli.net/2021/02/20/pHazxEt3gCUeRuo.png" alt="14.png"><br>当我们构造上面的payload后再上传后发现确实延迟回显。<br><img src="https://i.loli.net/2021/02/20/p7aYRBHeiLlTG1s.png" alt="15.png"><br>可以看到确实出现了延迟。<br>那么我们也就可以凭借是否出现延迟来判断数据库名字字符了。例如我们构建以下payload。  </p><p>判断数据库名长度。</p><blockquote><p>?id=1’ and if(length(database())&gt;1,sleep(10),1)–+</p></blockquote><p>可以看到，如果数据库名长度大于一，那么就有十秒的延迟回显，反之则没有十秒延迟。而在实际情况下确实有十秒延迟。<br><img src="https://i.loli.net/2021/02/20/QvL1ZChlgzPiyW7.png" alt="16.png"><br>后面的操作就和布尔盲注差不多相同了，只不过多了一个sleep()函数而已。  </p><p>爆库名字符。  </p><blockquote><p>?id=1’ and if(ascii(substr(database(),1,1))&gt;115, 0, sleep(10))–+</p></blockquote><p>和布尔盲注一样的，这个也需要脚本来实现，否则太难手工注入。  </p><h1 id="Less-10"><a href="#Less-10" class="headerlink" title="Less-10"></a>Less-10</h1><p>这道题同上一道一样，只不过闭合方式由单引号变为双引号，别的没有差别，不再过多赘述。</p>]]></content>
       
       
       <categories>
