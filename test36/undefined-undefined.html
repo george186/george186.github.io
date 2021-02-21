@@ -155,12 +155,13 @@
             </div>
             <h2 class="post-title">sql注入闯关9-10与时间盲注</h2>
             <div class="post-meta">
-                emm... 932 words in the article |
+                emm... 933 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
         <div class="post-content markdown-body">
-            <p>今天来学另一个盲注——时间盲注。<br>#Less-9——10<br>其实时间盲注和布尔盲注原理相同，都是利用了网页回显的不同来判断数据库里的信息。<br>我们先来认识一个函数——sleep()<br>这个函数在很多地方都见过，简而言之就是相隔多长时间来响应或者执行命令，括号里面填数字，单位是秒。<br>例如:sleep(6)，那么就是六秒之后才会响应。  </p>
+            <p>今天来学另一个盲注——时间盲注。 </p>
+<h1 id="Less-9——10"><a href="#Less-9——10" class="headerlink" title="Less-9——10"></a>Less-9——10</h1><p>其实时间盲注和布尔盲注原理相同，都是利用了网页回显的不同来判断数据库里的信息。<br>我们先来认识一个函数——sleep()<br>这个函数在很多地方都见过，简而言之就是相隔多长时间来响应或者执行命令，括号里面填数字，单位是秒。<br>例如:sleep(6)，那么就是六秒之后才会响应。  </p>
 <p>这个函数就是时间盲注里最重要的函数。其余的函数和布尔盲注里的函数完全相同。  </p>
 <p>那么接下来我们看这一关。<br>打开后我们发现无论我们怎么注入，都只会显示You are in………..这个界面，如果要用到布尔盲注，那么界面的回显就必须不同，这也就是时间盲注中sleep()函数要做到的。  </p>
 <p>首先我们来看这个sql语句。  </p>

