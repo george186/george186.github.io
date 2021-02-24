@@ -1,0 +1,320 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>寒假练习27——xxs攻击 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-02-22">2021-02-22</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">寒假练习27——xxs攻击</h2>
+            <div class="post-meta">
+                emm... 2608 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天简单认识一下新的攻击方式——xxs攻击。<br>知道这个攻击还是在一个招新题上知道的，简单了解了一下，现在做一下笔记，附上题目wp。  </p>
+<h1 id="一、什么是XSS，XSS如何发生的？"><a href="#一、什么是XSS，XSS如何发生的？" class="headerlink" title="一、什么是XSS，XSS如何发生的？"></a>一、什么是XSS，XSS如何发生的？</h1><p>我们知道，web页面是由js代码写成的，但是如果网页对用户输入提交给web server的内容不做出严格限制和过滤，那么就可以向web页面里插入如恶意js代码，当用户浏览该页之时，嵌入其中Web里面的JS代码会被执行，从而达到恶意的特殊目的。<br>攻击者通过xss攻击，可以获取到用户的cookie，然后发送给攻击者想要攻击的网站，因为跨站了，所以也称为跨站脚本攻击。  </p>
+<h1 id="二、XSS分类"><a href="#二、XSS分类" class="headerlink" title="二、XSS分类"></a>二、XSS分类</h1><p>xss攻击有三类，分别是反射型，存储型，DOM型。  </p>
+<h2 id="反射型xss"><a href="#反射型xss" class="headerlink" title="反射型xss"></a>反射型xss</h2><p>非存储型，就是通过get或者post请求时，被后端处理过数据，并且响应到前端页面上。  </p>
+<h3 id="反射型xss的攻击步骤："><a href="#反射型xss的攻击步骤：" class="headerlink" title="反射型xss的攻击步骤："></a>反射型xss的攻击步骤：</h3><p>1、攻击者构造出特殊的URL，其中包含恶意代码；</p>
+<p>2、用户打开带有恶意代码的URL时，网站服务端将恶意代码从URL中取出，拼接在HTML中返回给浏览器；</p>
+<p>3、用户浏览器接收到响应后解析执行，混在其中的恶意代码也被执行；</p>
+<p>4、恶意代码窃取用户数据并发送到攻击者的网站，或者冒充用户的行为，调用目标网站接口执行攻击者指定的操作。</p>
+<h3 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h3><p>1、攻击脚本非持久性，没有保存在web server中，而是直接出现在了URL地址中；</p>
+<p>2、反射型xss漏洞常见于通过URL传递参数的功能，如网站搜索、跳转等；</p>
+<p>3、由于需要用户主动打开恶意的URL才能生效，攻击者往往会结合多种手段诱导用户点击。一般通过邮件、社交软件等方式直接发送攻击URL，通过用户的点击来达到攻击目的的。</p>
+<p>POST的内容也可以触发反射型xss，只不过其触发条件比较苛刻，需要构造表单提交页面，并引导用户点击，所以非常少见。  </p>
+<p>这个类型的xss攻击在生活中是我们最常见的吧，平常在qq邮箱里的未知邮件，一旦点开号就被盗了，用的就是这种xss攻击，当点击连接后用户的cookie就会被发送到攻击者手里，有了cookie就不需要账号密码登录用户了，从而实现盗号。  </p>
+<h2 id="存储型xss"><a href="#存储型xss" class="headerlink" title="存储型xss"></a>存储型xss</h2><p>存储型xss，也叫“持久型xss”，相比反射型xss，存储型xss是把恶意脚本保存到了web server中的，这种攻击具有较强的稳定性和持久性，危害性也更大。这样每一个访问特定网页的用户，都会受到攻击。  </p>
+<h3 id="存储型xss的攻击步骤："><a href="#存储型xss的攻击步骤：" class="headerlink" title="存储型xss的攻击步骤："></a>存储型xss的攻击步骤：</h3><p>1、攻击者将恶意代码提交到目标网站的数据库中；</p>
+<p>2、用户打开目标网站时，网站服务端将恶意代码从数据库取出，拼接在HTML中返回给浏览器；</p>
+<p>3、用户浏览器接收到响应后解析执行，混在其中的恶意代码也被执行；</p>
+<p>4、恶意代码窃取用户数据并发送到攻击者的网站，或者冒充用户的行为，调用目标网站接口执行攻击者指定的操作。</p>
+<h3 id="特点：-1"><a href="#特点：-1" class="headerlink" title="特点："></a>特点：</h3><p>1、攻击脚本持久性，保存在web server中；</p>
+<p>2、这种攻击常见于带有用户保存数据的网站功能，一般通过论坛发帖、商品评论、用户私信等功能（所有能够向web server输入内容的地方），将攻击脚本存储到web server中。</p>
+<p>有时候反射型xss和存储型xss是同时使用的，比如：先通过对一个攻击url进行编码（来绕过xss filter），提交到web server（存储在web server中），然后用户在浏览页面时，如果点击该url，就会触发一个xss攻击。当然用户点击该url时，也可能会触发一个CSRF（Cross site request forgery）攻击。  </p>
+<p>##DOM型xss  </p>
+<p>DOM（Document Object Model） –based 漏洞是基于文档对象模型的一种漏洞，通过修改页面的DOM节点而形成的xss漏洞。</p>
+<h3 id="DOM型xss的攻击步骤："><a href="#DOM型xss的攻击步骤：" class="headerlink" title="DOM型xss的攻击步骤："></a>DOM型xss的攻击步骤：</h3><p>1、攻击者构造出特殊的URL，其中包含恶意代码。</p>
+<p>2、用户打开带有恶意代码的URL。</p>
+<p>3、用户浏览器接收到响应后解析执行，前端JavaScript取出URL中的恶意代码并执行。</p>
+<p>4、恶意代码窃取用户数据并发送到攻击者的网站，或者冒充用户的行为，调用目标网站接口执行攻击者指定的操作。</p>
+<p>DOM 型 XSS 跟前两种 XSS 的区别：DOM 型 XSS 攻击中，取出和执行恶意代码由浏览器端完成，属于前端 JavaScript 自身的安全漏洞，而其他两种 XSS 都属于服务端的安全漏洞。</p>
+<h3 id="特点：-2"><a href="#特点：-2" class="headerlink" title="特点："></a>特点：</h3><p>1、攻击脚本不与服务端交互的，只与客户端上的js交互，攻击脚本放到了js中执行，然后显示出来；</p>
+<p>2、DOM型xss也是一种反射型xss。  </p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>反射型xss跟存储型xss的区别是：存储型xss非持久性，攻击脚本存在服务器里，反射型xss持久性，攻击脚本存在URL里。</p>
+<p>DOM型xss跟前两种xss的区别：DOM型xss，是通过修改页面的DOM节点来形成xss的，取出和执行恶意代码由浏览器端完成，属于前端JavaScript自身的安全漏洞，而其他两种xss都属于服务端的安全漏洞。  </p>
+<h1 id="三、XSS漏洞的检测"><a href="#三、XSS漏洞的检测" class="headerlink" title="三、XSS漏洞的检测"></a>三、XSS漏洞的检测</h1><p>最简单的就是通过输入xss语句来探测，比如： </p>
+<pre><code>&lt;script&gt;alert(/xss/)&lt;/script&gt;</code></pre>
+<p>如果插入的语句原封不动的呈现在了浏览器中，那么说明：<br>1、代码没有被过滤，存在xss；<br>2、代码没有被执行，因为没有闭合类似textarea标签，可以查看下源码。  </p>
+<p>或者利用xss探针来检测。<br>xss探针可检测出网站有没有对xss漏洞做最基础的防御。<br>在测试xss的位置写入代码，查看页面源码，看看哪些代码被过滤或者转义了。</p>
+<pre><code>&#39;&#39;;!--&quot;&lt;XSS&gt;=&amp;&#123;()&#125;  </code></pre>
+<p>还可以使用工具来检测，例如   </p>
+<pre><code>Arachni、Mozilla HTTP Observatory、w3af 等。   </code></pre>
+<p>题目现在无法打开，等到恢复了再附上wp吧。  </p>
+<h1 id="小结-1"><a href="#小结-1" class="headerlink" title="小结"></a>小结</h1><p>xss是我学到的一个新的攻击方式，其实就是通过插入恶意js代码来让网页执行，从而造成信息泄露，进行xss攻击，还是看如何绕过网页对于我们输入的内容的过滤。也就是如何插入代码，怎样插入代码，插入代码干什么。可以看出来，防御与绕过一直都是网站攻击的重点。关于绕过的方式，还是要不断探索和积累才行。<br>附上学习博客以便深入学习。   </p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/z_z_w_/article/details/100006464?ops_request_misc=&request_id=&biz_id=102&utm_term=xxs%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-1-100006464.first_rank_v2_pc_rank_v29">XSS的攻击原理与防御原理</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/u014490157/article/details/39552007?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161400774616780265414822%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=161400774616780265414822&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-1-39552007.first_rank_v2_pc_rank_v29&utm_term=xxs%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86">xxs攻击</a><br><a target="_blank" rel="noopener" href="https://zhangqiang.blog.csdn.net/article/details/98996026?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.control&dist_request_id=ce9538e3-1ec8-46bf-9fd6-f41f124c8b18&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.control">XSS漏洞原理和利用</a></p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>
