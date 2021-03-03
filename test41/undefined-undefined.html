@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>tags - 练习 - Hexo</title>
+<title>日常练习1 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,105 +139,86 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-03-03">2021-03-03</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习1</h2>
+            <div class="post-meta">
+                emm... 727 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>新学期开始，开始日常的练习。依旧是从buuctf下手。  </p>
+<h1 id="GYCTF2020-Blacklist-1"><a href="#GYCTF2020-Blacklist-1" class="headerlink" title="[GYCTF2020]Blacklist 1"></a>[GYCTF2020]Blacklist 1</h1><p>这道题考的和最开始的强网杯随便注那道题一摸一样，应该是模仿那一道题目出的题。<br>直接看题，明显是一个sql注入，而且也给我们说了有黑名单的存在，所以说有一些过滤。  </p>
+<p>发现输入1和2的时候都会有回显，而输入别的却没有回显。<br><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/603f4357360785be54bbc4bd.png"><img src="https://img.imgdb.cn/item/603f4357360785be54bbc4bd.png"></a><br><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/603f43fc360785be54bc12e4.png"><img src="https://img.imgdb.cn/item/603f43fc360785be54bc12e4.png"></a>  </p>
+<p>接着我们判断是什么闭合方式。<br>当输入1’时发生报错，输入1’#后正常回显，说明是单引号闭合，然后输入1’ and ‘1’=’1时正常，而输入1’ and ‘1’=’2时无回显，说明是字符型注入。  </p>
+<p>接着判断有几列，当输入1’ order by 3#时报错，说明只有两列。  </p>
+<p>接下来就是看有无回显位，输入1’ union select 1,2#后发现有过滤。<br><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/603f4572360785be54bcbd4b.png"><img src="https://img.imgdb.cn/item/603f4572360785be54bcbd4b.png"></a><br>可以看到过滤了select，那么就用show来显示数据，关于show的用法和介绍在之前的博客讲过。因为select被过滤，所以这里我们需要使用堆叠注入来代替联合注入。  </p>
+<p>接着步骤和之前做的那道题一样。<br>查库名。  </p>
+<blockquote>
+<p>1’; show databases;#  </p>
+</blockquote>
+<p>查表名。  </p>
+<blockquote>
+<p>1’;show tables from supersqli;#</p>
+</blockquote>
+<p>查字段。  </p>
+<blockquote>
+<p>1’;show columns from words;#<br>1’;show columns from FlagHere;#</p>
+</blockquote>
+<p>读出字段信息。  </p>
+<blockquote>
+<p>1’;handler FlagHere open;handler FlagHere read first;–+</p>
+</blockquote>
+<p>得到flag。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题就是随便注的复刻，只是改了一下字段名字而已，在掌握堆叠注入和绕过select查询信息的方法后并不算难，权当复习吧。</p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2020-12-02
-            
         </div>
-        <a class="post-title" href="/test1/undefined-undefined.html" target="_blank" title="攻防世界练习---伪协议">攻防世界练习---伪协议</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        攻防世界练习---伪协议
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
             
         </div>
-        <a class="post-title" href="/test/undefined-undefined.html" target="_blank" title="web第一周练习">web第一周练习</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web第一周练习
-    </div>
-</article>
-
-
-
         
-            
-<article class="post">
+    </article>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-22
-            
-        </div>
-        <a class="post-title" href="/%E7%BB%83%E4%B9%A0/undefined-undefined.html" target="_blank" title="web习题练习1">web习题练习1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web习题练习1
-    </div>
-</article>
-
-
-
-        
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
     
+    
+    
+
 </div>
 
-<div id="btn-pager">
-    
-    <a class="extend prev" rel="prev" href="/tags/%E7%BB%83%E4%B9%A0/page/4/">Prev</a><a class="page-number" href="/tags/%E7%BB%83%E4%B9%A0/">1</a><span class="space">&hellip;</span><a class="page-number" href="/tags/%E7%BB%83%E4%B9%A0/page/3/">3</a><a class="page-number" href="/tags/%E7%BB%83%E4%B9%A0/page/4/">4</a><span class="page-number current">5</span>
-</div>
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->
