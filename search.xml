@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>日常练习3——文件泄露</title>
+      <link href="test44/undefined-undefined.html"/>
+      <url>test44/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>最近两天课有点多，没有时间来整理写过的题，所以这次一下补上。</p><h1 id="RoarCTF-2019-Easy-Java-1"><a href="#RoarCTF-2019-Easy-Java-1" class="headerlink" title="[RoarCTF 2019]Easy Java 1"></a>[RoarCTF 2019]Easy Java 1</h1><p>这道题目又是源码泄露，其实关于源码泄露的题目做过不少了，也遇到了不同源码泄露的题目，有时间可以总结一下。  </p><p>先看这道题吧，打开题目发现是一个登录界面，很自然就想到了sql注入。<br><a href="https://img.imgdb.cn/item/6049d08a5aedab222cf2028e.png"><img src="https://img.imgdb.cn/item/6049d08a5aedab222cf2028e.png"></a><br>但是无论怎么注入都是错误的，只能看一下下面的提示了。<br><a href="https://img.imgdb.cn/item/6049d0c95aedab222cf225b7.png"><img src="https://img.imgdb.cn/item/6049d0c95aedab222cf225b7.png"></a><br>好家伙，提示也是一行报错，但是看到报错中有java字样，所以这道题应该和java有关。  </p><p>接下来抓包试一下，这里有一个有点坑的地方，就是要以post请求才能显示正常的help页面。。。这个地方其实还是不容易想到的，这次算是长见识了吧。  </p><p>那么就抓包并且把请求方式改成post试一下。<br><a href="https://img.imgdb.cn/item/6049d2965aedab222cf34c78.png"><img src="https://img.imgdb.cn/item/6049d2965aedab222cf34c78.png"></a><br>果然有东西，可以看到有这样一串字符</p><blockquote><p>com.wm.ctf.DownloadController.doPost(DownloadController.java:24)  </p></blockquote><p>说明确实和java有关，实际上这道题确实就是有关java的网站源码的泄露。  </p><p><a href="https://img.imgdb.cn/item/6049d3915aedab222cf3e8fb.jpg"><img src="https://img.imgdb.cn/item/6049d3915aedab222cf3e8fb.jpg"></a>  </p><p>而WEB-INF文件就可以造成文件泄露，这里简单讲一下关于WEB-INF/web.xml泄露。  </p><h2 id="WEB-INF-web-xml泄露"><a href="#WEB-INF-web-xml泄露" class="headerlink" title="WEB-INF/web.xml泄露"></a>WEB-INF/web.xml泄露</h2><p>WEB-INF是Java的WEB应用的安全目录。如果想在页面中直接访问其中的文件，必须通过web.xml文件对要访问的文件进行相应映射才能访问。WEB-INF主要包含一下文件或目录：</p><pre><code>/WEB-INF/web.xml：Web应用程序配置文件，描述了 servlet 和其他的应用组件配置及命名规则。/WEB-INF/classes/：含了站点所有用的 class 文件，包括 servlet class 和非servlet class，他们不能包含在 .jar文件中/WEB-INF/lib/：存放web应用需要的各种JAR文件，放置仅在这个应用中要求使用的jar文件,如数据库驱动jar文件/WEB-INF/src/：源码目录，按照包名结构放置各个java文件。/WEB-INF/database.properties：数据库配置文件</code></pre><p>漏洞成因：通常一些web应用我们会使用多个web服务器搭配使用，解决其中的一个web服务器的性能缺陷以及做均衡负载的优点和完成一些分层结构的安全策略等。在使用这种架构的时候，由于对静态资源的目录或文件的映射配置不当，可能会引发一些的安全问题，导致web.xml等文件能够被读取。  </p><p>漏洞检测以及利用方法：通过找到web.xml文件，推断class文件的路径，最后直接class文件，在通过反编译class文件，得到网站源码。一般情况，jsp引擎默认都是禁止访问WEB-INF目录的，Nginx 配合Tomcat做均衡负载或集群等情况时，问题原因其实很简单，Nginx不会去考虑配置其他类型引擎（Nginx不是jsp引擎）导致的安全问题而引入到自身的安全规范中来（这样耦合性太高了），修改Nginx配置文件禁止访问WEB-INF目录就好了： location ~ ^/WEB-INF/* { deny all; } 或者return 404; 或者其他！</p><p>所以这里我们可以先读取通过WEB-INF读取web.xml文件，查看有哪些servl和其下的class文件，然后再读取有关网站源码的class文件，通过反编译得到网站源码。  </p><p>我们先读取web.xml文件。<br><a href="https://img.imgdb.cn/item/6049d5f95aedab222cf5570b.png"><img src="https://img.imgdb.cn/item/6049d5f95aedab222cf5570b.png"></a>  </p><p>可以看到class文件中有一个com.wm.ctf.FlagControlle文件，很明显这个就是我们要找的文件了。接下来直接使用/WEB-INF/classes/读取就行了。（文件路径就是com/wm/ctf/FlagController.class）  </p><p>可以看到文件中有一串base64编码。把它解码一下就是flag。  </p><p><a href="https://img.imgdb.cn/item/6049d7505aedab222cf5f3ce.png"><img src="https://img.imgdb.cn/item/6049d7505aedab222cf5f3ce.png"></a><br><a href="https://img.imgdb.cn/item/6049d7b15aedab222cf6338c.png"><img src="https://img.imgdb.cn/item/6049d7b15aedab222cf6338c.png"></a>  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题考的主要还是源码泄露，只不过是有关java的网页的WEB-INF/web.xml泄露，之前还遇到过.git的源码泄露以及文件备份泄露，这些不同类型的源码泄露的掌握还是很有必要的，否则题目一开始就卡壳了。   </p><p><a href="https://blog.csdn.net/wy_97/article/details/78165051">ctf/web源码泄露及利用办法【总结中】</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test44 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>日常练习2——关于escapeshellarg()+escapeshellcmd()的函数漏洞</title>
       <link href="test43/undefined-undefined.html"/>
       <url>test43/undefined-undefined.html</url>
