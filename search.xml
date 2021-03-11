@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>日常练习4</title>
+      <link href="test45/undefined-undefined.html"/>
+      <url>test45/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>这道题应该是我第一次接触到漏洞题，也就是cve题目，其实cve题目也就是一个漏洞，让你找到这个漏洞在哪并且利用它来得到flag，每一个漏洞都有自己的编号，比如cve-…..-……。这种题还是考验对漏洞的发现能力和利用能力。这道题还是比较简单的。  </p><h1 id="GKCTF2020-cve版签到-1"><a href="#GKCTF2020-cve版签到-1" class="headerlink" title="[GKCTF2020]cve版签到 1"></a>[GKCTF2020]cve版签到 1</h1><p>这道题直接就给出提示了<br>cve-2020-7066<br>那就立刻搜下这个漏洞是什么。<br><a href="https://img.imgdb.cn/item/6049e1375aedab222cfb73f6.png"><img src="https://img.imgdb.cn/item/6049e1375aedab222cfb73f6.png"></a><br>翻译过来就是在低于7.2.29的PHP版本7.2.x，低于7.3.16的7.3.x和低于7.4.4的7.4.x中，同时将get _ headers（）与用户提供的URL一起使用时，如果URL包含零（\ 0）字符，则URL将被静默地截断。这可能会导致某些软件对get_headers（）的目标做出错误的假设，并可能将某些信息发送到错误的服务器。  </p><p>正如官方演示的一样。  </p><pre><code>&lt;?php// user input$_GET[&#39;url&#39;] = &quot;http://localhost\0.example.com&quot;;$host = parse_url($_GET[&#39;url&#39;], PHP_URL_HOST);if (substr($host, -12) !== &#39;.example.com&#39;) &#123;die();&#125;$headers = get_headers($_GET[&#39;url&#39;]);var_dump($headers);  </code></pre><p>按理说应该是报错的，因为url的格式出错，但是因为\0的作用，使后面的字符串都被截断了，所以最后传上去的其实是<a href="http://localhost,后面的的都是无效的./">http://localhost，后面的的都是无效的。</a>  </p><p>那么了解了这个漏洞之后，我们可以想到这个漏洞可以用来进行ssrf攻击。<br><a href="https://img.imgdb.cn/item/6049e4895aedab222cfdae54.png"><img src="https://img.imgdb.cn/item/6049e4895aedab222cfdae54.png"></a><br>从开始的页面中可以看到他让我们只能访问*.ctfhub.com ，很明显是对url传参做出了限制，这也是ssrf的一个标志。  </p><p>然后通过抓包可以看到头文件信息中给了提示，说是让我们连接本地网站。<br><a href="https://img.imgdb.cn/item/6049e5645aedab222cfe352b.png"><img src="https://img.imgdb.cn/item/6049e5645aedab222cfe352b.png"></a><br>那么我们就可以这样构造payload来绕过对url的限制。  </p><blockquote><p>?url=<a href="http://127.0.0.1%00.ctfhub.com">http://127.0.0.1%00.ctfhub.com</a>  </p></blockquote><p>通过%00截断，利用了这个漏洞，我们实际上传的url是?url=<a href="http://127.0.0.1这样既满足了它对url结尾的限制,又连接上了内网./">http://127.0.0.1这样既满足了它对url结尾的限制，又连接上了内网。</a>  </p><p><a href="https://img.imgdb.cn/item/6049e6275aedab222cfeccf9.png"><img src="https://img.imgdb.cn/item/6049e6275aedab222cfeccf9.png"></a>  </p><p>接着它又要求我们的url必须以123结尾，那么再在结尾处添加上就可以了。  </p><blockquote><p>?url=<a href="http://127.0.0.123%00.ctfhub.com">http://127.0.0.123%00.ctfhub.com</a></p></blockquote><p>这样就得到flag。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目是一个新的题型，其实就是关于漏洞的利用和漏洞的发掘，主要考的还是自己的理解，比如这道题通过get _ headers（）函数与url一起使用时的漏洞想到用ssrf攻击，从而得到flag。这种题对于知识面的考验还是很大的。  </p><p><a href="https://bugs.php.net/bug.php?id=79329">cve-2020-7066</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test45 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>日常练习3——文件泄露</title>
       <link href="test44/undefined-undefined.html"/>
       <url>test44/undefined-undefined.html</url>

@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>Hexo - </title>
+<title>日常练习4 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="active">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,105 +139,90 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-03-11">2021-03-11</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习4</h2>
+            <div class="post-meta">
+                emm... 1249 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>这道题应该是我第一次接触到漏洞题，也就是cve题目，其实cve题目也就是一个漏洞，让你找到这个漏洞在哪并且利用它来得到flag，每一个漏洞都有自己的编号，比如cve-…..-……。这种题还是考验对漏洞的发现能力和利用能力。这道题还是比较简单的。  </p>
+<h1 id="GKCTF2020-cve版签到-1"><a href="#GKCTF2020-cve版签到-1" class="headerlink" title="[GKCTF2020]cve版签到 1"></a>[GKCTF2020]cve版签到 1</h1><p>这道题直接就给出提示了<br>cve-2020-7066<br>那就立刻搜下这个漏洞是什么。<br><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6049e1375aedab222cfb73f6.png"><img src="https://img.imgdb.cn/item/6049e1375aedab222cfb73f6.png"></a><br>翻译过来就是在低于7.2.29的PHP版本7.2.x，低于7.3.16的7.3.x和低于7.4.4的7.4.x中，同时将get _ headers（）与用户提供的URL一起使用时，如果URL包含零（\ 0）字符，则URL将被静默地截断。这可能会导致某些软件对get_headers（）的目标做出错误的假设，并可能将某些信息发送到错误的服务器。  </p>
+<p>正如官方演示的一样。  </p>
+<pre><code>&lt;?php
+// user input
+$_GET[&#39;url&#39;] = &quot;http://localhost\0.example.com&quot;;
+
+$host = parse_url($_GET[&#39;url&#39;], PHP_URL_HOST);
+if (substr($host, -12) !== &#39;.example.com&#39;) &#123;
+die();
+&#125;
+$headers = get_headers($_GET[&#39;url&#39;]);
+var_dump($headers);  </code></pre>
+<p>按理说应该是报错的，因为url的格式出错，但是因为\0的作用，使后面的字符串都被截断了，所以最后传上去的其实是<a target="_blank" rel="noopener" href="http://localhost,后面的的都是无效的./">http://localhost，后面的的都是无效的。</a>  </p>
+<p>那么了解了这个漏洞之后，我们可以想到这个漏洞可以用来进行ssrf攻击。<br><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6049e4895aedab222cfdae54.png"><img src="https://img.imgdb.cn/item/6049e4895aedab222cfdae54.png"></a><br>从开始的页面中可以看到他让我们只能访问*.ctfhub.com ，很明显是对url传参做出了限制，这也是ssrf的一个标志。  </p>
+<p>然后通过抓包可以看到头文件信息中给了提示，说是让我们连接本地网站。<br><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6049e5645aedab222cfe352b.png"><img src="https://img.imgdb.cn/item/6049e5645aedab222cfe352b.png"></a><br>那么我们就可以这样构造payload来绕过对url的限制。  </p>
+<blockquote>
+<p>?url=<a href="http://127.0.0.1%00.ctfhub.com">http://127.0.0.1%00.ctfhub.com</a>  </p>
+</blockquote>
+<p>通过%00截断，利用了这个漏洞，我们实际上传的url是?url=<a target="_blank" rel="noopener" href="http://127.0.0.1这样既满足了它对url结尾的限制,又连接上了内网./">http://127.0.0.1这样既满足了它对url结尾的限制，又连接上了内网。</a>  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6049e6275aedab222cfeccf9.png"><img src="https://img.imgdb.cn/item/6049e6275aedab222cfeccf9.png"></a>  </p>
+<p>接着它又要求我们的url必须以123结尾，那么再在结尾处添加上就可以了。  </p>
+<blockquote>
+<p>?url=<a href="http://127.0.0.123%00.ctfhub.com">http://127.0.0.123%00.ctfhub.com</a></p>
+</blockquote>
+<p>这样就得到flag。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目是一个新的题型，其实就是关于漏洞的利用和漏洞的发掘，主要考的还是自己的理解，比如这道题通过get _ headers（）函数与url一起使用时的漏洞想到用ssrf攻击，从而得到flag。这种题对于知识面的考验还是很大的。  </p>
+<p><a target="_blank" rel="noopener" href="https://bugs.php.net/bug.php?id=79329">cve-2020-7066</a></p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2020-11-28
-            
         </div>
-        <a class="post-title" href="/note/undefined-undefined.html" target="_blank" title="第一周学习报告">第一周学习报告</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        第一周学习报告
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
             
         </div>
-        <a class="post-title" href="/test/undefined-undefined.html" target="_blank" title="web第一周练习">web第一周练习</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web第一周练习
-    </div>
-</article>
-
-
-
         
-            
-<article class="post">
+    </article>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-22
-            
-        </div>
-        <a class="post-title" href="/%E7%BB%83%E4%B9%A0/undefined-undefined.html" target="_blank" title="web习题练习1">web习题练习1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web习题练习1
-    </div>
-</article>
-
-
-
-        
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
     
+    
+    
+
 </div>
 
-<div id="btn-pager">
-    
-    <a class="extend prev" rel="prev" href="/page/5/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span>
-</div>
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->
