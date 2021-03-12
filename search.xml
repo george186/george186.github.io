@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>日常练习5——无参数REC</title>
+      <link href="test46/undefined-undefined.html"/>
+      <url>test46/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>这道题是既包括了rec的新知识点，又介绍了一种新的源码泄露。  </p><h1 id="GXYCTF2019-禁止套娃-1"><a href="#GXYCTF2019-禁止套娃-1" class="headerlink" title="[GXYCTF2019]禁止套娃 1"></a>[GXYCTF2019]禁止套娃 1</h1><p>首先打开题目，就一句话提示，f12也啥都没有，后来才知道这道题是源码泄露，这道题是.git泄露源码。<br><a href="https://img.imgdb.cn/item/604b73c45aedab222cdffcf2.png"><img src="https://img.imgdb.cn/item/604b73c45aedab222cdffcf2.png"></a><br>对于这种泄露，可以使用githack脚本工具来进行获取源码。  </p><p>关于githack工具windows和linux里都可以下载，这里我使用的是Linux上的。（下载方式可以百度，使用方法也是百度即可。）  </p><blockquote><p>python GitHack.py <a href="http://461afe30-4539-4b8d-83c2-60dcb06e3c80.node3.buuoj.cn/.git/">http://461afe30-4539-4b8d-83c2-60dcb06e3c80.node3.buuoj.cn/.git/</a></p></blockquote><p>使用githack命令找到源码文件。  </p><p><a href="https://img.imgdb.cn/item/604b74b75aedab222ce09900.png"><img src="https://img.imgdb.cn/item/604b74b75aedab222ce09900.png"></a>  </p><p>发现确实有文件，打开得到网页源码。  </p><p><a href="https://img.imgdb.cn/item/604b74b15aedab222ce094e7.png"><img src="https://img.imgdb.cn/item/604b74b15aedab222ce094e7.png"></a>  </p><pre><code>&lt;?phpinclude &quot;flag.php&quot;;echo &quot;flag在哪里呢？&lt;br&gt;&quot;;if(isset($_GET[&#39;exp&#39;]))&#123;if (!preg_match(&#39;/data:\/\/|filter:\/\/|php:\/\/|phar:\/\//i&#39;, $_GET[&#39;exp&#39;])) &#123;    if(&#39;;&#39; === preg_replace(&#39;/[a-z,_]+\((?R)?\)/&#39;, NULL, $_GET[&#39;exp&#39;])) &#123;        if (!preg_match(&#39;/et|na|info|dec|bin|hex|oct|pi|log/i&#39;, $_GET[&#39;exp&#39;])) &#123;            // echo $_GET[&#39;exp&#39;];            @eval($_GET[&#39;exp&#39;]);        &#125;        else&#123;            die(&quot;还差一点哦！&quot;);        &#125;    &#125;    else&#123;        die(&quot;再好好想想！&quot;);    &#125;&#125;else&#123;    die(&quot;还想读flag，臭弟弟！&quot;);&#125;&#125;// highlight_file(__FILE__);?&gt;  </code></pre><p>接下来才是重头戏，可以看到，我们可以通过get方式传参，但是正则匹配对变量exp做出了很多限制，在第一个匹配中，它过滤了伪协议。而第二个协议更严格。  </p><p>其实第一眼看到第二个正则匹配时还有点没看懂，看了别人的讲解后才知道为什么叫做无参数REC了。  </p><p>首先看它的匹配的字符，’/[a-z,_]匹配了字母和数字，而后面的((?R)?则是引用正则表达式本身。<br><a href="https://img.imgdb.cn/item/6049d3915aedab222cf3e8fb.jpg"><img src="https://img.imgdb.cn/item/6049d3915aedab222cf3e8fb.jpg"></a>  </p><p>也就是说当我们传入下列形式的payload时，它就会被正则匹配。并且转换为空白符。  </p><blockquote><p>xxx(xxx(xxx(…)));这很显然是函数形式。</p></blockquote><p>在看这个if语句，前面有一个’;’ ===说明在匹配后，最后payload剩下的只能有一个’;’而分号结尾的语句正是REC语句的标志，这也说明了这道题目我们只能使用函数而且不能有参数的rec语句来执行命令。这也就是无参数rec的命名由来。  </p><p>那么问题来了，函数不能有参数要怎么发挥作用呢？这里就考验一个人的积累了(不得不说能用到这么多函数搭配的人真的太强了)。  </p><p>那么来介绍一下要用到的函数。因为无参数，所以我们可以让函数返回的值当作参数。首先我们要知道目录里的所有文件，所以我们需要一个可以替代ls命令的函数。  </p><p>这里使用scandir()函数，当scandir()传入’.’，可以列出当前目录的所有文件。（这里就使用别人的演示图了）<br><a href="https://img.imgdb.cn/item/604b7af85aedab222ce44ae7.png"><img src="https://img.imgdb.cn/item/604b7af85aedab222ce44ae7.png"></a>  </p><p>但是这个’.’参数怎么得到呢，这里要用到一个比较生僻的函数  </p><blockquote><p>localeconv() 函数返回一包含本地数字及货币格式信息的数组</p></blockquote><p>返回的具体值如下：<br><a href="https://img.imgdb.cn/item/604b7b6d5aedab222ce4915b.png"><img src="https://img.imgdb.cn/item/604b7b6d5aedab222ce4915b.png"></a>  </p><p>可以看到第一个就是我们要的参数，所以接下来我们需要一个可以单取第一个返回值的函数。  </p><blockquote><p>current() 函数返回数组中的当前元素的值。每个数组中都有一个内部的指针指向它的”当前”元素，初始指向插入到数组中的第一个元素。</p></blockquote><blockquote><p>pos() 函数返回数组中的当前元素的值。该函数是 current() 函数的别名。每个数组中都有一个内部的指针指向它的”当前”元素，初始指向插入到数组中的第一个元素。</p></blockquote><p>有了这个函数就可取到第一个元素的值，也就是’.’。所以最后我们构造的payload是这样的：  </p><blockquote><p>?exp=var_dump(scandir(current(localeconv())));</p></blockquote><p>var_dump()函数输出变量的相关信息，在这里它输出scandir()函数返回的目录这一数组变量信息。  </p><p>这样就可以得到目录下的所有文件。<br><a href="https://img.imgdb.cn/item/604b7d0d5aedab222ce56f78.png"><img src="https://img.imgdb.cn/item/604b7d0d5aedab222ce56f78.png"></a>  </p><p>可以看到flag.php在目录的倒数第二个。那么我们要如何读到这个文件呢？这里还需要两个函数：  </p><blockquote><p>next() 函数将内部指针指向数组中的下一个元素，并输出。<br>array_reverse() 函数返回翻转顺序的数组。</p></blockquote><p>我们先使目录数组反转，那么flag.php文件就在正数第二个的位置，因为内部指针默认指向数组第一个元素，我们使用next()函数使指针指向下个元素并输出这样就返回的是flag.php了。  </p><p>接下来使用show_source()函数来显示整个php文件内容，从而得到flag。  </p><p>所以我们最终的payload是：  </p><blockquote><p>?exp=show_source(next(array_reverse(scandir(current(localeconv())))));</p></blockquote><p><a href="https://img.imgdb.cn/item/604b7ef75aedab222ce6870b.png"><img src="https://img.imgdb.cn/item/604b7ef75aedab222ce6870b.png"></a>  </p><p>可以说是比较复杂了。</p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目又让我知道了另一种源码的泄露，以后面对空白页面又多了一种解答方式。  </p><p>但是最重要的还是无参数的REC，这个可以说是对命令执行语句限制的很严的正则匹配了，但是第二个正则匹配以及(?R)?使我们可以使用全是函数的rec语句来执行命令。但是这对一个人的积累以及对于函数的熟悉以及运用的熟练程度的考察难度还是很高的。对我来说，这道题又让我多了一种做题方法。  </p><p>附上讲解和githack下载教程：<br><a href="https://blog.csdn.net/qq_43504837/article/details/107797049?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161547871616780266269976%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=161547871616780266269976&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-1-107797049.first_rank_v2_pc_rank_v29&utm_term=githack%E4%B8%8B%E8%BD%BD%E5%AE%89%E8%A3%85linux">GitHack 下载</a><br><a href="https://blog.csdn.net/mochu7777777/article/details/110872903?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_utm_term-0&spm=1001.2101.3001.4242">GXYCTF2019禁止套娃</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test46 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>日常练习4</title>
       <link href="test45/undefined-undefined.html"/>
       <url>test45/undefined-undefined.html</url>
