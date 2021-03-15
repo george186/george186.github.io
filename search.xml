@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>日常练习7</title>
+      <link href="test48/undefined-undefined.html"/>
+      <url>test48/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天又是一道cve题目。</p><h1 id="BJDCTF-2nd-old-hack"><a href="#BJDCTF-2nd-old-hack" class="headerlink" title="[BJDCTF 2nd]old-hack"></a>[BJDCTF 2nd]old-hack</h1><p>打开题目，发现网站被黑了，但是给出了被黑的网站是由thinkphp搭建的。<br><a href="https://img.imgdb.cn/item/604f7dbf5aedab222cc73ea7.png"><img src="https://img.imgdb.cn/item/604f7dbf5aedab222cc73ea7.png"></a><br>所以这道题目就是有关think PHP漏洞利用的问题。这个thinkphp是漏洞题目的常客了。这里有一个让页面报错来查看thinkphp版本的姿势，就是上传?s=3就可以进入报错的页面，从而看到版本号。<br><a href="https://img.imgdb.cn/item/604f7f1c5aedab222cc7c391.png"><img src="https://img.imgdb.cn/item/604f7f1c5aedab222cc7c391.png"></a></p><p>可以看到版本号为5.0.23，那么就是说应该是这个版本附近的漏洞，那么就上网搜一下漏洞具体是什么。<br><a href="https://img.imgdb.cn/item/604f7fc25aedab222cc80750.png"><img src="https://img.imgdb.cn/item/604f7fc25aedab222cc80750.png"></a>  </p><p>可以看到这是一个rec漏洞，（其5.0.23以前的版本中，获取method的方法中没有正确处理方法名，导致攻击者可以调用Request类任意方法并构造利用链，从而导致远程代码执行漏洞。）具体可以看那些大佬的博客，我看了半天也是一知半解的，有点点菜。。。。。   </p><p>下面给出利用漏洞的payload：  </p><pre><code>_method=__construct&amp;filter[]=system&amp;method=get&amp;server[REQUEST_METHOD]=ls</code></pre><p>通过post传参，最后的server[REQUEST_METHOD]=执行命令语句。  </p><p>接下来就按照这个模板尝试一下。<br><a href="https://img.imgdb.cn/item/6049d3915aedab222cf3e8fb.jpg"><img src="https://img.imgdb.cn/item/6049d3915aedab222cf3e8fb.jpg"></a>  </p><p>成功了，flag在根文件里，接着我们直接读取flag就行了。  </p><pre><code>_method=__construct&amp;filter[]=system&amp;method=get&amp;server[REQUEST_METHOD]=cat /flag  </code></pre><p>这样就得到了flag。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>其实这道题考的就是一个漏洞，要想从源码中发现这个漏洞很难，但是还好网上已经给出了这个漏洞和利用的方法。但是其他题就不会这么容易了，下一次可能就是指个源码自己找漏洞了。  </p><p>另外这次又get到了一个新的使thinkphp报错来查看其基本信息的方法，就是构造?s=1，这个没遇到这种题一般是不知道的。  </p><p>下面附上大佬关于这个漏洞的具体分析，太强了，以后慢慢参悟吧。  </p><p><a href="https://xz.aliyun.com/t/3845">ThinkPHP 5.0.0~5.0.23 RCE 漏洞分析</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test48 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>日常练习6</title>
       <link href="test47/undefined-undefined.html"/>
       <url>test47/undefined-undefined.html</url>
