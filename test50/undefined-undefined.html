@@ -1,0 +1,370 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>日常练习9 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-03-18">2021-03-18</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习9</h2>
+            <div class="post-meta">
+                emm... 3011 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天是一道打着sql注入的cve问漏洞题。  </p>
+<h1 id="GWCTF-2019-我有一个数据库"><a href="#GWCTF-2019-我有一个数据库" class="headerlink" title="[GWCTF 2019]我有一个数据库"></a>[GWCTF 2019]我有一个数据库</h1><p>打开题目，发现页面里一串乱码。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6056b528524f85ce2938ef4b.png"><img src="https://img.imgdb.cn/item/6056b528524f85ce2938ef4b.png"></a>  </p>
+<p>f12后什么也没有，那么只能从网站备份的文件这个切入点下手了。使用dirsearch来扫描一下后台文件。因为没有字典，扫描了半天，发现有一个phpmyadmin数据库页面。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6056b849524f85ce293a5d58.png"><img src="https://img.imgdb.cn/item/6056b849524f85ce293a5d58.png"></a>  </p>
+<p>直接在url栏输入phpmyadmin后就可以进入这个页面。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6056b8a4524f85ce293a837d.png"><img src="https://img.imgdb.cn/item/6056b8a4524f85ce293a837d.png"></a>  </p>
+<p>走到这一步其实和sql注入没啥太大关系，我们可以在这个页面上看到phpmyadmin版本为4.8.1而不是最新版，所以我们可以往这个版本的漏洞上面想，通过搜索phpmyadmin4.8.1版本的漏洞，我们可以发现确实有这样一个漏洞存在。  </p>
+<h2 id="phpmyadmin-4-8-1-远程文件包含漏洞（CVE-2018-12613）"><a href="#phpmyadmin-4-8-1-远程文件包含漏洞（CVE-2018-12613）" class="headerlink" title="phpmyadmin 4.8.1 远程文件包含漏洞（CVE-2018-12613）"></a>phpmyadmin 4.8.1 远程文件包含漏洞（CVE-2018-12613）</h2><p>这个漏洞看了别人的讲解后还是比较容易理解的，它出现在几处代码。  </p>
+<pre><code>if (! empty($_REQUEST[&#39;target&#39;])//是否存在target参数
+&amp;&amp; is_string($_REQUEST[&#39;target&#39;])//target的值书否为字符串
+&amp;&amp; ! preg_match(&#39;/^index/&#39;, $_REQUEST[&#39;target&#39;])//正则匹配是否以index开头
+&amp;&amp; ! in_array($_REQUEST[&#39;target&#39;], $target_blacklist)//在黑名单内的过滤掉
+&amp;&amp; Core::checkPageValidity($_REQUEST[&#39;target&#39;])//Core类中的checkPageValidity方法
+) &#123;
+include $_REQUEST[&#39;target&#39;];
+exit;
+&#125;  </code></pre>
+<p>这串代码解释了对上传的target变量过滤和要求。可以看到，我们上传的target变量要满足以下条件：<br>1、要是一个字符串。<br>2、不能以index开头。<br>3、不能有黑名单内的字符串。<br>4、要通过Core类中的checkPageValidity方法。  </p>
+<p>只有满足了这四个条件，才能执行下面的include()函数，而这个函数就有可能造成文件包含漏洞。  </p>
+<p>我们来看一下黑名单有什么。  </p>
+<pre><code>$target_blacklist = array (//黑名单
+&#39;import.php&#39;, &#39;export.php&#39;
+);  </code></pre>
+<p>只有’import.php’, ‘export.php’这两个字符串，也就是说我们上传的参数里不能有他俩。接下来我们再看一下checkPageValidity方法具体是什么：  </p>
+<pre><code>public static function checkPageValidity(&amp;$page, array $whitelist = [])
+   &#123;
+   if (empty($whitelist)) &#123;
+       $whitelist = self::$goto_whitelist;
+   &#125;
+   if (! isset($page) || !is_string($page)) &#123;
+       return false;
+   &#125;
+
+   if (in_array($page, $whitelist)) &#123;
+       return true;
+   &#125;
+
+   $_page = mb_substr(
+       $page,
+       0,
+       mb_strpos($page . &#39;?&#39;, &#39;?&#39;)
+   );
+   if (in_array($_page, $whitelist)) &#123;
+       return true;
+   &#125;
+
+   $_page = urldecode($page);
+   $_page = mb_substr(
+       $_page,
+       0,
+       mb_strpos($_page . &#39;?&#39;, &#39;?&#39;)
+   );
+   if (in_array($_page, $whitelist)) &#123;
+       return true;
+   &#125;
+
+   return false;
+&#125;  </code></pre>
+<p>可以看到我们需要让这个函数返回ture，当变量page在白名单中时就会返回ture，而变量page一共和白名单做过三次匹配。  </p>
+<p>第一次是直接匹配  </p>
+<pre><code>if (in_array($page, $whitelist)) &#123;
+   return true;
+    &#125;  </code></pre>
+<p>第二次是将page字符串截取到第一个?的位置然后再和白名单匹配  </p>
+<pre><code> $_page = mb_substr(
+   $page,
+   0,
+   mb_strpos($page . &#39;?&#39;, &#39;?&#39;)
+   );
+   if (in_array($_page, $whitelist)) &#123;
+   return true;
+   &#125;
+这里使用了mb_substr(),mb_strpos()函数来截取page变量从头到第一个?的内容。这两个函数的搭配使用在ctf很常见。  </code></pre>
+<p>而这个漏洞的绕过就在第三次的匹配上  </p>
+<pre><code>$_page = urldecode($page);
+$_page = mb_substr(
+   $_page,
+   0,
+   mb_strpos($_page . &#39;?&#39;, &#39;?&#39;)
+);
+if (in_array($_page, $whitelist)) &#123;
+   return true;
+&#125;  </code></pre>
+<p>可以看到，相较于第二次的绕过，他多了一个url的解码函数，而我们知道当参数传入浏览器时，会自动经过一次url解码，如果我们将？进行两次url编码，那么在第三次匹配前再经历一次url解码就会导致db_ sql.php作为参数而绕过白名单检测，从而实现文件读取。（关于这个绕过白名单的检测我还不是很懂，因为白名单为空，所以应该变量为空才能绕过，但是这里使用db _sql.php绕过了白名单检测。）  </p>
+<p>所以我们可以这样构造payloa  </p>
+<blockquote>
+<p>index.php?target=db_sql.php%253f/../../../../../../../../flag</p>
+</blockquote>
+<p>这样来实现文件读取，这里%253f是?编码两次的结果。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题考的还是漏洞的利用，一般当我们看到一个题目显示了某个系统的版本后就应该考虑到这道题是不是cve漏洞，关于漏洞一般是已经被发现后才会被出题考察，所以还是要上网查询一下关于漏洞的详细信息。  </p>
+<p>附上漏洞博客：<br><a target="_blank" rel="noopener" href="https://www.abelche.com/2019/11/16/CVE/phpmyadmin%204.8.1%20%E8%BF%9C%E7%A8%8B%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2018-12613%EF%BC%89/">phpmyadmin 4.8.1 远程文件包含漏洞（CVE-2018-12613）</a></p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>

