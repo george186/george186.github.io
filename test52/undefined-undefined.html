@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>tags - 练习 - Hexo</title>
+<title>日常练习11——变量覆盖回顾 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,105 +139,123 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-03-21">2021-03-21</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习11——变量覆盖回顾</h2>
+            <div class="post-meta">
+                emm... 1974 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天这道题是很久之前就做过的一道题目了，考的是变量覆盖。  </p>
+<h1 id="BJDCTF2020-Mark-loves-cat"><a href="#BJDCTF2020-Mark-loves-cat" class="headerlink" title="[BJDCTF2020]Mark loves cat"></a>[BJDCTF2020]Mark loves cat</h1><p>打开题目，发现是个人简介的网站，f12一通后发现没有任何提示，于是先使用dirsearch扫一下网站可以知道是.git文件泄露，于是可以使用githack来下载下来源码。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6058c1268322e6675cbfb541.png"><img src="https://img.imgdb.cn/item/6058c1268322e6675cbfb541.png"></a>  </p>
+<p>扫完可以发现有一个index.php文件和flag.php文件，关于flag.php文件写的就是一行文件读取flag文件的代码，主要还是看index.php里的文件。（另外我做题的时候并没有找到flag.php文件在哪。）  </p>
+<p>下面是index.php文件的源码。  </p>
+<pre><code>&lt;?php
+
+include &#39;flag.php&#39;;
+
+$yds = &quot;dog&quot;;
+$is = &quot;cat&quot;;
+$handsome = &#39;yds&#39;;
+
+foreach($_POST as $x =&gt; $y)&#123;
+$$x = $y;
+&#125;
+
+foreach($_GET as $x =&gt; $y)&#123;
+$$x = $$y;
+&#125;
+
+foreach($_GET as $x =&gt; $y)&#123;
+if($_GET[&#39;flag&#39;] === $x &amp;&amp; $x !== &#39;flag&#39;)&#123;
+    exit($handsome);
+&#125;
+&#125;
+
+if(!isset($_GET[&#39;flag&#39;]) &amp;&amp; !isset($_POST[&#39;flag&#39;]))&#123;
+exit($yds);
+&#125;
+
+if($_POST[&#39;flag&#39;] === &#39;flag&#39;  || $_GET[&#39;flag&#39;] === &#39;flag&#39;)&#123;
+exit($is);
+&#125;
+
+echo &quot;the flag is: &quot;.$flag;  </code></pre>
+<p>在代码中我们可以看到foreach()函数和$$符号的使用，很容易就想到了变量覆盖漏洞，关于foreach()详细讲解可以参考之前我的一篇博客。  </p>
+<p>可以看到这道题我们只用get方式传参就能解决问题，而且解法很多：  </p>
+<h2 id="一、"><a href="#一、" class="headerlink" title="一、"></a>一、</h2><p>我们可以看到下面这串代码  </p>
+<pre><code>foreach($_POST as $x =&gt; $y)&#123;
+$$x = $y;
+&#125;    
+foreach($_GET as $x =&gt; $y)&#123;
+$$x = $$y;
+&#125;  
+if(!isset($_GET[&#39;flag&#39;]) &amp;&amp; !isset($_POST[&#39;flag&#39;]))&#123;
+exit($yds);
+&#125;  </code></pre>
+<p>很明显，第二段代码告诉我们如果我们没有传入flag变量，那么就会返回yds变量里面的值，那么我们就可以使用$$让原本变量flag里的值赋予yds,经过foreach()函数，$$x也就是$$yds，$$y是$$flag，，最后的结果就是$yds=$flag,$$yds可以看作$($yds)相当于给变量$yds赋值。  </p>
+<p>这样下来，既满足了我们没有上传flag变量，又将$flag里的值赋予了$yds，这样就能返回$yds,而返回的$yds就是flag。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6058c58f8322e6675cc33312.png"><img src="https://img.imgdb.cn/item/6058c58f8322e6675cc33312.png"></a>  </p>
+<h2 id="二、"><a href="#二、" class="headerlink" title="二、"></a>二、</h2><p>我们可以看到后面还有一串返回$is值的代码。  </p>
+<pre><code>if($_POST[&#39;flag&#39;] === &#39;flag&#39;  || $_GET[&#39;flag&#39;] === &#39;flag&#39;)&#123;
+exit($is);
+&#125;  </code></pre>
+<p>这段代码说明我们通过post或者get方式上传变量flag，并且如果flag内容是字符串”flag”的话就可以返回变量$is的值。  </p>
+<p>这就和我之前做的那道变量覆盖题很像了。我们首先构造/?is=flag使$flag里的值赋予$is，为了让我们最后返回的$is是flag。然后我们再构造flag=flag,这样我们就满足了if语句中的flag===’flag’，这样就会返回$is的值，从而得到flag.  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6058cbff8322e6675cc74e32.png"><img src="https://img.imgdb.cn/item/6058cbff8322e6675cc74e32.png"></a>  </p>
+<p>但是如果按照之前那道题我们使用post方式上传flag=flag并不行，目前还不是很清楚原因。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题考的知识点并不难，但是很久没做过变量覆盖题这次遇见还是有点不熟悉了，由此看来及时复习还是很重要的。  </p>
+<p><a href="https://george186.github.io/note1/undefined-undefined.html">PHP中foreach函数笔记</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/a4d782e91852">CTF之php变量覆盖漏洞</a></p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2020-12-02
-            
         </div>
-        <a class="post-title" href="/test1/undefined-undefined.html" target="_blank" title="攻防世界练习---伪协议">攻防世界练习---伪协议</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        攻防世界练习---伪协议
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
             
         </div>
-        <a class="post-title" href="/test/undefined-undefined.html" target="_blank" title="web第一周练习">web第一周练习</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web第一周练习
-    </div>
-</article>
-
-
-
         
-            
-<article class="post">
+    </article>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-22
-            
-        </div>
-        <a class="post-title" href="/%E7%BB%83%E4%B9%A0/undefined-undefined.html" target="_blank" title="web习题练习1">web习题练习1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web习题练习1
-    </div>
-</article>
-
-
-
-        
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
     
+    
+    
+
 </div>
 
-<div id="btn-pager">
-    
-    <a class="extend prev" rel="prev" href="/tags/%E7%BB%83%E4%B9%A0/page/5/">Prev</a><a class="page-number" href="/tags/%E7%BB%83%E4%B9%A0/">1</a><span class="space">&hellip;</span><a class="page-number" href="/tags/%E7%BB%83%E4%B9%A0/page/4/">4</a><a class="page-number" href="/tags/%E7%BB%83%E4%B9%A0/page/5/">5</a><span class="page-number current">6</span>
-</div>
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->
