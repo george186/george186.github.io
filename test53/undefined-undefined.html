@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>Hexo - </title>
+<title>nepctf总结1 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="active">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,133 +139,103 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-03-22">2021-03-22</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">Nepctf总结1</h2>
+            <div class="post-meta">
+                emm... 1335 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>这几天来总结一下这次nepctf里的题目，先不做buuctf了，毕竟新题更有价值。  </p>
+<h1 id="little-trick"><a href="#little-trick" class="headerlink" title="little_trick"></a>little_trick</h1><p>这是一道签到题，打开题目得到源码。  </p>
+<pre><code>&lt;?php
+error_reporting(0);
+highlight_file(__FILE__);
+$nep = $_GET[&#39;nep&#39;];
+$len = $_GET[&#39;len&#39;];
+if(intval($len)&lt;8 &amp;&amp; strlen($nep)&lt;13)&#123;
+    eval(substr($nep,0,$len));
+&#125;else&#123;
+    die(&#39;too long!&#39;);
+&#125;
+?&gt;   </code></pre>
+<p>可以看到代码很简单，上传两个变量，然后对nep变量进行截取，长度是len变量上传的值，最后eval()命令执行函数执行的就是截取后的nep变量中的字符串。  </p>
+<p>但是可以从源码中看到，nep变量的长度限制为13个字符以内，而len则是要求数字是8以下，这就说明使用system()函数来实现命令执行不可能了，所以这里用到反引号``来进行命令执行。  </p>
+<p>关于反引号执行命令语句其实在之前的题目中遇到很多次了，不算难点。接下来才是重点。  </p>
+<p>如果我们直接构造<br>    ?nep= ``ls`;&amp;len=7 </p>
+<p>是不会显示目录的，具体原因不知，那么我们要怎么样才能读取到flag文件的内容呢？这要用到linux中的一些符号命令。  </p>
+<p>首先构造  </p>
+<blockquote>
+<p>?nep=``ls&gt;z`;&amp;len=7</p>
+</blockquote>
+<p>这里的&gt;指的是新建一个文件并写入这个文件的意思，所以这个payload做的就是新建一个z文件，并且把ls得到的所有目录都写入这个z文件。  </p>
+<p>然后我们再构造  </p>
+<blockquote>
+<p>?nep=``&gt;cat`;&amp;len=7  </p>
+</blockquote>
+<p>同上面的一样，我们构造一个cat文件，但是我们并没有向这个文件写入东西。  </p>
+<p>接下来是最重要的，我们这样构造：  </p>
+<blockquote>
+<p>?nep=``*&gt;z`;&amp;len=7  </p>
+</blockquote>
+<p>这里我们看到有一个通配符*,在linux中，这个符号表示把第一个列出的文件名当作命令，把剩下的文件名当作参数。而在linux中，文件是按照小写字母到大写字母来排序的，所以现在的文件顺序应该是cat 。。（包含flag的文件）。。。 z，所以说最后执行的语句是cat 。。。。 z&gt;z  </p>
+<p>也就是把网站下的文件读出来并写入z文件中，那么接下来我们只需要访问z文件就可以了。  </p>
+<p>另外这道题也可以这样构造  </p>
+<blockquote>
+<p>?nep=``$nep`;ls&gt;z&amp;len=7.</p>
+</blockquote>
+<p>原因是程序虽然会因为变量未定义出现警告，但是仍能通过反引号来执行命令。操作和上面方法一样。  </p>
+<p>但是这道题我在实际做的时候却无法读取z文件，构造?nep=``cat z`;&amp;len=7无法生效，不知道原因是什么。 </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题考的是反引号执行命令语句和linux一些符号的使用，前者掌握的还可以但是后者明显有些生疏了，对于linux里的一些符号是会经常拿出来考的，所以说还是要多积累，多见。</p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2020-11-29
-            
         </div>
-        <a class="post-title" href="/note1/undefined-undefined.html" target="_blank" title="PHP中foreach函数笔记">PHP中foreach函数笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        PHP中foreach函数笔记
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
             
         </div>
-        <a class="post-title" href="/note/undefined-undefined.html" target="_blank" title="第一周学习报告">第一周学习报告</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        第一周学习报告
-    </div>
-</article>
-
-
-
         
-            
-<article class="post">
+    </article>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
-            
-        </div>
-        <a class="post-title" href="/test/undefined-undefined.html" target="_blank" title="web第一周练习">web第一周练习</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web第一周练习
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-22
-            
-        </div>
-        <a class="post-title" href="/%E7%BB%83%E4%B9%A0/undefined-undefined.html" target="_blank" title="web习题练习1">web习题练习1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web习题练习1
-    </div>
-</article>
-
-
-
-        
     
+    
+
 </div>
 
-<div id="btn-pager">
-    
-    <a class="extend prev" rel="prev" href="/page/6/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span>
-</div>
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->
