@@ -1,0 +1,312 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>日常练习13——unicode编码安全问题 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-04-07">2021-04-07</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习13——Unicode编码安全问题</h2>
+            <div class="post-meta">
+                emm... 1461 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天刷题刷到一个小知识点，记录一下.   </p>
+<h1 id="ASIS-2019-Unicorn-shop"><a href="#ASIS-2019-Unicorn-shop" class="headerlink" title="[ASIS 2019]Unicorn shop"></a>[ASIS 2019]Unicorn shop</h1><p>题目已经给出提示和unicode编码有关。  </p>
+<p>打开题目，发现是一个商店，让我们买马。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/607003a08322e6675c295eb9.png"><img src="https://img.imgdb.cn/item/607003a08322e6675c295eb9.png"></a>  </p>
+<p>可以看到最后一匹马明显与众不同要花1337，所以大概率是flag了，我们先测试买前面的几匹马。  </p>
+<p>我们尝试买第一匹马，输入1，2后却是错误回显。   </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/607004588322e6675c2a0bb3.png"><img src="https://img.imgdb.cn/item/607004588322e6675c2a0bb3.png"></a>  </p>
+<p>说是没有这个商品，我们改变一下输入的金钱的格式：输入2.0.  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/607004e78322e6675c2a8a86.png"><img src="https://img.imgdb.cn/item/607004e78322e6675c2a8a86.png"></a>  </p>
+<p>提示我们输入的字符只能有一位。  </p>
+<p>那么这道题要考我们的就很明显了，flag需要1337才能买到，而我们输入的金钱的字符只能有一位，我们需要绕过这个字符长度限制来买到flag，那么有什么字符是1位长度的并且数值大于1337的呢？   </p>
+<p>题目开头就提示了这道题和unicode有关，那么我们就需要了解一下unicode编码。  </p>
+<h3 id="unicode编码"><a href="#unicode编码" class="headerlink" title="unicode编码"></a>unicode编码</h3><pre><code>unicode编码其实也不陌生了，说的简单一点unicode编码就好比一部大字典，只不过这部字典里包含了世界上所有的字符。  
+
+为什么要有unicode编码呢？这是因为ASCII码对于英文字母来说是足够用了但是用来表示其他语言，128 个字符是远远不够的。而对于欧洲国家不同的国家的字符集可能不同，就算它们都能用 256 个字符表示全，但是同一个码点（也就是 8 位二进制数）表示的字符可能可能不同。例如，144 在阿拉伯人的 ASCII 码中是 گ，而在俄罗斯的 ASCII 码中是 ђ。对于亚洲的语言来说，一个字节明显不够用，要用两个字节来储存字符。  
+
+而这样各不相同的编码对于开发者来说是痛苦的，于是就有了unicode编码。  
+
+Unicode 当然是一本很厚的字典，记录着世界上所有字符对应的一个数字。具体是怎样的对应关系，又或者说是如何进行划分的，就不是我们考虑的问题了，我们只用知道 Unicode 给所有的字符指定了一个数字用来表示该字符。
+
+对于 Unicode 有一些误解，它仅仅只是一个字符集，规定了符合对应的二进制代码，至于这个二进制代码如何存储则没有任何规定。它的想法很简单，就是为每个字符规定一个用来表示该字符的数字，仅此而已。</code></pre>
+<p>了解了unicode编码后我们就可以从这上面下文章了，我们要做的也就是找到一个一位长度的unicode字符并且它的值要大于1337，这样就可以绕过限制。  </p>
+<p>这里推荐这个网站上面可以查到所有的unicode字符。   </p>
+<p><a target="_blank" rel="noopener" href="https://www.compart.com/en/unicode/U+2181">unicode字符查询</a>  </p>
+<p>这里我找到的是这个字符：  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/60700c278322e6675c3137e7.png"><img src="https://img.imgdb.cn/item/60700c278322e6675c3137e7.png"></a>  </p>
+<p>可以看到这个字符的值是50000，大于1337，并且长度是1，符合要求，我们直接输入money为这个字符就可以成功买到flag。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/60700c938322e6675c31ab39.png"><img src="https://img.imgdb.cn/item/60700c938322e6675c31ab39.png"></a>  </p>
+<p>下面简单讲一下绕过的原理，首先我们查看源码。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/60700cd98322e6675c31e28c.png"><img src="https://img.imgdb.cn/item/60700cd98322e6675c31e28c.png"></a>  </p>
+<p>可以看到源码中提示我们uft-8这个很重要，而这个就是unicode编码的一种编码方式（这也告诉我们这道题可以用unicode编码的字符）。在这道题目中，当我们上传上面那个字符的uft=8的编码时，后端在处理时发现无法将其转化为ASCII码，于是会将其解析为unicode码，而这个unicode码代表的是50000，正好大于1337，于是便能成功购买flag。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题算是一个小的知识点吧，告诉我了关于unicode编码的一些安全问题，可以当作一个小知识记着，以防以后的题目中遇到不会。  </p>
+<p>下面附上讲解unicode编码安全的一些博客。  </p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/5402#toc-0">浅谈Unicode设计的安全性</a><br><a target="_blank" rel="noopener" href="https://blog.lyle.ac.cn/2018/10/29/unicode-normalization/">Unicode等价性浅谈</a></p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>

