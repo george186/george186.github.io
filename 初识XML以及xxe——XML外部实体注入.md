@@ -234,4 +234,5 @@ categories: test60
 下面附上学习xxe的博客，还是要多看：  
 
 [从XML相关一步一步到XXE漏洞](https://xz.aliyun.com/t/6887#toc-0)  
-[浅谈XML实体注入漏洞](https://www.freebuf.com/vuls/175451.html)
+[浅谈XML实体注入漏洞](https://www.freebuf.com/vuls/175451.html)  
+[XXE与XXE漏洞学习](https://blog.csdn.net/qq_45521281/article/details/106062114?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161866246816780265464819%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=161866246816780265464819&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-1-106062114.first_rank_v2_pc_rank_v29&utm_term=xxe%E6%8E%A2%E6%B5%8B%E5%86%85%E7%BD%91&spm=1018.2226.3001.4449)
